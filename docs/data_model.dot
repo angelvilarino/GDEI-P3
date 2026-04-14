@@ -1,0 +1,82 @@
+
+digraph AuraVaultDataModel {
+  graph [
+    rankdir=TB,
+    bgcolor="#0b1020",
+    pad=0.45,
+    nodesep=0.5,
+    ranksep=0.8,
+    splines=ortho,
+    overlap=false,
+    newrank=true,
+    compound=true,
+    outputorder=edgesfirst
+  ];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, color="#d7e1ff", fontcolor="#ffffff", margin="0.16,0.10"];
+  edge [fontname="Helvetica", fontsize=10, color="#d7e1ff", fontcolor="#ffffff", arrowsize=0.8, penwidth=1.5];
+
+  museum [label="Museum\n(raíz)", fillcolor="#3c6e91"];
+  room [label="Room", fillcolor="#4f7b6e"];
+  artwork [label="Artwork", fillcolor="#7b4f6e"];
+  device [label="Device", fillcolor="#4e6d9c"];
+  actuator [label="Actuator", fillcolor="#8a6b3f"];
+  model [label="DeviceModel", fillcolor="#3f7a7a"];
+
+  subgraph cluster_obs {
+    label="Entidades de observación";
+    style="rounded,filled";
+    color="#3a3a6a";
+    fillcolor="#141a2b";
+    fontcolor="#ffffff";
+    indoor [label="IndoorEnvironmentObserved", fillcolor="#2f6f9a"];
+    noise [label="NoiseLevelObserved", fillcolor="#2c7a7b"];
+    crowd [label="CrowdFlowObserved", fillcolor="#3b7a59"];
+    alert [label="Alert", fillcolor="#8b4a4a"];
+    { rank=same; indoor; noise; crowd; alert; }
+  }
+
+  subgraph cluster_side {
+    label="Panel lateral derecho";
+    style="rounded,filled";
+    color="#49425e";
+    fillcolor="#141421";
+    fontcolor="#ffffff";
+    side_anchor [shape=plain, label=" "];
+  }
+
+  { rank=same; museum; }
+  { rank=same; room; }
+  { rank=same; artwork; device; actuator; model; }
+  { rank=same; indoor; noise; crowd; alert; }
+
+  museum -> room [label="contains / isParentOf"];
+  room -> museum [label="isLocatedIn"];
+  room -> artwork [label="isExposedIn"];
+  artwork -> room [label="isExposedIn"];
+  room -> actuator [label="isLocatedIn"];
+  device -> model [label="refDeviceModel"];
+  actuator -> device [label="isControlledBy"];
+  indoor -> device [label="refDevice"];
+  indoor -> room [label="refPointOfInterest", constraint=false];
+  noise -> device [label="refDevice"];
+  noise -> room [label="refPointOfInterest", constraint=false];
+  crowd -> device [label="refDevice"];
+  crowd -> room [label="refPointOfInterest", constraint=false];
+  alert -> device [label="alertSource", constraint=false];
+  alert -> room [label="alertSource", constraint=false];
+  alert -> artwork [label="alertSource", constraint=false];
+
+  { rank=same; indoor; noise; crowd; alert; }
+  side_anchor -> indoor [style=invis, weight=10];
+  side_anchor -> noise [style=invis, weight=10];
+  side_anchor -> crowd [style=invis, weight=10];
+  side_anchor -> alert [style=invis, weight=10];
+
+  museum -> room [weight=8];
+  room -> artwork [weight=8];
+  room -> actuator [weight=6];
+  device -> model [weight=6];
+  indoor -> device [weight=7];
+  noise -> device [weight=7];
+  crowd -> device [weight=7];
+}

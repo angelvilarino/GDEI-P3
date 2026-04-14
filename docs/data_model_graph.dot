@@ -1,0 +1,119 @@
+digraph AuraVaultDataModel {
+  graph [
+    rankdir=TB,
+    bgcolor="#0b1020",
+    pad=0.70,
+    nodesep=1.55,
+    ranksep="1.45 equally",
+    splines=spline,
+    overlap=false,
+    outputorder=edgesfirst,
+    fontname="Helvetica"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="Helvetica",
+    fontsize=12,
+    fontcolor="#f3f8ff",
+    color="#d7e4ff",
+    penwidth=1.5,
+    margin="0.40,0.28",
+    width=3.4,
+    height=1.15
+  ];
+
+  edge [
+    color="#d7e4ff",
+    penwidth=1.6,
+    arrowsize=0.85,
+    fontname="Helvetica",
+    fontsize=10,
+    fontcolor="#f3f8ff"
+  ];
+
+  museum [
+    fillcolor="#4b6ea8",
+    label="Museum\nname\nlocation\nmuseumType\nfacilities"
+  ];
+
+  room [
+    fillcolor="#3f7a66",
+    label="Room\nname\nfloor\narea, capacity\nstatus"
+  ];
+
+  indoor [
+    fillcolor="#2f7f86",
+    label="IndoorEnvironmentObserved\ndateObserved\ntemperature, relativeHumidity\nco2, illuminance"
+  ];
+
+  noise [
+    fillcolor="#2f7f86",
+    label="NoiseLevelObserved\ndateObserved\nLAeq, LAmax\nLAS, sonometerClass"
+  ];
+
+  crowd [
+    fillcolor="#2f7f86",
+    label="CrowdFlowObserved\ndateObserved\npeopleCount, occupancy\naverageCrowdSpeed, congested"
+  ];
+
+  alert [
+    fillcolor="#8a4e4e",
+    label="Alert\ncategory, subCategory\nseverity, status\ndateIssued"
+  ];
+
+  device [
+    fillcolor="#4b5f9d",
+    label="Device\ncontrolledProperty\ndeviceState, batteryLevel\nvalue, refDeviceModel"
+  ];
+
+  devicemodel [
+    fillcolor="#436f9c",
+    label="DeviceModel\nmodelName\nmanufacturerName, category\nsupportedProtocol, supportedUnits"
+  ];
+
+  artwork [
+    fillcolor="#7e5b9d",
+    label="Artwork\nname, artist\nmaterial\ndegradationRisk, conditionStatus"
+  ];
+
+  actuator [
+    fillcolor="#8a6b3f",
+    label="Actuator\nactuatorType, status\ncommandSent\ntargetProperty, isControlledBy"
+  ];
+
+  top_anchor [label="", shape=point, width=0.01, style=invis];
+  right_anchor [label="", shape=point, width=0.01, style=invis];
+
+  { rank=same; top_anchor; museum; right_anchor; devicemodel; }
+  { rank=same; room; device; }
+  { rank=same; indoor; noise; crowd; alert; }
+  { rank=same; artwork; actuator; }
+
+  museum -> room [label="contains / isLocatedIn"];
+
+  room -> indoor [label="refPointOfInterest"];
+  room -> noise [label="refPointOfInterest"];
+  room -> crowd [label="refPointOfInterest"];
+
+  indoor -> device [label="refDevice"];
+  noise -> device [label="refDevice"];
+  crowd -> device [label="refDevice"];
+
+  device -> devicemodel [label="refDeviceModel"];
+
+  room -> artwork [label="isExposedIn"];
+
+  actuator -> room [label="isLocatedIn"];
+  actuator -> device [label="isControlledBy"];
+
+  alert -> device [label="alertSource"];
+  alert -> room [label="alertSource"];
+  alert -> artwork [label="alertSource"];
+
+  top_anchor -> room [style=invis, weight=10];
+  right_anchor -> device [style=invis, weight=10];
+  noise -> crowd [style=invis, weight=5];
+  indoor -> artwork [style=invis, weight=4];
+}
