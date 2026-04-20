@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Gemelo Digital 3D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="twin3d">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault 3D</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="card fade-up" style="margin-top:14px">
+        <div class="controls-row">
+          <label>Variable:</label>
+          <select id="variableSelect" class="input">
+            <option value="temperature">Temperatura</option>
+            <option value="co2">CO2</option>
+            <option value="relativeHumidity">Humedad</option>
+            <option value="LAeq">Ruido</option>
+            <option value="occupancy">Aforo</option>
+          </select>
+          <button id="simulateSpread" class="btn btn-primary">Simular propagacion</button>
+          <span class="small" id="sceneHint"></span>
+        </div>
+      </section>
+
+      <section class="split" style="margin-top:14px">
+        <article class="card"><div id="twinCanvas" class="three-wrap"></div></article>
+        <aside class="card">
+          <h3>Detalle sala</h3>
+          <div id="roomPanel" class="small">Haz click en una sala para ver lecturas en tiempo real y obras.</div>
+        </aside>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.166.1/examples/js/controls/OrbitControls.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/twin3d.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,184 @@
+services:
+  mongo-db:
+    image: mongo:6
+    container_name: auravault-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  orion:
+    image: fiware/orion-ld:latest
+    container_name: auravault-orion
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+    command: >
+      -dbhost mongo-db
+      -dbport 27017
+      -logLevel INFO
+      -corsOrigin __ALL
+    ports:
+      - "1026:1026"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: auravault-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "healthcheck", "-m", "ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  iot-agent:
+    image: fiware/iotagent-json:latest
+    container_name: auravault-iot-agent
+    depends_on:
+      orion:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    ports:
+      - "4041:4041"
+      - "7896:7896"
+    environment:
+      - IOTA_CB_HOST=orion
+      - IOTA_CB_PORT=1026
+      - IOTA_NORTH_PORT=4041
+      - IOTA_HTTP_PORT=7896
+      - IOTA_DEFAULT_RESOURCE=/iot/json
+      - IOTA_MQTT_HOST=mosquitto
+      - IOTA_MQTT_PORT=1883
+      - IOTA_MQTT_RETRIES=10
+      - IOTA_DEFAULT_TRANSPORT=MQTT
+      - IOTA_TIMESTAMP=true
+      - IOTA_AUTOCAST=true
+      - IOTA_PROVIDER_URL=http://iot-agent:4041
+      - IOTA_LOG_LEVEL=DEBUG
+      - IOTA_FALLBACK_TENANT=openiot
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4041/iot/about"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  crate-db:
+    image: crate:5.10.3
+    container_name: auravault-cratedb
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+    command: ["crate", "-Ccluster.name=auravault-crate", "-Cauth.host_based.enabled=false"]
+    volumes:
+      - crate_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  quantumleap:
+    image: orchestracities/quantumleap:latest
+    container_name: auravault-quantumleap
+    depends_on:
+      crate-db:
+        condition: service_healthy
+      orion:
+        condition: service_healthy
+    ports:
+      - "8668:8668"
+    environment:
+      - CRATE_HOST=crate-db
+      - USE_GEOCODING=False
+      - LOGLEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8668/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: auravault-backend
+    depends_on:
+      orion:
+        condition: service_healthy
+      quantumleap:
+        condition: service_healthy
+      llm-local:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - ORION_URL=http://orion:1026/ngsi-ld/v1
+      - QL_URL=http://quantumleap:8668
+      - GRAFANA_URL=http://localhost:3000
+      - OLLAMA_URL=http://llm-local:11434/api/generate
+      - OLLAMA_MODEL=gemma3:latest
+    volumes:
+      - ./:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/model/graph"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: auravault-grafana
+    depends_on:
+      crate-db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  llm-local:
+    image: ollama/ollama:latest
+    container_name: auravault-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mongo_data:
+  crate_data:
+  grafana_data:
+  ollama_data:

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Modo Visitante</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="visitor">
+    <div class="visitor-shell">
+      <section class="card fade-up">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <h2 id="visitorTitle" style="margin:0">Modo Visitante</h2>
+          <div class="toolbar">
+            <button class="btn" id="langToggle">ES</button>
+            <button class="btn" id="themeToggle">Oscuro</button>
+          </div>
+        </div>
+
+        <div style="margin-top:8px" id="airStatus"></div>
+
+        <div class="grid grid-2" style="margin-top:10px">
+          <article class="card kpi"><span class="small">CO2</span><span id="co2Val" class="value">-</span></article>
+          <article class="card kpi"><span class="small">Temperatura</span><span id="tempVal" class="value">-</span></article>
+          <article class="card kpi"><span class="small">Humedad</span><span id="humVal" class="value">-</span></article>
+          <article class="card kpi"><span class="small">Aforo</span><span id="occVal" class="value">-</span></article>
+        </div>
+
+        <div class="card" style="margin-top:10px">
+          <strong id="recommendedRoom"></strong>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:14px">
+        <h3>Chat de visita</h3>
+        <div id="chatBox" class="chat-box"></div>
+        <div class="controls-row" style="margin-top:8px">
+          <input id="chatInput" class="input" style="flex:1" placeholder="Pregunta por la sala, obras o recomendaciones" />
+          <button id="chatSend" class="btn btn-primary" data-i18n="send">Enviar</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/visitor.js') }}"></script>
+  </body>
+</html>

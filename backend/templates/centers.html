@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Explorador de Centros</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="centers">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="card fade-up" style="margin-top:14px">
+        <div class="controls-row">
+          <select id="filterType" class="input">
+            <option value="">Tipo: todos</option>
+            <option value="museum">Museo</option>
+            <option value="theatre">Teatro</option>
+            <option value="concert-hall">Auditorio</option>
+          </select>
+          <select id="filterStatus" class="input">
+            <option value="">Estado: todos</option>
+            <option value="optimal">Optimo</option>
+            <option value="attention">Atencion</option>
+            <option value="critical">Critico</option>
+          </select>
+          <select id="filterOccupancy" class="input">
+            <option value="">Aforo: todos</option>
+            <option value="free">Libre</option>
+            <option value="moderate">Moderado</option>
+            <option value="congested">Congestionado</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="centersGrid" class="grid grid-2" style="margin-top:14px"></section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/centers.js') }}"></script>
+  </body>
+</html>

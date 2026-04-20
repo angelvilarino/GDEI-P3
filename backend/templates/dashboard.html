@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Dashboard Global</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  </head>
+  <body data-page="dashboard">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="grid grid-4 stagger" style="margin-top:14px">
+        <article class="card kpi"><span class="small">Visitantes totales</span><span class="value" id="kpiVisitors">0</span></article>
+        <article class="card kpi"><span class="small">Salas en rango optimo</span><span class="value" id="kpiRooms">0%</span></article>
+        <article class="card kpi"><span class="small">Obras en riesgo</span><span class="value" id="kpiRisk">0</span></article>
+        <article class="card kpi"><span class="small">Sensores activos</span><span class="value" id="kpiSensors">0/0</span></article>
+      </section>
+
+      <section class="split" style="margin-top:14px">
+        <article class="card fade-up">
+          <h3>Mapa de centros culturales</h3>
+          <div id="globalMap" class="leaflet-map"></div>
+          <div class="chart-wrap" style="margin-top:10px;height:270px">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </article>
+
+        <aside class="card fade-up">
+          <h3 data-i18n="alerts">Alertas</h3>
+          <div id="alertsPanel" class="alert-list"></div>
+
+          <div class="card" style="margin-top:10px;padding:8px">
+            <div class="controls-row">
+              <strong>Modelo de datos</strong>
+              <button class="btn" id="toggleMermaid">Mostrar/Ocultar</button>
+            </div>
+            <div id="mermaidBody" style="margin-top:8px">
+              <pre class="mermaid" id="modelMermaid"></pre>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>

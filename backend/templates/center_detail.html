@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Detalle de Centro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="center-detail">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="card fade-up" style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+          <h2 id="centerTitle" style="margin:0">Centro</h2>
+          <div id="centerStatus"></div>
+        </div>
+      </section>
+
+      <section class="grid grid-4" style="margin-top:14px">
+        <article class="card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
+        <article class="card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
+        <article class="card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
+        <article class="card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
+        <article class="card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
+      </section>
+
+      <section class="split" style="margin-top:14px">
+        <article class="card">
+          <div class="controls-row">
+            <h3 style="margin:0">Historico multivariable</h3>
+            <select id="rangeSelect" class="input">
+              <option value="1h">1h</option>
+              <option value="6h">6h</option>
+              <option value="24h" selected>24h</option>
+              <option value="7d">7d</option>
+            </select>
+          </div>
+          <div class="chart-wrap" style="height:300px;margin-top:8px"><canvas id="historyChart"></canvas></div>
+
+          <h3 style="margin-top:10px">Actuadores</h3>
+          <div id="actuatorPanel" class="grid grid-2"></div>
+
+          <h3 style="margin-top:10px">Grafana</h3>
+          <div class="grafana-frame"><iframe id="grafanaFrame" title="Grafana center"></iframe></div>
+        </article>
+
+        <aside class="grid" style="align-content:start">
+          <div class="card">
+            <h3>Salas</h3>
+            <div id="roomsList" class="grid"></div>
+          </div>
+          <div class="card">
+            <h3>Obras en riesgo</h3>
+            <div id="riskList" class="alert-list"></div>
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/center_detail.js') }}"></script>
+  </body>
+</html>

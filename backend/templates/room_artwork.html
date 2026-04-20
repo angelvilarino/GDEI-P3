@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Detalle de Sala y Obra</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="room-artwork">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="card fade-up" style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div>
+            <h2 id="roomName" style="margin:0">Sala</h2>
+            <div id="roomMeta" class="small"></div>
+          </div>
+          <div id="roomStatus"></div>
+        </div>
+      </section>
+
+      <section class="split" style="margin-top:14px">
+        <article class="card">
+          <h3>Condiciones actuales vs rango optimo</h3>
+          <div class="chart-wrap" style="height:320px"><canvas id="roomRadar"></canvas></div>
+
+          <div class="controls-row" style="margin-top:8px">
+            <select id="roomRange" class="input">
+              <option value="24h">24h</option>
+              <option value="7d">7d</option>
+              <option value="30d">30d</option>
+            </select>
+            <button id="exportPdf" class="btn btn-primary">Exportar PDF</button>
+            <button id="exportMd" class="btn">Exportar Markdown</button>
+          </div>
+
+          <div class="chart-wrap" style="height:280px;margin-top:8px"><canvas id="roomHistoryChart"></canvas></div>
+        </article>
+
+        <aside class="card">
+          <h3>Obras y riesgo</h3>
+          <div class="table-wrap" style="max-height:300px">
+            <table>
+              <thead>
+                <tr><th></th><th>Img</th><th>Obra</th><th>Artista</th><th>Material</th><th>Riesgo</th></tr>
+              </thead>
+              <tbody id="artworksTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="controls-row" style="margin-top:10px">
+            <button id="compareBtn" class="btn btn-primary">Comparar seleccion (max 3)</button>
+          </div>
+          <div id="compareWrap" class="grid grid-3" style="margin-top:10px"></div>
+        </aside>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/room_artwork.js') }}"></script>
+  </body>
+</html>

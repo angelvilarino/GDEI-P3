@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AuraVault - Centro de Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  </head>
+  <body data-page="control-center">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <h1>AuraVault Admin</h1>
+          <nav class="nav-links">
+            <a class="nav-link" data-page="dashboard" href="/" data-i18n="dashboard">Dashboard</a>
+            <a class="nav-link" data-page="centers" href="/centers" data-i18n="centers">Centros</a>
+            <a class="nav-link" data-page="control-center" href="/control" data-i18n="control">Control</a>
+          </nav>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="langToggle">ES</button>
+          <button class="btn" id="themeToggle">Oscuro</button>
+        </div>
+      </header>
+
+      <section class="card fade-up" style="margin-top:14px">
+        <div class="controls-row">
+          <button class="btn tab-btn btn-primary" data-target="alerts">Alertas</button>
+          <button class="btn tab-btn" data-target="devices">Dispositivos</button>
+          <button class="btn tab-btn" data-target="grafana">Grafana</button>
+        </div>
+      </section>
+
+      <section data-tab="alerts" class="card" style="margin-top:14px">
+        <h3>Alertas</h3>
+        <div class="chart-wrap" style="height:240px"><canvas id="alertsStatsChart"></canvas></div>
+        <div class="table-wrap" style="margin-top:8px;max-height:360px">
+          <table>
+            <thead><tr><th>Tipo</th><th>Severidad</th><th>Estado</th><th>Fuente</th><th>Fecha</th><th></th></tr></thead>
+            <tbody id="alertsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-tab="devices" class="card" style="margin-top:14px;display:none">
+        <h3>Dispositivos</h3>
+        <div class="table-wrap" style="max-height:460px">
+          <table>
+            <thead><tr><th>Dispositivo</th><th>Estado</th><th>Bateria</th><th>Latencia</th><th>Prob. fallo</th><th>Mantenimiento</th></tr></thead>
+            <tbody id="devicesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section data-tab="grafana" class="card" style="margin-top:14px;display:none">
+        <h3>Dashboards embebidos</h3>
+        <div class="grafana-frame"><iframe id="adminGrafana" title="Grafana admin"></iframe></div>
+      </section>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/control_center.js') }}"></script>
+  </body>
+</html>
