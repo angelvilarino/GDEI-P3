@@ -15,7 +15,7 @@ from catalog import NGSI_LD_CONTEXT, ORION_ENTITY_HEADERS
 def build_headers() -> Dict[str, str]:
     return {
         "Accept": "application/ld+json",
-        "Content-Type": "application/ld+json",
+        "Content-Type": "application/json",
         "Link": f'<{NGSI_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
     }
 
@@ -40,23 +40,20 @@ def create_subscription(orion_url: str, headers: Dict[str, str], payload: Dict):
 
 def ensure_subscription(orion_url: str, headers: Dict[str, str], payload: Dict):
     existing = list_subscriptions(orion_url, headers)
-    names = {sub.get("name", {}).get("value") for sub in existing if isinstance(sub.get("name"), dict)}
-    if payload["name"]["value"] in names:
-        print(f"[subscriptions] Ya existe: {payload['name']['value']}")
+    names = {sub.get("name") for sub in existing if "name" in sub}
+    if payload.get("name") in names:
+        print(f"[subscriptions] Ya existe: {payload.get('name')}")
         return
     create_subscription(orion_url, headers, payload)
-    print(f"[subscriptions] Creada: {payload['name']['value']}")
+    print(f"[subscriptions] Creada: {payload.get('name')}")
 
 
 def ql_subscription(ql_url: str) -> Dict:
     return {
         "id": "urn:ngsi-ld:Subscription:auravault-ql-history",
         "type": "Subscription",
-        "name": {"type": "Property", "value": "auravault-ql-history"},
-        "description": {
-            "type": "Property",
-            "value": "Persistencia historica en QuantumLeap para observaciones y estado de dispositivos",
-        },
+        "name": "auravault-ql-history",
+        "description": "Persistencia historica en QuantumLeap para observaciones y estado de dispositivos",
         "entities": [
             {"type": "IndoorEnvironmentObserved"},
             {"type": "NoiseLevelObserved"},
@@ -85,8 +82,7 @@ def ql_subscription(ql_url: str) -> Dict:
                 "accept": "application/json",
             },
         },
-        "isActive": {"type": "Property", "value": True},
-        "@context": [NGSI_LD_CONTEXT],
+        "isActive": True,
     }
 
 
@@ -94,11 +90,8 @@ def backend_subscription(backend_notify_url: str) -> Dict:
     return {
         "id": "urn:ngsi-ld:Subscription:auravault-backend-notify",
         "type": "Subscription",
-        "name": {"type": "Property", "value": "auravault-backend-notify"},
-        "description": {
-            "type": "Property",
-            "value": "Envio de eventos de Orion al backend Flask para WebSocket y reglas de negocio",
-        },
+        "name": "auravault-backend-notify",
+        "description": "Envio de eventos de Orion al backend Flask para WebSocket y reglas de negocio",
         "entities": [
             {"type": "IndoorEnvironmentObserved"},
             {"type": "NoiseLevelObserved"},
@@ -115,8 +108,7 @@ def backend_subscription(backend_notify_url: str) -> Dict:
                 "accept": "application/json",
             },
         },
-        "isActive": {"type": "Property", "value": True},
-        "@context": [NGSI_LD_CONTEXT],
+        "isActive": True,
     }
 
 

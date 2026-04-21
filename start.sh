@@ -55,12 +55,12 @@ docker compose exec -T backend python scripts/create_subscriptions.py \
   --ql-url http://quantumleap:8668 \
   --backend-notify-url http://backend:5000/notify
 
-echo "[6/7] Generando historico de 30 dias..."
+echo "[6/7] Generando historico de 7 dias..."
 docker compose exec -T backend python scripts/generate_history.py \
   --ql-url http://quantumleap:8668 \
   --orion-url http://orion:1026/ngsi-ld/v1 \
-  --days 30 \
-  --step-minutes 5
+  --days 7 \
+  --step-minutes 15
 
 echo "[7/7] Arrancando simulador MQTT realtime..."
 docker compose exec -T backend sh -lc "pkill -f simulator/mqtt_simulator.py || true"

@@ -356,7 +356,7 @@ def print_summary():
 
 def ensure_orion(orion_url: str):
     # Comprobacion rapida para avisar temprano.
-    probe = f"{orion_url.rstrip('/')}/entities"
+    probe = f"{orion_url.rstrip('/')}/entities?type=Museum&limit=1"
     get_entity(orion_url, ORION_ENTITY_HEADERS, "urn:ngsi-ld:Museum:muncyt-coruna") if False else None
     import requests
 

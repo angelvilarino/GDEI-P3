@@ -1,13 +1,13 @@
 services:
   mongo-db:
-    image: mongo:6
+    image: mongo:5.0
     container_name: auravault-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -20,7 +20,6 @@ services:
         condition: service_healthy
     command: >
       -dbhost mongo-db
-      -dbport 27017
       -logLevel INFO
       -corsOrigin __ALL
     ports:
@@ -62,6 +61,8 @@ services:
       - IOTA_CB_PORT=1026
       - IOTA_NORTH_PORT=4041
       - IOTA_HTTP_PORT=7896
+      - IOTA_MONGO_HOST=mongo-db
+      - IOTA_MONGO_PORT=27017
       - IOTA_DEFAULT_RESOURCE=/iot/json
       - IOTA_MQTT_HOST=mosquitto
       - IOTA_MQTT_PORT=1883
@@ -73,17 +74,17 @@ services:
       - IOTA_LOG_LEVEL=DEBUG
       - IOTA_FALLBACK_TENANT=openiot
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4041/iot/about"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4041/iot/about', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); }).on('error', () => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 10
 
   crate-db:
-    image: crate:5.10.3
+    image: crate:5.10
     container_name: auravault-cratedb
     ports:
       - "4200:4200"
-      - "5432:5432"
+      - "5433:5432"
     command: ["crate", "-Ccluster.name=auravault-crate", "-Cauth.host_based.enabled=false"]
     volumes:
       - crate_data:/data
@@ -172,7 +173,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 10s
       timeout: 5s
       retries: 20

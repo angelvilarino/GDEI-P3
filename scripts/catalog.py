@@ -14,7 +14,7 @@ from typing import Dict, List
 NGSI_LD_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
 
 ORION_ENTITY_HEADERS = {
-    "Content-Type": "application/ld+json",
+    "Content-Type": "application/json",
     "Accept": "application/ld+json",
     "Link": f'<{NGSI_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
 }

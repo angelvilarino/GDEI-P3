@@ -66,10 +66,7 @@ def retry(operation, retries: int = 3, sleep_seconds: float = 1.5):
 
 
 def bulk_upsert_orion(orion_url: str, headers: Dict, entities: Iterable[Dict]):
-    payload = {
-        "actionType": "upsert",
-        "entities": list(entities),
-    }
+    payload = list(entities)
     endpoint = f"{orion_url.rstrip('/')}/entityOperations/upsert"
     return retry(lambda: request_json("POST", endpoint, headers=headers, payload=payload))
 
