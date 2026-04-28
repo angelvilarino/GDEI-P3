@@ -167,7 +167,14 @@ def orion_list(entity_type: Optional[str] = None, q: Optional[str] = None, limit
     if q:
         params["q"] = q
     data = orion_get("entities", params=params)
-    return data if isinstance(data, list) else []
+    raw_entities = data if isinstance(data, list) else []
+    
+    if raw_entities and entity_type in ("IndoorEnvironmentObserved", "NoiseLevelObserved", "CrowdFlowObserved", "Room", "Museum"):
+        LOGGER.debug(f"[Orion Raw] {entity_type} -> {json.dumps(raw_entities[0])[:200]}...")
+        norm = normalize_entity(raw_entities[0])
+        LOGGER.debug(f"[Backend Normalized] -> {json.dumps(norm)[:200]}...")
+        
+    return raw_entities
 
 
 def orion_get_entity(entity_id: str) -> Optional[Dict]:
@@ -1689,6 +1696,10 @@ def startup_checks():
         print(f"[backend] Aviso Orion no disponible al arranque: {exc}")
 
 
+fit_models()
+
 if __name__ == "__main__":
     startup_checks()
-    socketio.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_ENV") == "development"
+    socketio.run(app, host="0.0.0.0", port=port, debug=debug, use_reloader=False)

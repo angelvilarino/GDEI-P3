@@ -106,6 +106,8 @@ def get_entity(orion_url: str, headers: Dict, entity_id: str):
 
 
 def plain_value(attr):
+    if isinstance(attr, list) and len(attr) > 0:
+        attr = attr[0]
     if isinstance(attr, dict) and "value" in attr:
         return attr["value"]
     if isinstance(attr, dict) and "object" in attr:

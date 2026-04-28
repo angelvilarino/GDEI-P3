@@ -414,22 +414,21 @@ Entidad custom que representa un actuador controlable ambientalmente.
 ### 15.1 Diagrama Mermaid del grafo
 
 ```mermaid
-graph TD
-  M[Museum] --> R[Room]
-  R -->|isExposedIn| A[Artwork]
-  A -->|isExposedIn| R
-  D[Device] -->|refDeviceModel| DM[DeviceModel]
-  IE[IndoorEnvironmentObserved] -->|refDevice| D
-  IE -->|refPointOfInterest| M
-  NL[NoiseLevelObserved] -->|refDevice| D
-  NL -->|refPointOfInterest| R
-  CF[CrowdFlowObserved] -->|refDevice| D
-  CF -->|refPointOfInterest| R
-  AL[Alert] -->|alertSource| D
-  AL -->|alertSource| R
-  AL -->|alertSource| A
-  AC[Actuator] -->|isLocatedIn| R
-  AC -->|isControlledBy| D
+erDiagram
+  Museum ||--o{ Room : "contains"
+  Room ||--o{ Artwork : "isExposedIn"
+  Device }|--|| DeviceModel : "refDeviceModel"
+  IndoorEnvironmentObserved }o--|| Device : "refDevice"
+  IndoorEnvironmentObserved }o--|| Room : "refPointOfInterest"
+  NoiseLevelObserved }o--|| Device : "refDevice"
+  NoiseLevelObserved }o--|| Room : "refPointOfInterest"
+  CrowdFlowObserved }o--|| Device : "refDevice"
+  CrowdFlowObserved }o--|| Room : "refPointOfInterest"
+  Alert }o--o| Device : "alertSource"
+  Alert }o--o| Room : "alertSource"
+  Alert }o--o| Artwork : "alertSource"
+  Actuator }o--|| Room : "isLocatedIn"
+  Actuator }o--|| Device : "isControlledBy"
 ```
 
 ### 15.2 Vistas operativas derivadas
