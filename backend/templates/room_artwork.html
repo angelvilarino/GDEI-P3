@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body data-page="room-artwork">
-    <div class="app-shell">
+    <div class="app-shell has-panel">
       <header class="topbar">
         <div class="brand">
           <div class="brand-mark"></div>
@@ -34,7 +34,7 @@
         </div>
       </section>
 
-      <section class="split" style="margin-top:14px">
+      <section class="grid" style="margin-top:14px">
         <article class="card">
           <h3 data-i18n="currentConditions">Condiciones actuales vs rango optimo</h3>
           <div class="chart-wrap" style="height:320px"><canvas id="roomRadar"></canvas></div>
@@ -51,8 +51,9 @@
 
           <div class="chart-wrap" style="height:280px;margin-top:8px"><canvas id="roomHistoryChart"></canvas></div>
         </article>
+      </section>
 
-        <aside class="card">
+      <aside class="fixed-panel card">
           <h3 data-i18n="worksRisk">Obras y riesgo</h3>
           <div class="table-wrap" style="max-height:300px">
             <table>
@@ -68,7 +69,6 @@
           </div>
           <div id="compareWrap" class="grid grid-3" style="margin-top:10px"></div>
         </aside>
-      </section>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

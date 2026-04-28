@@ -103,6 +103,7 @@ function renderHistory(history) {
           borderColor: '#0e7c74',
           pointRadius: 0,
           tension: 0.22,
+          yAxisID: 'y',
         },
         {
           label: tr('humidity'),
@@ -110,6 +111,7 @@ function renderHistory(history) {
           borderColor: '#3d9ecf',
           pointRadius: 0,
           tension: 0.22,
+          yAxisID: 'y',
         },
         {
           label: tr('co2'),
@@ -117,12 +119,17 @@ function renderHistory(history) {
           borderColor: '#d27d3f',
           pointRadius: 0,
           tension: 0.22,
+          yAxisID: 'yCo2',
         },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      scales: {
+        y: { type: 'linear', display: true, position: 'left' },
+        yCo2: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
+      },
       plugins: { legend: { position: 'bottom' } },
     },
   });

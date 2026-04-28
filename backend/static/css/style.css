@@ -361,6 +361,26 @@ textarea {
   gap: 14px;
 }
 
+.fixed-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 380px;
+  height: 100vh;
+  overflow-y: auto;
+  margin: 0;
+  border-radius: 0;
+  border-left: 1px solid var(--border);
+  z-index: 100;
+  background: var(--bg);
+  padding: 18px;
+  box-shadow: -5px 0 30px rgba(0,0,0,0.08);
+}
+
+.has-panel {
+  padding-right: 400px;
+}
+
 .pill {
   border: 1px solid var(--border);
   border-radius: 999px;

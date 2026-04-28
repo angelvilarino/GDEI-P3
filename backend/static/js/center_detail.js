@@ -94,15 +94,21 @@ async function loadHistory(code) {
     { key: 'peopleCount', color: '#a86b18', label: tr('occupancy') },
   ];
 
-  const datasets = dataSets.map((s) => ({
-    label: s.label,
-    data: history[s.key].map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
-    borderColor: s.color,
-    backgroundColor: `${s.color}22`,
-    fill: false,
-    tension: 0.2,
-    pointRadius: 0,
-  }));
+  const datasets = dataSets.map((s) => {
+    let axis = 'y';
+    if (s.key === 'co2') axis = 'yCo2';
+    if (s.key === 'peopleCount' || s.key === 'occupancy') axis = 'yOcc';
+    return {
+      label: s.label,
+      data: history[s.key].map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
+      borderColor: s.color,
+      backgroundColor: `${s.color}22`,
+      fill: false,
+      tension: 0.2,
+      pointRadius: 0,
+      yAxisID: axis,
+    };
+  });
 
   if (historyChart) historyChart.destroy();
   historyChart = new Chart(document.getElementById('historyChart'), {
@@ -111,6 +117,11 @@ async function loadHistory(code) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      scales: {
+        y: { type: 'linear', display: true, position: 'left' },
+        yCo2: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
+        yOcc: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
+      },
       plugins: {
         legend: { position: 'bottom' },
         tooltip: {

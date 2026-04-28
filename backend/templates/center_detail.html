@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body data-page="center-detail">
-    <div class="app-shell">
+    <div class="app-shell has-panel">
       <header class="topbar">
         <div class="brand">
           <div class="brand-mark"></div>
@@ -39,7 +39,7 @@
         <article class="card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
       </section>
 
-      <section class="split" style="margin-top:14px">
+      <section class="grid" style="margin-top:14px">
         <article class="card">
           <div class="controls-row">
             <h3 style="margin:0" data-i18n="historyTitle">Histórico multivariable</h3>
@@ -58,8 +58,9 @@
           <h3 style="margin-top:10px" data-i18n="grafana">Grafana</h3>
           <div class="grafana-frame"><iframe id="grafanaFrame" title="Grafana center"></iframe></div>
         </article>
+      </section>
 
-        <aside class="grid" style="align-content:start">
+      <aside class="fixed-panel grid" style="align-content:start">
           <div class="card">
             <h3 data-i18n="room">Salas</h3>
             <div id="roomsList" class="grid"></div>
@@ -69,7 +70,6 @@
             <div id="riskList" class="alert-list"></div>
           </div>
         </aside>
-      </section>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

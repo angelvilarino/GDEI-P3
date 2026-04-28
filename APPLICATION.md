@@ -62,8 +62,10 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 - La interfaz visualiza valores ausentes como ausencia de dato, no como cero artificial.
 - El mapa global incorpora hover con contexto y navegación directa al detalle de centro.
 - La vista de centros usa búsqueda de texto y tarjetas con imagen real de cada centro.
-- El gemelo 3D y la vista de sala muestran información contextual en paneles laterales.
+- El gemelo 3D y la vista de sala muestran información contextual en paneles laterales fijos, mejorando el uso de la pantalla.
 - La vista pública y el panel de sala/obra usan soporte bilingüe para labels y mensajes principales.
+- La ingesta de datos de Orion resuelve transparentemente los atributos encapsulados en arreglos, asegurando KPIs precisos.
+- Las gráficas analíticas separan los ejes Y por magnitud para evitar superposición visual en el histórico.
 
 ## 6. Diagrama de la arquitectura
 
