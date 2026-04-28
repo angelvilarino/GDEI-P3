@@ -26,36 +26,43 @@
 
       <section class="card fade-up" style="margin-top:14px">
         <div class="controls-row">
-          <button class="btn tab-btn btn-primary" data-target="alerts">Alertas</button>
-          <button class="btn tab-btn" data-target="devices">Dispositivos</button>
-          <button class="btn tab-btn" data-target="grafana">Grafana</button>
+          <button class="btn tab-btn btn-primary" data-target="alerts" data-i18n="alerts">Alertas</button>
+          <button class="btn tab-btn" data-target="devices" data-i18n="devices">Dispositivos</button>
+          <button class="btn tab-btn" data-target="grafana" data-i18n="grafana">Grafana</button>
         </div>
       </section>
 
       <section data-tab="alerts" class="card" style="margin-top:14px">
-        <h3>Alertas</h3>
+        <h3 data-i18n="alerts">Alertas</h3>
+        <div class="controls-row" style="margin:8px 0 12px">
+          <select id="alertFilterCenter" class="input"><option value="" data-i18n="allCenters">Centro: todos</option></select>
+          <select id="alertFilterType" class="input"><option value="" data-i18n="allTypes">Tipo: todos</option></select>
+          <select id="alertFilterSeverity" class="input"><option value="" data-i18n="allSeverity">Severidad: todas</option></select>
+          <select id="alertFilterStatus" class="input"><option value="" data-i18n="allState">Estado: todos</option></select>
+        </div>
         <div class="chart-wrap" style="height:240px"><canvas id="alertsStatsChart"></canvas></div>
         <div class="table-wrap" style="margin-top:8px;max-height:360px">
           <table>
-            <thead><tr><th>Tipo</th><th>Severidad</th><th>Estado</th><th>Fuente</th><th>Fecha</th><th></th></tr></thead>
+            <thead><tr><th data-i18n="center">Centro</th><th data-i18n="type">Tipo</th><th data-i18n="severity">Severidad</th><th data-i18n="state">Estado</th><th data-i18n="source">Fuente</th><th data-i18n="date">Fecha</th><th></th></tr></thead>
             <tbody id="alertsTableBody"></tbody>
           </table>
         </div>
       </section>
 
       <section data-tab="devices" class="card" style="margin-top:14px;display:none">
-        <h3>Dispositivos</h3>
+        <h3 data-i18n="devices">Dispositivos</h3>
         <div class="table-wrap" style="max-height:460px">
           <table>
-            <thead><tr><th>Dispositivo</th><th>Estado</th><th>Bateria</th><th>Latencia</th><th>Prob. fallo</th><th>Mantenimiento</th></tr></thead>
+            <thead><tr><th data-i18n="device">Dispositivo</th><th data-i18n="room">Sala</th><th data-i18n="typeLabel">Tipo</th><th data-i18n="state">Estado</th><th data-i18n="battery">Batería</th><th data-i18n="lastReading">Última lectura</th></tr></thead>
             <tbody id="devicesTableBody"></tbody>
           </table>
         </div>
       </section>
 
       <section data-tab="grafana" class="card" style="margin-top:14px;display:none">
-        <h3>Dashboards embebidos</h3>
+        <h3 data-i18n="grafana">Grafana</h3>
         <div class="grafana-frame"><iframe id="adminGrafana" title="Grafana admin"></iframe></div>
+        <div style="margin-top:10px"><a id="adminGrafanaLink" class="btn" href="#" target="_blank" rel="noreferrer" data-i18n="directLink">Abrir enlace directo</a></div>
       </section>
     </div>
 

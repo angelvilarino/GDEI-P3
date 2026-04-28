@@ -187,13 +187,13 @@ async function openRoomPanel(roomId) {
     <h3>${roomData.name}</h3>
     <div class="small">${roomData.description}</div>
     <div class="grid grid-2" style="margin-top:8px">
-      <div>${tr('temperature')}: <strong>${formatNumber(envData.environment.temperature)} C</strong></div>
-      <div>${tr('humidity')}: <strong>${formatNumber(envData.environment.relativeHumidity)}%</strong></div>
-      <div>${tr('co2')}: <strong>${formatNumber(envData.environment.co2, 0)} ppm</strong></div>
-      <div>${tr('occupancy')}: <strong>${formatNumber((envData.crowd.occupancy || 0) * 100, 0)}%</strong></div>
+      <div>${tr('temperature')}: <strong>${formatMetric(envData.environment.temperature, { unit: '°C' })}</strong></div>
+      <div>${tr('humidity')}: <strong>${formatMetric(envData.environment.relativeHumidity, { unit: '%' })}</strong></div>
+      <div>${tr('co2')}: <strong>${formatMetric(envData.environment.co2, { digits: 0, unit: 'ppm' })}</strong></div>
+      <div>${tr('occupancy')}: <strong>${formatMetric((envData.crowd.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</strong></div>
     </div>
-    <h4 style="margin-top:10px">Obras</h4>
-    <div class="small">${arts.slice(0, 8).map((a) => `${a.name} (${formatNumber(a.degradationRisk, 2)})`).join('<br/>') || tr('noData')}</div>
+    <h4 style="margin-top:10px">${tr('artworks')}</h4>
+    <div class="small">${arts.slice(0, 8).map((a) => `${a.name} (${formatMetric(a.degradationRisk, { digits: 2, zeroAsMissing: false })})`).join('<br/>') || tr('noDataAvailable')}</div>
   `;
 }
 

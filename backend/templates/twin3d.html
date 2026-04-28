@@ -26,15 +26,15 @@
 
       <section class="card fade-up" style="margin-top:14px">
         <div class="controls-row">
-          <label>Variable:</label>
+          <label data-i18n="variable">Variable:</label>
           <select id="variableSelect" class="input">
-            <option value="temperature">Temperatura</option>
-            <option value="co2">CO2</option>
-            <option value="relativeHumidity">Humedad</option>
+            <option value="temperature" data-i18n="temperature">Temperatura</option>
+            <option value="co2" data-i18n="co2">CO2</option>
+            <option value="relativeHumidity" data-i18n="humidity">Humedad</option>
             <option value="LAeq">Ruido</option>
-            <option value="occupancy">Aforo</option>
+            <option value="occupancy" data-i18n="occupancy">Aforo</option>
           </select>
-          <button id="simulateSpread" class="btn btn-primary">Simular propagacion</button>
+          <button id="simulateSpread" class="btn btn-primary" data-i18n="simulatePropagation">Simular propagacion</button>
           <span class="small" id="sceneHint"></span>
         </div>
       </section>
@@ -42,8 +42,8 @@
       <section class="split" style="margin-top:14px">
         <article class="card"><div id="twinCanvas" class="three-wrap"></div></article>
         <aside class="card">
-          <h3>Detalle sala</h3>
-          <div id="roomPanel" class="small">Haz click en una sala para ver lecturas en tiempo real y obras.</div>
+          <h3 data-i18n="roomDetails">Detalle sala</h3>
+          <div id="roomPanel" class="small" data-i18n="clickRoomPanel">Haz click en una sala para ver lecturas en tiempo real y obras.</div>
         </aside>
       </section>
     </div>

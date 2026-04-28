@@ -4,9 +4,9 @@ function poiFromPath() {
 }
 
 function airBadge(status) {
-  if (status === 'excellent') return '<span class="badge optimal">Aire excelente</span>';
-  if (status === 'acceptable') return '<span class="badge attention">Aire aceptable</span>';
-  return '<span class="badge critical">Aire mejorable</span>';
+  if (status === 'excellent') return `<span class="badge optimal">${tr('airExcellent')}</span>`;
+  if (status === 'acceptable') return `<span class="badge attention">${tr('airAcceptable')}</span>`;
+  return `<span class="badge critical">${tr('airImproving')}</span>`;
 }
 
 async function loadVisitorData() {
@@ -18,14 +18,14 @@ async function loadVisitorData() {
 
   document.getElementById('visitorTitle').textContent = summary.center.name;
   document.getElementById('airStatus').innerHTML = airBadge(summary.airStatus);
-  document.getElementById('co2Val').textContent = `${formatNumber(summary.snapshot.avgCo2, 0)} ppm`;
-  document.getElementById('tempVal').textContent = `${formatNumber(summary.snapshot.avgTemperature)} C`;
-  document.getElementById('humVal').textContent = `${formatNumber(summary.snapshot.avgHumidity)} %`;
-  document.getElementById('occVal').textContent = `${Math.round(summary.snapshot.avgOccupancy * 100)} %`;
+  document.getElementById('co2Val').textContent = formatMetric(summary.snapshot.avgCo2, { digits: 0, unit: 'ppm' });
+  document.getElementById('tempVal').textContent = formatMetric(summary.snapshot.avgTemperature, { unit: '°C' });
+  document.getElementById('humVal').textContent = formatMetric(summary.snapshot.avgHumidity, { unit: '%' });
+  document.getElementById('occVal').textContent = formatMetric(summary.snapshot.avgOccupancy, { digits: 0, unit: '%', zeroAsMissing: false });
 
   if (recommended && recommended.room) {
     document.getElementById('recommendedRoom').textContent =
-      `Recomendacion: ${recommended.room.name} (indice ${formatNumber(recommended.comfortIndex, 1)})`;
+      `${tr('recommendation')}: ${recommended.room.name} (${tr('recommendationIndex')} ${formatMetric(recommended.comfortIndex, { digits: 1, zeroAsMissing: false })})`;
   }
 }
 
@@ -57,7 +57,7 @@ async function askChat() {
     const elapsed = Math.round(performance.now() - start);
     appendChat('bot', `${res.answer} (${elapsed} ms)`);
   } catch (err) {
-    appendChat('bot', 'No ha sido posible responder ahora mismo.');
+    appendChat('bot', tr('noDataAvailable'));
   }
 }
 

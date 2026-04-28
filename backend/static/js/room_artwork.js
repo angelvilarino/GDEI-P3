@@ -33,7 +33,7 @@ function avgReq(artworks) {
 }
 
 function renderRadar(current, optimal) {
-  const labels = [tr('temperature'), tr('humidity'), tr('co2'), 'Lux', 'dB'];
+  const labels = [tr('temperature'), tr('humidity'), tr('co2'), tr('lux'), tr('decibel')];
   const cVals = [
     Number(current.temperature || 0),
     Number(current.relativeHumidity || 0),
@@ -50,13 +50,13 @@ function renderRadar(current, optimal) {
       labels,
       datasets: [
         {
-          label: 'Actual',
+          label: tr('actual'),
           data: cVals,
           borderColor: '#0e7c74',
           backgroundColor: '#0e7c7430',
         },
         {
-          label: 'Optimo',
+          label: tr('optimalLabel'),
           data: oVals,
           borderColor: '#d27d3f',
           backgroundColor: '#d27d3f28',
@@ -82,7 +82,7 @@ function renderArtworkTable(artworks) {
         <td>${a.name}</td>
         <td>${a.artist || '-'}</td>
         <td>${a.material || '-'}</td>
-        <td>${formatNumber(a.degradationRisk, 3)}</td>
+        <td>${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</td>
       </tr>
     `
     )
@@ -90,7 +90,7 @@ function renderArtworkTable(artworks) {
 }
 
 function renderHistory(history) {
-  const labels = history.temperature.map((p) => p.timestamp || 't');
+  const labels = history.temperature.map((p) => formatTimestampLabel(p.timestamp));
   if (roomHistoryChart) roomHistoryChart.destroy();
   roomHistoryChart = new Chart(document.getElementById('roomHistoryChart'), {
     type: 'line',
@@ -99,21 +99,21 @@ function renderHistory(history) {
       datasets: [
         {
           label: tr('temperature'),
-          data: history.temperature.map((p) => Number(p.value || 0)),
+          data: history.temperature.map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
           borderColor: '#0e7c74',
           pointRadius: 0,
           tension: 0.22,
         },
         {
           label: tr('humidity'),
-          data: history.relativeHumidity.map((p) => Number(p.value || 0)),
+          data: history.relativeHumidity.map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
           borderColor: '#3d9ecf',
           pointRadius: 0,
           tension: 0.22,
         },
         {
           label: tr('co2'),
-          data: history.co2.map((p) => Number(p.value || 0)),
+          data: history.co2.map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
           borderColor: '#d27d3f',
           pointRadius: 0,
           tension: 0.22,
@@ -157,7 +157,7 @@ async function compareSelected() {
   const checked = Array.from(document.querySelectorAll('input[data-art-id]:checked')).map((el) => el.getAttribute('data-art-id'));
   const ids = checked.slice(0, 3);
   if (!ids.length) {
-    document.getElementById('compareWrap').innerHTML = `<div class="small">Selecciona hasta 3 obras.</div>`;
+    document.getElementById('compareWrap').innerHTML = `<div class="small">${tr('selectUpTo3')}</div>`;
     return;
   }
 
@@ -169,8 +169,8 @@ async function compareSelected() {
         <img src="${a.image}" alt="${a.name}" style="width:100%;height:130px;object-fit:cover;border-radius:8px"/>
         <h4>${a.name}</h4>
         <div class="small">${a.artist || ''}</div>
-        <div style="margin-top:8px">Riesgo: <strong>${formatNumber(a.degradationRisk, 3)}</strong></div>
-        <div class="pill" style="margin-top:8px">Estado: ${a.conditionStatus || 'good'}</div>
+        <div style="margin-top:8px">${tr('severity')}: <strong>${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</strong></div>
+        <div class="pill" style="margin-top:8px">${tr('state')}: ${a.conditionStatus || 'good'}</div>
       </article>
     `
     )

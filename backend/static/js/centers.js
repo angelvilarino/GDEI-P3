@@ -1,4 +1,5 @@
 let centersCache = [];
+const sparklineCharts = new Map();
 
 function occupancyBucket(v) {
   if (v < 0.35) return 'free';
@@ -12,59 +13,96 @@ async function loadCenters() {
   await renderSparklines();
 }
 
+function currentFilters() {
+  return {
+    type: document.getElementById('filterType').value,
+    status: document.getElementById('filterStatus').value,
+    occupancy: document.getElementById('filterOccupancy').value,
+    search: document.getElementById('filterSearch').value.trim().toLowerCase(),
+  };
+}
+
 function renderCenters() {
-  const typeFilter = document.getElementById('filterType').value;
-  const statusFilter = document.getElementById('filterStatus').value;
-  const occFilter = document.getElementById('filterOccupancy').value;
+  const { type, status, occupancy, search } = currentFilters();
 
   const data = centersCache.filter((c) => {
-    if (typeFilter && !c.type.includes(typeFilter)) return false;
-    if (statusFilter && c.status !== statusFilter) return false;
-    if (occFilter && occupancyBucket(c.snapshot.avgOccupancy) !== occFilter) return false;
+    if (type && !c.type.includes(type)) return false;
+    if (status && c.status !== status) return false;
+    if (occupancy && occupancyBucket(c.snapshot.avgOccupancy ?? 0) !== occupancy) return false;
+    if (search) {
+      const haystack = [c.name, c.type, c.status, c.code].join(' ').toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
     return true;
   });
 
   const grid = document.getElementById('centersGrid');
-  grid.innerHTML = data
-    .map(
-      (c) => `
-      <article class="card fade-up" id="card-${c.code}">
-        <img src="${c.image}" alt="${c.name}" style="width:100%;height:180px;object-fit:cover;border-radius:10px"/>
+  grid.innerHTML = data.length
+    ? data
+        .map(
+          (c) => `
+      <article class="card fade-up center-card" id="card-${c.code}">
+        <img class="center-card-image" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.name)}" />
         <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <h3 style="margin:0">${c.name}</h3>
+          <h3 style="margin:0">${escapeHtml(c.name)}</h3>
           ${statusBadge(c.status)}
         </div>
-        <p class="small">${c.type}</p>
+        <p class="small">${escapeHtml(c.type)}</p>
         <div class="grid grid-2">
-          <div>${tr('temperature')}: <strong>${formatNumber(c.snapshot.avgTemperature)} C</strong></div>
-          <div>${tr('humidity')}: <strong>${formatNumber(c.snapshot.avgHumidity)}%</strong></div>
-          <div>${tr('co2')}: <strong>${formatNumber(c.snapshot.avgCo2, 0)} ppm</strong></div>
-          <div>${tr('occupancy')}: <strong>${Math.round(c.snapshot.avgOccupancy * 100)}%</strong></div>
+          <div>${tr('temperature')}: <strong>${formatMetric(c.snapshot.avgTemperature, { unit: '°C' })}</strong></div>
+          <div>${tr('humidity')}: <strong>${formatMetric(c.snapshot.avgHumidity, { unit: '%' })}</strong></div>
+          <div>${tr('co2')}: <strong>${formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' })}</strong></div>
+          <div>${tr('occupancy')}: <strong>${formatMetric(c.snapshot.avgOccupancy, { digits: 0, unit: '%', zeroAsMissing: false })}</strong></div>
         </div>
-        <div class="chart-wrap" style="margin-top:10px;height:130px"><canvas id="spark-${c.code}"></canvas></div>
+        <div class="chart-wrap" style="margin-top:10px;height:170px"><canvas id="spark-${c.code}"></canvas></div>
         <div style="display:flex;justify-content:flex-end;margin-top:10px">
-          <a class="btn btn-primary" href="/center/${c.code}">Ver detalle</a>
+          <a class="btn btn-primary" href="/centers/${c.code}">${tr('viewDetail')}</a>
         </div>
       </article>
     `
-    )
-    .join('');
+        )
+        .join('')
+    : `<div class="card"><div class="small">${tr('noDataAvailable')}</div></div>`;
 }
 
 async function renderSparklines() {
+  sparklineCharts.forEach((chart) => chart.destroy());
+  sparklineCharts.clear();
+
   const jobs = centersCache.map(async (c) => {
     try {
       const trend = await apiGet(`/api/centers/${c.code}/trend?range=1h`);
-      const temp = trend.temperature.slice(-20).map((p) => Number(p.value || 0));
-      const labels = temp.map((_, idx) => idx + 1);
       const ctx = document.getElementById(`spark-${c.code}`);
       if (!ctx) return;
-      new Chart(ctx, {
+
+      const tempSeries = (trend.temperature || []).slice(-20);
+      const peopleSeries = (trend.peopleCount || []).slice(-20);
+      const labelsSource = tempSeries.length ? tempSeries : peopleSeries;
+      if (!labelsSource.length) {
+        const wrap = ctx.parentElement;
+        if (wrap) {
+          wrap.innerHTML = `<div class="empty-state">${tr('noDataAvailable')}</div>`;
+        }
+        return;
+      }
+
+      const labels = labelsSource.map((point) => formatTimestampLabel(point.timestamp));
+      const temp = labelsSource.map((point) => {
+        const match = tempSeries.find((item) => item.timestamp === point.timestamp);
+        return match ? Number(match.value) : null;
+      });
+      const people = labelsSource.map((point) => {
+        const match = peopleSeries.find((item) => item.timestamp === point.timestamp);
+        return match ? Number(match.value) : null;
+      });
+
+      const chart = new Chart(ctx, {
         type: 'line',
         data: {
           labels,
           datasets: [
             {
+              label: tr('temperatureWithUnit'),
               data: temp,
               borderColor: '#0e7c74',
               backgroundColor: '#0e7c741a',
@@ -72,16 +110,46 @@ async function renderSparklines() {
               fill: true,
               pointRadius: 0,
               tension: 0.25,
+              unit: '°C',
+            },
+            {
+              label: tr('occupancyWithUnit'),
+              data: people,
+              borderColor: '#d27d3f',
+              backgroundColor: '#d27d3f1a',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0,
+              tension: 0.25,
+              unit: tr('occupancy'),
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { x: { display: false }, y: { display: false } },
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  const unit = context.dataset.unit || '';
+                  return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'HH:MM' },
+            },
+            y: {
+              title: { display: true, text: tr('temperature') },
+            },
+          },
         },
       });
+      sparklineCharts.set(c.code, chart);
     } catch (err) {
       console.error(err);
     }
@@ -90,8 +158,12 @@ async function renderSparklines() {
 }
 
 function wireFilters() {
-  ['filterType', 'filterStatus', 'filterOccupancy'].forEach((id) => {
+  ['filterType', 'filterStatus', 'filterOccupancy', 'filterSearch'].forEach((id) => {
     document.getElementById(id).addEventListener('change', () => {
+      renderCenters();
+      renderSparklines();
+    });
+    document.getElementById(id).addEventListener('input', () => {
       renderCenters();
       renderSparklines();
     });

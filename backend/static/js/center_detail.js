@@ -33,7 +33,7 @@ function upsertGauge(id, value, max, color, label) {
   if (!ctx) return;
   if (gaugeCharts[id]) gaugeCharts[id].destroy();
   gaugeCharts[id] = new Chart(ctx, gaugeConfig(value, max, color));
-  document.getElementById(`${id}-value`).textContent = `${formatNumber(value)} ${label}`;
+  document.getElementById(`${id}-value`).textContent = `${formatMetric(value, { digits: 1, zeroAsMissing: true })} ${label}`;
 }
 
 async function loadCenterSnapshot(code) {
@@ -42,11 +42,11 @@ async function loadCenterSnapshot(code) {
   document.getElementById('centerTitle').textContent = center.name;
   document.getElementById('centerStatus').innerHTML = statusBadge(snap.status);
 
-  upsertGauge('gTemp', snap.avgTemperature, 35, '#0e7c74', 'C');
+  upsertGauge('gTemp', snap.avgTemperature, 35, '#0e7c74', '°C');
   upsertGauge('gHum', snap.avgHumidity, 100, '#3d9ecf', '%');
   upsertGauge('gCo2', snap.avgCo2, 1800, '#d27d3f', 'ppm');
   upsertGauge('gNoise', snap.avgNoise, 100, '#7c5bd6', 'dB');
-  upsertGauge('gOcc', snap.avgOccupancy * 100, 100, '#a86b18', '%');
+  upsertGauge('gOcc', snap.avgOccupancy ? snap.avgOccupancy * 100 : null, 100, '#a86b18', '%');
 }
 
 async function loadRooms(code) {
@@ -57,11 +57,11 @@ async function loadRooms(code) {
       (r) => `
       <div class="card" style="padding:10px">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-          <strong>${r.name}</strong>
+          <strong>${escapeHtml(r.name)}</strong>
           ${statusBadge(r.status)}
         </div>
-        <div class="small">${tr('occupancy')}: ${Math.round((Number(r.current.occupancy || 0)) * 100)}%</div>
-        <a class="btn" href="/room/${encodeURIComponent(r.id)}" style="margin-top:8px">Detalle sala</a>
+        <div class="small">${tr('occupancy')}: ${formatMetric(Number(r.current.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</div>
+        <a class="btn" href="/room/${encodeURIComponent(r.id)}" style="margin-top:8px">${tr('viewDetail')}</a>
       </div>
     `
     )
@@ -75,16 +75,16 @@ async function loadRiskArtworks(code) {
     ? arts
         .slice(0, 12)
         .map(
-          (a) => `<div class="alert-item ${Number(a.degradationRisk) > 0.8 ? 'critical' : ''}"><strong>${a.name}</strong><br/><span class="small">${a.artist} · riesgo ${formatNumber(a.degradationRisk, 3)}</span></div>`
+          (a) => `<div class="alert-item ${Number(a.degradationRisk) > 0.8 ? 'critical' : ''}"><strong>${escapeHtml(a.name)}</strong><br/><span class="small">${escapeHtml(a.artist || '')} · ${tr('severity')} ${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</span></div>`
         )
         .join('')
-    : `<div class="small">${tr('noData')}</div>`;
+    : `<div class="small">${tr('noDataAvailable')}</div>`;
 }
 
 async function loadHistory(code) {
   const range = document.getElementById('rangeSelect').value;
   const history = await apiGet(`/api/centers/${code}/history?range=${range}`);
-  const labels = history.temperature.map((p) => p.timestamp || 't');
+  const labels = history.temperature.map((p) => formatTimestampLabel(p.timestamp));
 
   const dataSets = [
     { key: 'temperature', color: '#0e7c74', label: tr('temperature') },
@@ -96,7 +96,7 @@ async function loadHistory(code) {
 
   const datasets = dataSets.map((s) => ({
     label: s.label,
-    data: history[s.key].map((p) => Number(p.value || 0)),
+    data: history[s.key].map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
     borderColor: s.color,
     backgroundColor: `${s.color}22`,
     fill: false,
@@ -111,7 +111,16 @@ async function loadHistory(code) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom' } },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, zeroAsMissing: false })}`;
+            },
+          },
+        },
+      },
     },
   });
 }

@@ -7,25 +7,24 @@ services:
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
       timeout: 5s
       retries: 10
 
   orion:
+    platform: linux/amd64 # <--- ESTO ES OBLIGATORIO AQUÍ
     image: fiware/orion-ld:latest
     container_name: auravault-orion
     depends_on:
       mongo-db:
         condition: service_healthy
     command: >
-      -dbhost mongo-db
-      -logLevel INFO
-      -corsOrigin __ALL
+      -dbhost mongo-db -logLevel INFO -corsOrigin __ALL
     ports:
       - "1026:1026"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+      test: [ "CMD", "curl", "-f", "http://localhost:1026/version" ]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -40,7 +39,7 @@ services:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
     healthcheck:
-      test: ["CMD", "mosquitto_pub", "-h", "localhost", "-t", "healthcheck", "-m", "ok"]
+      test: [ "CMD", "mosquitto_pub", "-h", "localhost", "-t", "healthcheck", "-m", "ok" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -74,7 +73,7 @@ services:
       - IOTA_LOG_LEVEL=DEBUG
       - IOTA_FALLBACK_TENANT=openiot
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4041/iot/about', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); }).on('error', () => process.exit(1))"]
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:4041/iot/about', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); }).on('error', () => process.exit(1))" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -85,11 +84,11 @@ services:
     ports:
       - "4200:4200"
       - "5433:5432"
-    command: ["crate", "-Ccluster.name=auravault-crate", "-Cauth.host_based.enabled=false"]
+    command: [ "crate", "-Ccluster.name=auravault-crate", "-Cauth.host_based.enabled=false" ]
     volumes:
       - crate_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4200/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:4200/" ]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -109,7 +108,7 @@ services:
       - USE_GEOCODING=False
       - LOGLEVEL=INFO
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8668/version"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8668/version" ]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -137,7 +136,7 @@ services:
     volumes:
       - ./:/app
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/model/graph"]
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/api/model/graph" ]
       interval: 10s
       timeout: 5s
       retries: 15
@@ -160,7 +159,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/health" ]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -173,7 +172,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
-      test: ["CMD", "ollama", "list"]
+      test: [ "CMD", "ollama", "list" ]
       interval: 10s
       timeout: 5s
       retries: 20

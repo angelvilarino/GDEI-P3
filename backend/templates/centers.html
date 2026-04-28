@@ -26,23 +26,24 @@
 
       <section class="card fade-up" style="margin-top:14px">
         <div class="controls-row">
+          <input id="filterSearch" class="input" type="text" data-i18n-placeholder="searchCenter" placeholder="Buscar centro..." />
           <select id="filterType" class="input">
-            <option value="">Tipo: todos</option>
-            <option value="museum">Museo</option>
-            <option value="theatre">Teatro</option>
-            <option value="concert-hall">Auditorio</option>
+            <option value="" data-i18n="allTypes">Tipo: todos</option>
+            <option value="museum" data-i18n="museum">Museo</option>
+            <option value="theatre" data-i18n="theatre">Teatro</option>
+            <option value="concert-hall" data-i18n="auditorium">Auditorio</option>
           </select>
           <select id="filterStatus" class="input">
-            <option value="">Estado: todos</option>
-            <option value="optimal">Optimo</option>
-            <option value="attention">Atencion</option>
-            <option value="critical">Critico</option>
+            <option value="" data-i18n="allStatuses">Estado: todos</option>
+            <option value="optimal" data-i18n="optimalStatus">Optimo</option>
+            <option value="attention" data-i18n="attentionStatus">Atencion</option>
+            <option value="critical" data-i18n="criticalStatus">Critico</option>
           </select>
           <select id="filterOccupancy" class="input">
-            <option value="">Aforo: todos</option>
-            <option value="free">Libre</option>
-            <option value="moderate">Moderado</option>
-            <option value="congested">Congestionado</option>
+            <option value="" data-i18n="allOccupancy">Aforo: todos</option>
+            <option value="free" data-i18n="free">Libre</option>
+            <option value="moderate" data-i18n="moderate">Moderado</option>
+            <option value="congested" data-i18n="congested">Congestionado</option>
           </select>
         </div>
       </section>

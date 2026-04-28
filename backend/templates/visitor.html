@@ -10,7 +10,7 @@
     <div class="visitor-shell">
       <section class="card fade-up">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <h2 id="visitorTitle" style="margin:0">Modo Visitante</h2>
+          <h2 id="visitorTitle" style="margin:0" data-i18n="visitor">Modo Visitante</h2>
           <div class="toolbar">
             <button class="btn" id="langToggle">ES</button>
             <button class="btn" id="themeToggle">Oscuro</button>
@@ -20,10 +20,10 @@
         <div style="margin-top:8px" id="airStatus"></div>
 
         <div class="grid grid-2" style="margin-top:10px">
-          <article class="card kpi"><span class="small">CO2</span><span id="co2Val" class="value">-</span></article>
-          <article class="card kpi"><span class="small">Temperatura</span><span id="tempVal" class="value">-</span></article>
-          <article class="card kpi"><span class="small">Humedad</span><span id="humVal" class="value">-</span></article>
-          <article class="card kpi"><span class="small">Aforo</span><span id="occVal" class="value">-</span></article>
+          <article class="card kpi"><span class="small" data-i18n="co2">CO2</span><span id="co2Val" class="value">-</span></article>
+          <article class="card kpi"><span class="small" data-i18n="temperature">Temperatura</span><span id="tempVal" class="value">-</span></article>
+          <article class="card kpi"><span class="small" data-i18n="humidity">Humedad</span><span id="humVal" class="value">-</span></article>
+          <article class="card kpi"><span class="small" data-i18n="occupancy">Aforo</span><span id="occVal" class="value">-</span></article>
         </div>
 
         <div class="card" style="margin-top:10px">
@@ -32,10 +32,10 @@
       </section>
 
       <section class="card" style="margin-top:14px">
-        <h3>Chat de visita</h3>
+        <h3 data-i18n="chatTitle">Chat de visita</h3>
         <div id="chatBox" class="chat-box"></div>
         <div class="controls-row" style="margin-top:8px">
-          <input id="chatInput" class="input" style="flex:1" placeholder="Pregunta por la sala, obras o recomendaciones" />
+          <input id="chatInput" class="input" style="flex:1" placeholder="Pregunta por la sala, obras o recomendaciones" data-i18n-placeholder="placeholderChat" />
           <button id="chatSend" class="btn btn-primary" data-i18n="send">Enviar</button>
         </div>
       </section>

@@ -55,10 +55,20 @@ Vista 7 - Modo Visitante: ofrece una lectura pública, simple y móvil de calida
 
 Capacidades transversales: tiempo real por WebSocket, consulta histórica, trazabilidad semántica entre entidades, exportación de información técnica y soporte bilingüe para experiencia pública.
 
-## 5. Diagrama de la arquitectura
+## 5. Estado actual de la aplicación
+
+- Las consultas repetidas al backend usan caché temporal para mejorar respuesta en vistas globales y de detalle.
+- Si Orion no devuelve dato vivo, la aplicación consulta el histórico más reciente disponible para evitar pantallas vacías.
+- La interfaz visualiza valores ausentes como ausencia de dato, no como cero artificial.
+- El mapa global incorpora hover con contexto y navegación directa al detalle de centro.
+- La vista de centros usa búsqueda de texto y tarjetas con imagen real de cada centro.
+- El gemelo 3D y la vista de sala muestran información contextual en paneles laterales.
+- La vista pública y el panel de sala/obra usan soporte bilingüe para labels y mensajes principales.
+
+## 6. Diagrama de la arquitectura
 
 ![Diagrama de la arquitectura](docs/architecture.png)
 
-## 6. Diagrama del modelo de datos
+## 7. Diagrama del modelo de datos
 
 ![Diagrama del modelo de datos](docs/data_model.png)

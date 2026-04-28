@@ -147,6 +147,16 @@ graph LR
 - Puerto: `11434` (API local típica).
 - Dependencias: volumen de modelos; invocado por Flask.
 
+### 4.11 Estado de implementación
+
+- El backend Flask reutiliza consultas frecuentes mediante caché temporal y reduce carga sobre Orion.
+- Las lecturas actuales se completan con histórico reciente desde QuantumLeap cuando falta estado vivo.
+- Las notificaciones `/notify` se reducen a payloads mínimos para emitir solo los cambios relevantes.
+- El frontend integra WebSocket para refresco inmediato de KPIs, alertas y paneles operativos.
+- El mapa global admite hover y navegación directa al detalle de centro.
+- La vista 3D y el detalle de sala usan paneles laterales para contexto operativo sin abandonar la escena.
+- Mermaid se genera con sintaxis segura compatible con la versión actual del renderizador.
+
 ## 5. Tabla de servicios Docker
 
 | Servicio | Imagen | Puerto(s) | Volúmenes | Depends_on |

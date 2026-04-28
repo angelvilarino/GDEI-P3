@@ -26,7 +26,7 @@
 
       <section class="card fade-up" style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-          <h2 id="centerTitle" style="margin:0">Centro</h2>
+          <h2 id="centerTitle" style="margin:0" data-i18n="center">Centro</h2>
           <div id="centerStatus"></div>
         </div>
       </section>
@@ -42,7 +42,7 @@
       <section class="split" style="margin-top:14px">
         <article class="card">
           <div class="controls-row">
-            <h3 style="margin:0">Historico multivariable</h3>
+            <h3 style="margin:0" data-i18n="historyTitle">Histórico multivariable</h3>
             <select id="rangeSelect" class="input">
               <option value="1h">1h</option>
               <option value="6h">6h</option>
@@ -52,20 +52,20 @@
           </div>
           <div class="chart-wrap" style="height:300px;margin-top:8px"><canvas id="historyChart"></canvas></div>
 
-          <h3 style="margin-top:10px">Actuadores</h3>
+            <h3 style="margin-top:10px" data-i18n="devices">Actuadores</h3>
           <div id="actuatorPanel" class="grid grid-2"></div>
 
-          <h3 style="margin-top:10px">Grafana</h3>
+          <h3 style="margin-top:10px" data-i18n="grafana">Grafana</h3>
           <div class="grafana-frame"><iframe id="grafanaFrame" title="Grafana center"></iframe></div>
         </article>
 
         <aside class="grid" style="align-content:start">
           <div class="card">
-            <h3>Salas</h3>
+            <h3 data-i18n="room">Salas</h3>
             <div id="roomsList" class="grid"></div>
           </div>
           <div class="card">
-            <h3>Obras en riesgo</h3>
+            <h3 data-i18n="riskWorks">Obras en riesgo</h3>
             <div id="riskList" class="alert-list"></div>
           </div>
         </aside>

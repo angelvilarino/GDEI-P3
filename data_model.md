@@ -432,6 +432,18 @@ graph TD
   AC -->|isControlledBy| D
 ```
 
+### 15.2 Vistas operativas derivadas
+
+Además de las entidades base, el backend construye vistas derivadas para simplificar la experiencia operativa y pública:
+
+- `centerSnapshot`: agrega estado actual de temperatura, humedad, CO2, ruido, ocupación y riesgo de centro.
+- `roomHistory`: consolida series temporales por sala para gráficos comparativos y exportación.
+- `artworkComparison`: normaliza varias obras seleccionadas para compararlas por riesgo y estado.
+- `visitorSummary`: resume el estado ambiental para la vista pública y su recomendación de sala.
+- `deviceOverview`: expone estado, batería y última lectura para panel de control.
+
+Estas vistas no introducen nuevas entidades NGSI-LD, pero sí definen el contrato funcional que consume el frontend.
+
 ## 16. Ejemplos de instancias NGSI-LD
 
 ### 16.1 Ejemplo estático: Museum del MUNCYT

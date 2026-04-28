@@ -26,15 +26,15 @@
       </header>
 
       <section class="grid grid-4 stagger" style="margin-top:14px">
-        <article class="card kpi"><span class="small">Visitantes totales</span><span class="value" id="kpiVisitors">0</span></article>
-        <article class="card kpi"><span class="small">Salas en rango optimo</span><span class="value" id="kpiRooms">0%</span></article>
-        <article class="card kpi"><span class="small">Obras en riesgo</span><span class="value" id="kpiRisk">0</span></article>
-        <article class="card kpi"><span class="small">Sensores activos</span><span class="value" id="kpiSensors">0/0</span></article>
+        <article class="card kpi"><span class="small" data-i18n="totalVisitors">Visitantes totales</span><span class="value" id="kpiVisitors">0</span></article>
+        <article class="card kpi"><span class="small" data-i18n="roomsOptimal">Salas en rango optimo</span><span class="value" id="kpiRooms">0%</span></article>
+        <article class="card kpi"><span class="small" data-i18n="artworksRisk">Obras en riesgo</span><span class="value" id="kpiRisk">0</span></article>
+        <article class="card kpi"><span class="small" data-i18n="activeSensors">Sensores activos</span><span class="value" id="kpiSensors">0/0</span></article>
       </section>
 
       <section class="split" style="margin-top:14px">
         <article class="card fade-up">
-          <h3>Mapa de centros culturales</h3>
+          <h3 data-i18n="mapTitle">Mapa de centros culturales</h3>
           <div id="globalMap" class="leaflet-map"></div>
           <div class="chart-wrap" style="margin-top:10px;height:270px">
             <canvas id="trendChart"></canvas>
@@ -47,8 +47,8 @@
 
           <div class="card" style="margin-top:10px;padding:8px">
             <div class="controls-row">
-              <strong>Modelo de datos</strong>
-              <button class="btn" id="toggleMermaid">Mostrar/Ocultar</button>
+              <strong data-i18n="modelTitle">Modelo de datos</strong>
+              <button class="btn" id="toggleMermaid" data-i18n="showHide">Mostrar/Ocultar</button>
             </div>
             <div id="mermaidBody" style="margin-top:8px">
               <pre class="mermaid" id="modelMermaid"></pre>

@@ -27,7 +27,7 @@
       <section class="card fade-up" style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
           <div>
-            <h2 id="roomName" style="margin:0">Sala</h2>
+            <h2 id="roomName" style="margin:0" data-i18n="room">Sala</h2>
             <div id="roomMeta" class="small"></div>
           </div>
           <div id="roomStatus"></div>
@@ -36,7 +36,7 @@
 
       <section class="split" style="margin-top:14px">
         <article class="card">
-          <h3>Condiciones actuales vs rango optimo</h3>
+          <h3 data-i18n="currentConditions">Condiciones actuales vs rango optimo</h3>
           <div class="chart-wrap" style="height:320px"><canvas id="roomRadar"></canvas></div>
 
           <div class="controls-row" style="margin-top:8px">
@@ -45,26 +45,26 @@
               <option value="7d">7d</option>
               <option value="30d">30d</option>
             </select>
-            <button id="exportPdf" class="btn btn-primary">Exportar PDF</button>
-            <button id="exportMd" class="btn">Exportar Markdown</button>
+            <button id="exportPdf" class="btn btn-primary" data-i18n="exportPdf">Exportar PDF</button>
+            <button id="exportMd" class="btn" data-i18n="exportMd">Exportar Markdown</button>
           </div>
 
           <div class="chart-wrap" style="height:280px;margin-top:8px"><canvas id="roomHistoryChart"></canvas></div>
         </article>
 
         <aside class="card">
-          <h3>Obras y riesgo</h3>
+          <h3 data-i18n="worksRisk">Obras y riesgo</h3>
           <div class="table-wrap" style="max-height:300px">
             <table>
               <thead>
-                <tr><th></th><th>Img</th><th>Obra</th><th>Artista</th><th>Material</th><th>Riesgo</th></tr>
+                <tr><th></th><th data-i18n="imageAlt">Img</th><th data-i18n="artwork">Obra</th><th data-i18n="artist">Artista</th><th data-i18n="material">Material</th><th data-i18n="severity">Riesgo</th></tr>
               </thead>
               <tbody id="artworksTableBody"></tbody>
             </table>
           </div>
 
           <div class="controls-row" style="margin-top:10px">
-            <button id="compareBtn" class="btn btn-primary">Comparar seleccion (max 3)</button>
+            <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">Comparar seleccion (max 3)</button>
           </div>
           <div id="compareWrap" class="grid grid-3" style="margin-top:10px"></div>
         </aside>

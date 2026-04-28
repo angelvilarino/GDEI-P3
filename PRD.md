@@ -184,6 +184,7 @@ Datos que muestra:
 - Comparativa temporal del comportamiento ambiental global.
 - Mapa de ubicación de los cuatro centros.
 
+
 Interacciones que permite:
 
 - Navegar al detalle de cada centro desde el mapa o las tarjetas.
@@ -192,6 +193,7 @@ Interacciones que permite:
 - Cambiar el rango temporal del gráfico agregado.
 - Expandir o contraer el diagrama del modelo de datos.
 
+
 Tecnologías que usa:
 
 - Leaflet y OpenStreetMap para el mapa.
@@ -199,6 +201,7 @@ Tecnologías que usa:
 - WebSocket para KPIs y alertas en tiempo real.
 - Mermaid para el diagrama plegable del modelo.
 - HTML, CSS y JavaScript para la composición de la interfaz.
+
 
 Endpoints del backend necesarios:
 
@@ -210,6 +213,16 @@ Endpoints del backend necesarios:
 - GET /api/model/graph
 - GET /api/centers/{center_id}
 
+
+### 8.1.1 Estado de implementación
+
+- El backend aplica caché de corta duración para consultas frecuentes y reduce la carga sobre Orion.
+- Cuando no hay datos actuales, las vistas recurren a histórico reciente desde QuantumLeap.
+- Las tarjetas, gráficas y paneles evitan mostrar ceros artificiales en ausencia de información.
+- La navegación global incluye mapa con hover y acceso directo al detalle de centro.
+- El gemelo 3D y la vista de sala usan paneles laterales para lecturas y selección contextual.
+- La vista de centros añade búsqueda textual y filtros combinados.
+- La interfaz se mantiene bilingüe en español e inglés con traducción de labels y placeholders.
 ### 8.2 Vista 2 — Explorador de Centros
 
 Objetivo: permitir descubrir y comparar rápidamente los cuatro centros.

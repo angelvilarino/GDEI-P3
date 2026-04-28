@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 import math
 import os
 import random
 import sys
 import time
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Lock
@@ -71,6 +73,13 @@ app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET", "auravault-dev-secret"
 
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
+LOGGER = logging.getLogger("auravault.backend")
+if not LOGGER.handlers:
+    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+
+CACHE_TTL_SECONDS = 30
+query_cache: Dict[Tuple[str, str], Tuple[float, object]] = {}
+query_cache_lock = Lock()
 
 rate_limit_memory: Dict[str, List[float]] = defaultdict(list)
 rate_limit_lock = Lock()
@@ -78,17 +87,31 @@ rate_limit_lock = Lock()
 risk_model: Optional[RandomForestRegressor] = None
 failure_model: Optional[LogisticRegression] = None
 
-
-def utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-
-
-def parse_iso(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+def cache_signature(value: object) -> str:
+    return json.dumps(value, sort_keys=True, default=str, ensure_ascii=False)
 
 
-def orion_headers() -> Dict[str, str]:
-    return ORION_ENTITY_HEADERS.copy()
+def cached(namespace: str, key: object, loader):
+    cache_key = (namespace, cache_signature(key))
+    now = time.time()
+    with query_cache_lock:
+        item = query_cache.get(cache_key)
+        if item and item[0] > now:
+            return item[1]
+
+    value = loader()
+    with query_cache_lock:
+        query_cache[cache_key] = (now + CACHE_TTL_SECONDS, value)
+    return value
+
+
+def clear_cached_queries(namespace: Optional[str] = None):
+    with query_cache_lock:
+        if namespace is None:
+            query_cache.clear()
+            return
+        for key in [item for item in query_cache if item[0] == namespace]:
+            query_cache.pop(key, None)
 
 
 def request_json(
@@ -116,8 +139,17 @@ def request_json(
     return response.text
 
 
+def orion_headers() -> Dict[str, str]:
+    return ORION_ENTITY_HEADERS.copy()
+
+
 def orion_get(path: str, params: Optional[Dict] = None):
-    return request_json("GET", f"{ORION_URL.rstrip('/')}/{path.lstrip('/')}", headers=orion_headers(), params=params)
+    LOGGER.debug("Orion GET %s params=%s", path, params)
+    return cached(
+        "orion_get",
+        {"path": path, "params": params},
+        lambda: request_json("GET", f"{ORION_URL.rstrip('/')}/{path.lstrip('/')}", headers=orion_headers(), params=params),
+    )
 
 
 def orion_post(path: str, payload: Dict):
@@ -140,7 +172,11 @@ def orion_list(entity_type: Optional[str] = None, q: Optional[str] = None, limit
 
 def orion_get_entity(entity_id: str) -> Optional[Dict]:
     try:
-        data = orion_get(f"entities/{entity_id}")
+        data = cached(
+            "orion_get_entity",
+            {"entity_id": entity_id},
+            lambda: request_json("GET", f"{ORION_URL.rstrip('/')}/entities/{entity_id}", headers=orion_headers()),
+        )
         return data if isinstance(data, dict) else None
     except Exception:  # noqa: BLE001
         return None
@@ -171,9 +207,13 @@ def center_rooms(center_id: str) -> List[Dict]:
 
 
 def room_latest_entities() -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, Dict]]:
-    env_entities = normalize_entities(orion_list("IndoorEnvironmentObserved", limit=1000))
-    noise_entities = normalize_entities(orion_list("NoiseLevelObserved", limit=1000))
-    crowd_entities = normalize_entities(orion_list("CrowdFlowObserved", limit=1000))
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        env_future = executor.submit(orion_list, "IndoorEnvironmentObserved", None, 1000)
+        noise_future = executor.submit(orion_list, "NoiseLevelObserved", None, 1000)
+        crowd_future = executor.submit(orion_list, "CrowdFlowObserved", None, 1000)
+        env_entities = normalize_entities(env_future.result())
+        noise_entities = normalize_entities(noise_future.result())
+        crowd_entities = normalize_entities(crowd_future.result())
 
     env_by_room: Dict[str, Dict] = {}
     noise_by_room: Dict[str, Dict] = {}
@@ -193,6 +233,45 @@ def room_latest_entities() -> Tuple[Dict[str, Dict], Dict[str, Dict], Dict[str, 
         room_id = crowd.get("refRoadSegment") or crowd.get("refPointOfInterest")
         if room_id:
             crowd_by_room[room_id] = crowd
+
+    def ql_fallback(room: Dict) -> Dict[str, Dict]:
+        series = series_for_room(room["id"], "1h")
+
+        def last_value(points: List[Dict], default):
+            if not points:
+                return default
+            value = points[-1].get("value")
+            return default if value is None else value
+
+        return {
+            "env": {
+                "temperature": last_value(series.get("temperature", []), 21.0),
+                "relativeHumidity": last_value(series.get("relativeHumidity", []), 50.0),
+                "co2": last_value(series.get("co2", []), 700.0),
+                "illuminance": last_value(series.get("illuminance", []), 120.0),
+                "peopleCount": last_value(series.get("peopleCount", []), 0.0),
+            },
+            "noise": {"LAeq": last_value(series.get("LAeq", []), 48.0)},
+            "crowd": {"occupancy": last_value(series.get("occupancy", []), 0.0)},
+        }
+
+    missing_rooms = [room for room in ROOMS if room["id"] not in env_by_room or room["id"] not in noise_by_room or room["id"] not in crowd_by_room]
+    if missing_rooms:
+        with ThreadPoolExecutor(max_workers=min(8, len(missing_rooms))) as executor:
+            fallback_map = {future: room for future, room in ((executor.submit(ql_fallback, room), room) for room in missing_rooms)}
+            for future in as_completed(fallback_map):
+                room = fallback_map[future]
+                try:
+                    fallback = future.result()
+                except Exception as exc:  # noqa: BLE001
+                    LOGGER.debug("QL fallback failed for %s: %s", room["id"], exc)
+                    continue
+                if room["id"] not in env_by_room:
+                    env_by_room[room["id"]] = fallback["env"]
+                if room["id"] not in noise_by_room:
+                    noise_by_room[room["id"]] = fallback["noise"]
+                if room["id"] not in crowd_by_room:
+                    crowd_by_room[room["id"]] = fallback["crowd"]
 
     return env_by_room, noise_by_room, crowd_by_room
 
@@ -263,7 +342,7 @@ def center_snapshot(center_id: str) -> Dict:
             values["occupancy"].append(float(crowd.get("occupancy", 0.0)))
 
     def avg(lst: List[float]) -> float:
-        return round(sum(lst) / len(lst), 2) if lst else 0.0
+        return round(sum(lst) / len(lst), 2) if lst else None
 
     status = "optimal"
     if any(s == "critical" for s in statuses):
@@ -271,7 +350,7 @@ def center_snapshot(center_id: str) -> Dict:
     elif any(s == "attention" for s in statuses):
         status = "attention"
 
-    return {
+    snapshot = {
         "status": status,
         "avgTemperature": avg(values["temperature"]),
         "avgHumidity": avg(values["humidity"]),
@@ -282,47 +361,52 @@ def center_snapshot(center_id: str) -> Dict:
         "roomsCount": len(rooms),
     }
 
+    if snapshot["peopleCount"] == 0 and not values["people"]:
+        snapshot["peopleCount"] = None
+    return snapshot
+
 
 def ql_attr_series(entity_id: str, attr: str, last_n: int = 200) -> List[Dict]:
-    endpoint = f"{QL_URL.rstrip('/')}/v2/entities/{entity_id}/attrs/{attr}"
-    headers = {
-        "Accept": "application/json",
-        "Fiware-Service": "openiot",
-        "Fiware-ServicePath": "/",
-    }
-    try:
-        response = requests.get(endpoint, headers=headers, params={"lastN": last_n}, timeout=12)
-        if response.status_code >= 400:
+    def loader():
+        endpoint = f"{QL_URL.rstrip('/')}/v2/entities/{entity_id}/attrs/{attr}"
+        headers = {
+            "Accept": "application/json",
+            "Fiware-Service": "openiot",
+            "Fiware-ServicePath": "/",
+        }
+        try:
+            response = requests.get(endpoint, headers=headers, params={"lastN": last_n}, timeout=12)
+            if response.status_code >= 400:
+                return []
+            data = response.json()
+
+            if isinstance(data, dict) and "values" in data and isinstance(data["values"], list):
+                points = []
+                indexes = data.get("index", [])
+                for idx, value in enumerate(data["values"]):
+                    ts = indexes[idx] if idx < len(indexes) else None
+                    points.append({"timestamp": ts, "value": value})
+                return points
+
+            if isinstance(data, dict):
+                for key, val in data.items():
+                    if isinstance(val, list):
+                        points = []
+                        for row in val:
+                            if isinstance(row, dict):
+                                points.append(
+                                    {
+                                        "timestamp": row.get("recvTime") or row.get("index") or row.get("timestamp"),
+                                        "value": row.get("attrValue") if "attrValue" in row else row.get("value"),
+                                    }
+                                )
+                        if points:
+                            return points
+        except Exception:  # noqa: BLE001
             return []
-        data = response.json()
-
-        if isinstance(data, dict) and "values" in data and isinstance(data["values"], list):
-            points = []
-            indexes = data.get("index", [])
-            for idx, value in enumerate(data["values"]):
-                ts = indexes[idx] if idx < len(indexes) else None
-                points.append({"timestamp": ts, "value": value})
-            return points
-
-        if isinstance(data, dict):
-            # Formato alternativo: {attr: [{recvTime, attrValue}, ...]}
-            for key, val in data.items():
-                if isinstance(val, list):
-                    points = []
-                    for row in val:
-                        if isinstance(row, dict):
-                            points.append(
-                                {
-                                    "timestamp": row.get("recvTime") or row.get("index") or row.get("timestamp"),
-                                    "value": row.get("attrValue")
-                                    if "attrValue" in row
-                                    else row.get("value"),
-                                }
-                            )
-                    if points:
-                        return points
-    except Exception:  # noqa: BLE001
         return []
+
+    return cached("ql_attr_series", {"entity_id": entity_id, "attr": attr, "last_n": last_n}, loader)
     return []
 
 
@@ -770,6 +854,11 @@ def ui_center_detail(center_id: str):
     return render_template("center_detail.html", center_id=center_id)
 
 
+@app.route("/centers/<center_id>")
+def ui_center_detail_alias(center_id: str):
+    return render_template("center_detail.html", center_id=center_id)
+
+
 @app.route("/twin/<center_id>")
 def ui_twin(center_id: str):
     return render_template("twin3d.html", center_id=center_id)
@@ -799,18 +888,32 @@ def api_dashboard_summary():
     total_rooms = 0
     status_counts = {"optimal": 0, "attention": 0, "critical": 0}
 
-    for center in MUSEUMS:
-        snap = center_snapshot(center["id"])
-        centers_payload.append({"id": center["id"], "name": center["name"], **snap})
-        total_people += snap["peopleCount"]
-        total_rooms += snap["roomsCount"]
-        status_counts[snap["status"]] += snap["roomsCount"]
+    with ThreadPoolExecutor(max_workers=min(8, len(MUSEUMS))) as executor:
+        future_map = {executor.submit(center_snapshot, center["id"]): center for center in MUSEUMS}
+        for future in as_completed(future_map):
+            center = future_map[future]
+            snap = future.result()
+            centers_payload.append({"id": center["id"], "name": center["name"], **snap})
+            total_people += snap["peopleCount"] or 0
+            total_rooms += snap["roomsCount"] or 0
+            status_counts[snap["status"]] += snap["roomsCount"] or 0
+
+    centers_payload.sort(key=lambda item: item["name"])
 
     artworks = artwork_entities()
     at_risk = [a for a in artworks if to_float(a.get("degradationRisk", 0.0)) > 0.5]
 
     devices = device_entities()
     active = len([d for d in devices if d.get("deviceState", "on") == "on"])
+
+    LOGGER.debug(
+        "api_dashboard_summary centers=%s rooms=%s people=%s risk=%s devices=%s",
+        len(centers_payload),
+        total_rooms,
+        total_people,
+        len(at_risk),
+        len(devices),
+    )
 
     return jsonify(
         {
@@ -871,6 +974,8 @@ def api_centers():
             }
         )
 
+    LOGGER.debug("api_centers raw=%s", len(payload))
+
     center_type = request.args.get("type")
     status = request.args.get("status")
     occupancy = request.args.get("occupancy")
@@ -887,6 +992,8 @@ def api_centers():
         elif occupancy == "congested":
             payload = [p for p in payload if p["snapshot"]["avgOccupancy"] > 0.70]
 
+    LOGGER.debug("api_centers filtered type=%s status=%s occupancy=%s -> %s", center_type, status, occupancy, len(payload))
+
     return jsonify(payload)
 
 
@@ -900,7 +1007,9 @@ def api_center_detail(center_id: str):
 @app.route("/api/centers/<center_id>/snapshot")
 def api_center_snapshot(center_id: str):
     center = resolve_center(center_id)
-    return jsonify(center_snapshot(center["id"]))
+    snap = center_snapshot(center["id"])
+    LOGGER.debug("api_center_snapshot center=%s rooms=%s status=%s", center["code"], snap["roomsCount"], snap["status"])
+    return jsonify(snap)
 
 
 @app.route("/api/centers/<center_id>/trend")
@@ -955,6 +1064,7 @@ def api_center_rooms(center_id: str):
                 },
             }
         )
+    LOGGER.debug("api_center_rooms center=%s rooms=%s", center["code"], len(payload))
     return jsonify(payload)
 
 
@@ -1272,7 +1382,24 @@ def api_admin_alerts():
                 return False
         return True
 
-    return jsonify([a for a in alerts if match(a)])
+    payload = []
+    for alert in alerts:
+        if not match(alert):
+            continue
+        source = alert.get("alertSource")
+        room = next((r for r in ROOMS if r["id"] == source), None)
+        center = resolve_center(room["museumId"]) if room else None
+        payload.append(
+            {
+                **alert,
+                "roomName": room["name"] if room else None,
+                "centerName": center["name"] if center else None,
+                "centerCode": center["code"] if center else None,
+            }
+        )
+
+    LOGGER.debug("api_admin_alerts returned=%s", len(payload))
+    return jsonify(payload)
 
 
 @app.route("/api/admin/alerts/stats")
@@ -1304,6 +1431,7 @@ def api_alert_resolve(alert_id: str):
         "dateModified": ngsi_property(utc_now()),
     }
     patch_entity_attrs(ORION_URL, ORION_ENTITY_HEADERS, alert_id, attrs)
+    clear_cached_queries()
     socketio.emit("alerts", {"action": "resolved", "alertId": alert_id})
     return jsonify({"ok": True, "alertId": alert_id})
 
@@ -1312,9 +1440,27 @@ def api_alert_resolve(alert_id: str):
 def api_admin_devices():
     devices = device_entities()
     payload = []
-    for device in devices:
-        pred = predict_device_failure(device["id"])
-        payload.append({**device, "prediction": pred, "maintenanceBadge": pred["maintenance"]})
+    with ThreadPoolExecutor(max_workers=min(12, max(1, len(devices)))) as executor:
+        future_map = {executor.submit(predict_device_failure, device["id"]): device for device in devices}
+        for future in as_completed(future_map):
+            device = future_map[future]
+            pred = future.result()
+            room_id = device.get("controlledAsset")
+            room = next((r for r in ROOMS if r["id"] == room_id), None)
+            center = resolve_center(room["museumId"]) if room else None
+            payload.append(
+                {
+                    **device,
+                    "prediction": pred,
+                    "maintenanceBadge": pred["maintenance"],
+                    "roomName": room["name"] if room else None,
+                    "centerName": center["name"] if center else None,
+                    "centerCode": center["code"] if center else None,
+                    "lastReading": device.get("dateLastValueReported") or device.get("dateObserved") or device.get("dateModified"),
+                }
+            )
+    payload.sort(key=lambda item: item.get("name") or item.get("id") or "")
+    LOGGER.debug("api_admin_devices devices=%s", len(payload))
     return jsonify(payload)
 
 
@@ -1351,6 +1497,7 @@ def api_actuator_command(actuator_id: str):
         "dateModified": ngsi_property(utc_now()),
     }
     patch_entity_attrs(ORION_URL, ORION_ENTITY_HEADERS, actuator_id, attrs)
+    clear_cached_queries()
     socketio.emit("actuators", {"id": actuator_id, "status": status, "command": command})
     return jsonify({"ok": True, "id": actuator_id, "status": status})
 
@@ -1487,24 +1634,43 @@ def notify():
     processed = 0
     env_by_room, noise_by_room, crowd_by_room = room_latest_entities()
 
+    def minimal_payload(entity: Dict) -> Dict:
+        keys = (
+            "id",
+            "type",
+            "status",
+            "severity",
+            "subCategory",
+            "dateModified",
+            "dateIssued",
+            "deviceState",
+            "batteryLevel",
+            "refPointOfInterest",
+            "refRoadSegment",
+            "alertSource",
+        )
+        return {key: entity.get(key) for key in keys if entity.get(key) is not None}
+
     for entity in data:
         parsed = normalize_entity(entity)
         e_type = parsed.get("type")
         processed += 1
 
-        socketio.emit("update", {"type": e_type, "entity": parsed})
-        socketio.emit(f"entity:{e_type}", parsed)
+        socketio.emit("update", minimal_payload(parsed))
+        socketio.emit(f"entity:{e_type}", minimal_payload(parsed))
 
         if e_type == "Alert":
-            socketio.emit("alerts", parsed)
+            socketio.emit("alerts", minimal_payload(parsed))
         if e_type in {"Actuator", "Device"}:
-            socketio.emit("devices", parsed)
+            socketio.emit("devices", minimal_payload(parsed))
 
         if e_type == "IndoorEnvironmentObserved":
             room_id = parsed.get("refPointOfInterest")
             if room_id:
                 evaluate_thresholds(room_id, parsed, noise_by_room.get(room_id), crowd_by_room.get(room_id))
                 refresh_artwork_risks()
+
+    clear_cached_queries()
 
     return jsonify({"received": processed, "timestamp": utc_now()})
 
