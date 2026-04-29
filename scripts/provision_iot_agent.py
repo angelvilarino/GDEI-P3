@@ -69,7 +69,7 @@ def build_device_payloads() -> List[Dict]:
                 "entity_type": "IndoorEnvironmentObserved",
                 "protocol": "PDI-IoTA-JSON",
                 "transport": "MQTT",
-                "topic": f"auravault/{cc}/{rc}/environment",
+                "topic": f"auravault/dev-{rc}-env/attrs",
                 "attributes": [
                     {"object_id": "temperature", "name": "temperature", "type": "Number"},
                     {"object_id": "relativeHumidity", "name": "relativeHumidity", "type": "Number"},
@@ -93,7 +93,7 @@ def build_device_payloads() -> List[Dict]:
                 "entity_type": "NoiseLevelObserved",
                 "protocol": "PDI-IoTA-JSON",
                 "transport": "MQTT",
-                "topic": f"auravault/{cc}/{rc}/noise",
+                "topic": f"auravault/dev-{rc}-noise/attrs",
                 "attributes": [
                     {"object_id": "LAeq", "name": "LAeq", "type": "Number"},
                     {"object_id": "LAmax", "name": "LAmax", "type": "Number"},
@@ -115,7 +115,7 @@ def build_device_payloads() -> List[Dict]:
                 "entity_type": "CrowdFlowObserved",
                 "protocol": "PDI-IoTA-JSON",
                 "transport": "MQTT",
-                "topic": f"auravault/{cc}/{rc}/crowd",
+                "topic": f"auravault/dev-{rc}-crowd/attrs",
                 "attributes": [
                     {"object_id": "peopleCount", "name": "peopleCount", "type": "Number"},
                     {"object_id": "peopleCountTowards", "name": "peopleCountTowards", "type": "Number"},
@@ -141,7 +141,7 @@ def build_device_payloads() -> List[Dict]:
                 "entity_type": "Actuator",
                 "protocol": "PDI-IoTA-JSON",
                 "transport": "MQTT",
-                "topic": f"auravault/{cc}/{rc}/actuator/urn:ngsi-ld:Actuator:{rc}-act-01/state",
+                "topic": f"auravault/dev-{rc}-act/attrs",
                 "attributes": [
                     {"object_id": "status", "name": "status", "type": "Text"},
                     {"object_id": "commandSent", "name": "commandSent", "type": "StructuredValue"},

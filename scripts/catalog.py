@@ -17,6 +17,8 @@ ORION_ENTITY_HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/ld+json",
     "Link": f'<{NGSI_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
+    "fiware-service": "openiot",
+    "fiware-servicepath": "/",
 }
 
 MUSEUMS: List[Dict] = [

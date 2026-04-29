@@ -54,7 +54,14 @@ function renderCenters() {
           <div>${tr('co2')}: <strong>${formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' })}</strong></div>
           <div>${tr('occupancy')}: <strong>${formatMetric(c.snapshot.avgOccupancy, { digits: 0, unit: '%', zeroAsMissing: false })}</strong></div>
         </div>
-        <div class="chart-wrap" style="margin-top:10px;height:170px"><canvas id="spark-${c.code}"></canvas></div>
+        <div class="chart-wrap" style="margin-top:10px;height:140px">
+          <div class="small">${tr('temperature')}</div>
+          <canvas id="spark-temp-${c.code}"></canvas>
+        </div>
+        <div class="chart-wrap" style="margin-top:8px;height:140px">
+          <div class="small">${tr('occupancy')}</div>
+          <canvas id="spark-occ-${c.code}"></canvas>
+        </div>
         <div style="display:flex;justify-content:flex-end;margin-top:10px">
           <a class="btn btn-primary" href="/centers/${c.code}">${tr('viewDetail')}</a>
         </div>
@@ -72,84 +79,93 @@ async function renderSparklines() {
   const jobs = centersCache.map(async (c) => {
     try {
       const trend = await apiGet(`/api/centers/${c.code}/trend?range=1h`);
-      const ctx = document.getElementById(`spark-${c.code}`);
-      if (!ctx) return;
+      const ctxTemp = document.getElementById(`spark-temp-${c.code}`);
+      const ctxOcc = document.getElementById(`spark-occ-${c.code}`);
+      if (!ctxTemp || !ctxOcc) return;
 
       const tempSeries = (trend.temperature || []).slice(-20);
       const peopleSeries = (trend.peopleCount || []).slice(-20);
-      const labelsSource = tempSeries.length ? tempSeries : peopleSeries;
-      if (!labelsSource.length) {
-        const wrap = ctx.parentElement;
-        if (wrap) {
-          wrap.innerHTML = `<div class="empty-state">${tr('noDataAvailable')}</div>`;
-        }
+      
+      if (!tempSeries.length && !peopleSeries.length) {
+        ctxTemp.parentElement.innerHTML = `<div class="empty-state">${tr('noDataAvailable')}</div>`;
+        ctxOcc.parentElement.innerHTML = `<div class="empty-state">${tr('noDataAvailable')}</div>`;
         return;
       }
 
-      const labels = labelsSource.map((point) => formatTimestampLabel(point.timestamp));
-      const temp = labelsSource.map((point) => {
-        const match = tempSeries.find((item) => item.timestamp === point.timestamp);
-        return match ? Number(match.value) : null;
-      });
-      const people = labelsSource.map((point) => {
-        const match = peopleSeries.find((item) => item.timestamp === point.timestamp);
-        return match ? Number(match.value) : null;
-      });
+      const labels = (tempSeries.length ? tempSeries : peopleSeries).map((p) => formatTimestampLabel(p.timestamp));
 
-      const chart = new Chart(ctx, {
+      // Gráfica de Temperatura
+      const chartTemp = new Chart(ctxTemp, {
         type: 'line',
         data: {
           labels,
-          datasets: [
-            {
-              label: tr('temperatureWithUnit'),
-              data: temp,
-              borderColor: '#0e7c74',
-              backgroundColor: '#0e7c741a',
-              borderWidth: 2,
-              fill: true,
-              pointRadius: 0,
-              tension: 0.25,
-              unit: '°C',
-            },
-            {
-              label: tr('occupancyWithUnit'),
-              data: people,
-              borderColor: '#d27d3f',
-              backgroundColor: '#d27d3f1a',
-              borderWidth: 2,
-              fill: false,
-              pointRadius: 0,
-              tension: 0.25,
-              unit: tr('occupancy'),
-            },
-          ],
+          datasets: [{
+            label: tr('temperatureWithUnit'),
+            data: tempSeries.map(p => p.value),
+            borderColor: '#0e7c74',
+            backgroundColor: '#0e7c741a',
+            borderWidth: 2,
+            fill: true,
+            pointRadius: 0,
+            tension: 0.25,
+            unit: '°C'
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' },
+          plugins: { 
+            legend: { display: false },
             tooltip: {
-              callbacks: {
-                label(context) {
-                  const unit = context.dataset.unit || '';
-                  return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+                callbacks: {
+                  label(context) {
+                    const unit = context.dataset.unit || '';
+                    return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+                  },
                 },
-              },
-            },
+            }
           },
-          scales: {
-            x: {
-              title: { display: true, text: 'HH:MM' },
-            },
-            y: {
-              title: { display: true, text: tr('temperature') },
-            },
-          },
-        },
+          scales: { x: { display: false }, y: { display: true } }
+        }
       });
-      sparklineCharts.set(c.code, chart);
+
+      // Gráfica de Aforo
+      const chartOcc = new Chart(ctxOcc, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: tr('occupancyWithUnit'),
+            data: peopleSeries.map(p => p.value),
+            borderColor: '#d27d3f',
+            backgroundColor: '#d27d3f1a',
+            borderWidth: 2,
+            fill: true,
+            pointRadius: 0,
+            tension: 0.25,
+            unit: tr('occupancy')
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                  label(context) {
+                    const unit = context.dataset.unit || '';
+                    return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+                  },
+                },
+            }
+          },
+          scales: { x: { display: true }, y: { display: true } }
+        }
+      });
+
+      sparklineCharts.set(`${c.code}-temp`, chartTemp);
+      sparklineCharts.set(`${c.code}-occ`, chartOcc);
     } catch (err) {
       console.error(err);
     }

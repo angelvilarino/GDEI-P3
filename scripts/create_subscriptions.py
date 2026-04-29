@@ -15,8 +15,8 @@ from catalog import NGSI_LD_CONTEXT, ORION_ENTITY_HEADERS
 def build_headers() -> Dict[str, str]:
     return {
         "Accept": "application/ld+json",
-        "Content-Type": "application/json",
-        "Link": f'<{NGSI_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
+        "Content-Type": "application/ld+json",
+        # "Link" removido para evitar conflicto con Content-Type: application/ld+json
     }
 
 

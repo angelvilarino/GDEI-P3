@@ -203,75 +203,52 @@ def publish_room_payloads(
     rc = room_code(room["id"])
     now = utc_now()
 
-    env_topic = f"auravault/{center_code}/{rc}/environment"
-    noise_topic = f"auravault/{center_code}/{rc}/noise"
-    crowd_topic = f"auravault/{center_code}/{rc}/crowd"
+    env_topic = f"auravault/dev-{rc}-env/attrs"
+    noise_topic = f"auravault/dev-{rc}-noise/attrs"
+    crowd_topic = f"auravault/dev-{rc}-crowd/attrs"
 
     env_payload = {
-        "id": f"urn:ngsi-ld:IndoorEnvironmentObserved:{rc}",
-        "roomId": room["id"],
-        "dateObserved": now,
         "temperature": round(state.temperature, 2),
         "relativeHumidity": round(state.humidity, 2),
         "co2": round(state.co2, 2),
         "illuminance": round(state.illuminance, 2),
         "atmosphericPressure": round(state.pressure, 2),
         "peopleCount": state.people,
-        "hvacActive": actuator_status in {"on", "running"},
+        "dateObserved": now,
     }
     client.publish(env_topic, json.dumps(env_payload), qos=1)
 
     noise_payload = {
-        "id": f"urn:ngsi-ld:NoiseLevelObserved:{rc}",
-        "roomId": room["id"],
-        "dateObservedFrom": now,
-        "dateObservedTo": now,
         "LAeq": round(state.laeq, 2),
         "LAmax": round(state.lamax, 2),
         "LAS": round(state.las, 2),
+        "dateObserved": now,
     }
     client.publish(noise_topic, json.dumps(noise_payload), qos=1)
 
     crowd_payload = {
-        "id": f"urn:ngsi-ld:CrowdFlowObserved:{rc}",
-        "roomId": room["id"],
-        "dateObserved": now,
         "peopleCount": state.people,
         "peopleCountTowards": max(0, int(state.people * 0.58)),
         "peopleCountAway": max(0, int(state.people * 0.32)),
-        "occupancy": state.occupancy,
-        "averageCrowdSpeed": round(max(0.2, 1.2 - state.occupancy * 0.7 + random.gauss(0, 0.05)), 2),
-        "averageHeadwayTime": round(max(0.2, 3.0 - state.occupancy * 1.9 + random.gauss(0, 0.13)), 2),
-        "congested": state.occupancy > 0.8,
-        "direction": "inbound" if random.random() > 0.45 else "outbound",
+        "occupancy": round(state.occupancy, 3),
+        "dateObserved": now,
     }
     client.publish(crowd_topic, json.dumps(crowd_payload), qos=1)
 
-    for suffix in ["env", "co2", "noise", "crowd", "ctrl"]:
-        device_id = f"urn:ngsi-ld:Device:{rc}-{suffix}-01"
-        device_topic = f"auravault/{center_code}/{rc}/device/{device_id}/state"
+    for suffix in ["env", "noise", "crowd", "act"]:
+        topic = f"/auravault/dev-{rc}-{suffix}/attrs"
         device_payload = {
-            "id": device_id,
-            "roomId": room["id"],
-            "dateObserved": now,
             "deviceState": "fault" if state.battery < 0.05 else "on",
             "batteryLevel": round(state.battery, 3),
             "latencyMs": round(state.latency_ms, 1),
             "rssi": round(state.rssi, 1),
-            "value": round(state.co2, 1) if suffix == "co2" else round(state.temperature, 2),
         }
-        client.publish(device_topic, json.dumps(device_payload), qos=1)
+        client.publish(topic, json.dumps(device_payload), qos=1)
 
     actuator_id = f"urn:ngsi-ld:Actuator:{rc}-act-01"
-    actuator_topic = f"auravault/{center_code}/{rc}/actuator/{actuator_id}/state"
+    actuator_topic = f"auravault/dev-{rc}-act/attrs"
     actuator_payload = {
-        "id": actuator_id,
-        "roomId": room["id"],
         "status": actuator_status,
-        "commandSent": {
-            "command": "auto-cool" if state.co2 > 1000 else "idle",
-            "at": now,
-        },
         "lastActivationDate": now,
     }
     client.publish(actuator_topic, json.dumps(actuator_payload), qos=1)

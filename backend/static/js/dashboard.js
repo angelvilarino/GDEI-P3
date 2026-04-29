@@ -266,12 +266,29 @@ function loadMermaid() {
   lines.push('  device -->|observes| crowd');
   lines.push('  alert -->|relates| room');
   el.textContent = lines.join('\n');
-  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
-  mermaid.run({ nodes: [el] });
+  
+  // Inicialización explícita de Mermaid
+  mermaid.initialize({ 
+    startOnLoad: false, 
+    theme: 'neutral', 
+    securityLevel: 'loose',
+    fontFamily: 'Space Grotesk'
+  });
+  
+  // Forzamos el renderizado tras asegurar que el DOM está listo
+  setTimeout(async () => {
+    try {
+      await mermaid.run({ nodes: [el] });
+    } catch (err) {
+      console.error("Mermaid error:", err);
+    }
+  }, 100);
 
   const toggle = document.getElementById('toggleMermaid');
   const body = document.getElementById('mermaidBody');
   if (toggle && body) {
+    // Por defecto oculto si no se ha pulsado
+    body.style.display = 'none';
     toggle.addEventListener('click', () => {
       body.style.display = body.style.display === 'none' ? 'block' : 'none';
     });

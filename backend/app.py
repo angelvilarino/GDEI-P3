@@ -139,7 +139,8 @@ def request_json(
         raise RuntimeError(f"HTTP {response.status_code} {url}: {response.text[:400]}")
     if not response.text.strip():
         return None
-    if "application/json" in response.headers.get("Content-Type", ""):
+    content_type = response.headers.get("Content-Type", "").lower()
+    if "json" in content_type:
         return response.json()
     return response.text
 
@@ -323,9 +324,12 @@ def room_status(room: Dict, env: Optional[Dict], noise: Optional[Dict], crowd: O
     return "attention" if attention else "optimal"
 
 
-def center_snapshot(center_id: str) -> Dict:
+def center_snapshot(center_id: str, current_data: Optional[Tuple] = None) -> Dict:
     rooms = center_rooms(center_id)
-    env_by_room, noise_by_room, crowd_by_room = room_latest_entities()
+    if current_data:
+        env_by_room, noise_by_room, crowd_by_room = current_data
+    else:
+        env_by_room, noise_by_room, crowd_by_room = room_latest_entities()
 
     values = {
         "temperature": [],
@@ -916,8 +920,11 @@ def api_dashboard_summary():
     total_rooms = 0
     status_counts = {"optimal": 0, "attention": 0, "critical": 0}
 
+    # Obtenemos datos globales una sola vez para inyectar en snapshots
+    current_data = room_latest_entities()
+
     with ThreadPoolExecutor(max_workers=min(8, len(MUSEUMS))) as executor:
-        future_map = {executor.submit(center_snapshot, center["id"]): center for center in MUSEUMS}
+        future_map = {executor.submit(center_snapshot, center["id"], current_data): center for center in MUSEUMS}
         for future in as_completed(future_map):
             center = future_map[future]
             snap = future.result()
@@ -932,7 +939,7 @@ def api_dashboard_summary():
     at_risk = [a for a in artworks if to_float(a.get("degradationRisk", 0.0)) > 0.5]
 
     devices = device_entities()
-    active = len([d for d in devices if str(d.get("deviceState", "on")).lower() not in {"off", "fault", "maintenance"}])
+    active = len([d for d in devices if str(d.get("deviceState", "on")).lower() not in {"off", "fault", "maintenance", "0"}])
 
     LOGGER.debug(
         "api_dashboard_summary centers=%s rooms=%s people=%s risk=%s devices=%s",
@@ -1029,7 +1036,18 @@ def api_centers():
 def api_center_detail(center_id: str):
     center = resolve_center(center_id)
     snap = center_snapshot(center["id"])
-    return jsonify({**center, "snapshot": snap})
+    
+    # Verificación rápida de Grafana
+    grafana_ok = False
+    try:
+        g_url = f"{GRAFANA_URL.rstrip('/')}/api/health"
+        # Usamos un timeout muy corto para no bloquear la UI
+        resp = requests.get(g_url, timeout=1.0)
+        grafana_ok = resp.status_code == 200
+    except Exception:
+        grafana_ok = False
+        
+    return jsonify({**center, "snapshot": snap, "grafanaAlive": grafana_ok})
 
 
 @app.route("/api/centers/<center_id>/snapshot")
@@ -1713,6 +1731,7 @@ def ensure_orion_subscriptions():
         {
             "id": "urn:ngsi-ld:Subscription:AuraVault:Environment",
             "type": "Subscription",
+            "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "entities": [{"type": "IndoorEnvironmentObserved"}],
             "watchedAttributes": ["temperature", "relativeHumidity", "co2", "peopleCount"],
             "notification": {
@@ -1722,6 +1741,7 @@ def ensure_orion_subscriptions():
         {
             "id": "urn:ngsi-ld:Subscription:AuraVault:Alerts",
             "type": "Subscription",
+            "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
             "entities": [{"type": "Alert"}],
             "notification": {
                 "endpoint": {"uri": NOTIFY_URL, "accept": "application/json"}
@@ -1733,6 +1753,7 @@ def ensure_orion_subscriptions():
         try:
             h = ORION_ENTITY_HEADERS.copy()
             h["Content-Type"] = "application/ld+json"
+            h.pop("Link", None)
             create_orion_subscription(ORION_URL, h, sub)
             LOGGER.info("Suscripción %s asegurada.", sub["id"])
         except Exception as e:

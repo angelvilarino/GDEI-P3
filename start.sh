@@ -68,7 +68,7 @@ docker compose exec -d backend python simulator/mqtt_simulator.py \
   --mqtt-host mosquitto \
   --mqtt-port 1883 \
   --orion-url http://orion:1026/ngsi-ld/v1 \
-  --interval 30
+  --interval 15
 
 # Carga opcional del modelo local para chatbot. Si falla, backend usa fallback deterministico.
 docker compose exec -T llm-local ollama pull gemma3:latest || true

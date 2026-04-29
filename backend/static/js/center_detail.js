@@ -47,6 +47,19 @@ async function loadCenterSnapshot(code) {
   upsertGauge('gCo2', snap.avgCo2, 1800, '#d27d3f', 'ppm');
   upsertGauge('gNoise', snap.avgNoise, 100, '#7c5bd6', 'dB');
   upsertGauge('gOcc', snap.avgOccupancy ? snap.avgOccupancy * 100 : null, 100, '#a86b18', '%');
+
+  // Manejo de visibilidad de Grafana
+  const frame = document.getElementById('grafanaFrame');
+  const error = document.getElementById('grafanaError');
+  if (frame && error) {
+    if (center.grafanaAlive) {
+      frame.style.display = 'block';
+      error.style.display = 'none';
+    } else {
+      frame.style.display = 'none';
+      error.style.display = 'block';
+    }
+  }
 }
 
 async function loadRooms(code) {
