@@ -55,6 +55,10 @@ from scripts.ngsi_utils import (  # noqa: E402
 )
 
 
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+
 ORION_URL = os.environ.get("ORION_URL", "http://localhost:1026/ngsi-ld/v1")
 QL_URL = os.environ.get("QL_URL", "http://localhost:8668")
 GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://localhost:3000")
@@ -511,23 +515,23 @@ def fit_models():
 
 
 def artwork_entities() -> List[Dict]:
-    return normalize_entities(orion_list("Artwork", limit=2000))
+    return normalize_entities(orion_list("Artwork", limit=1000))
 
 
 def room_entities() -> List[Dict]:
-    return normalize_entities(orion_list("Room", limit=2000))
+    return normalize_entities(orion_list("Room", limit=1000))
 
 
 def device_entities() -> List[Dict]:
-    return normalize_entities(orion_list("Device", limit=5000))
+    return normalize_entities(orion_list("Device", limit=1000))
 
 
 def actuator_entities() -> List[Dict]:
-    return normalize_entities(orion_list("Actuator", limit=3000))
+    return normalize_entities(orion_list("Actuator", limit=1000))
 
 
 def alert_entities() -> List[Dict]:
-    return normalize_entities(orion_list("Alert", limit=5000))
+    return normalize_entities(orion_list("Alert", limit=1000))
 
 
 def artwork_risk_features(artwork: Dict, env: Dict, noise: Dict) -> List[float]:
@@ -1683,7 +1687,7 @@ def notify():
 
 
 @socketio.on("connect")
-def socket_connect():
+def socket_connect(auth=None):
     socketio.emit("update", {"event": "connected", "timestamp": utc_now()})
 
 

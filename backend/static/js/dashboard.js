@@ -234,7 +234,7 @@ function loadMermaid() {
     Artwork: 'artwork',
     Device: 'device',
     Actuator: 'actuator',
-    IndoorEnvironmentObserved: 'environment',
+    IndoorEnvironmentObserved: 'envNode',
     NoiseLevelObserved: 'noise',
     CrowdFlowObserved: 'crowd',
     Alert: 'alert',
@@ -245,7 +245,7 @@ function loadMermaid() {
   graph.Artwork && lines.push('  artwork["Artwork"]');
   graph.Device && lines.push('  device["Device"]');
   graph.Actuator && lines.push('  actuator["Actuator"]');
-  graph.IndoorEnvironmentObserved && lines.push('  environment["IndoorEnvironmentObserved"]');
+  graph.IndoorEnvironmentObserved && lines.push('  envNode["IndoorEnvironmentObserved"]');
   graph.NoiseLevelObserved && lines.push('  noise["NoiseLevelObserved"]');
   graph.CrowdFlowObserved && lines.push('  crowd["CrowdFlowObserved"]');
   graph.Alert && lines.push('  alert["Alert"]');
@@ -253,7 +253,7 @@ function loadMermaid() {
   lines.push('  room -->|exposes| artwork');
   lines.push('  room -->|hosts| device');
   lines.push('  room -->|contains| actuator');
-  lines.push('  device -->|observes| environment');
+  lines.push('  device -->|observes| envNode');
   lines.push('  device -->|observes| noise');
   lines.push('  device -->|observes| crowd');
   lines.push('  alert -->|relates| room');
