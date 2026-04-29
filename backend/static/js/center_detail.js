@@ -1,5 +1,5 @@
 let gaugeCharts = {};
-let historyChart;
+let historyCharts = {};
 
 function centerCodeFromPath() {
   const parts = window.location.pathname.split('/').filter(Boolean);
@@ -54,16 +54,22 @@ async function loadRooms(code) {
   const list = document.getElementById('roomsList');
   list.innerHTML = rooms
     .map(
-      (r) => `
-      <div class="card" style="padding:10px">
-        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-          <strong>${escapeHtml(r.name)}</strong>
-          ${statusBadge(r.status)}
+      (r) => {
+        const fallbackImg = `https://images.unsplash.com/photo-1554941068-a252680d25d9?auto=format&fit=crop&q=80&w=400&h=200&museum=${encodeURIComponent(r.roomType)}`;
+        return `
+      <div class="card room-card">
+        <img class="room-img" src="${r.image || fallbackImg}" alt="${escapeHtml(r.name)}" />
+        <div class="room-info">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <strong>${escapeHtml(r.name)}</strong>
+            ${statusBadge(r.status)}
+          </div>
+          <div class="small">${tr('occupancy')}: ${formatMetric(Number(r.current.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</div>
+          <a class="btn" href="/room/${encodeURIComponent(r.id)}" style="margin-top:8px; width: 100%; text-align: center;">${tr('viewDetail')}</a>
         </div>
-        <div class="small">${tr('occupancy')}: ${formatMetric(Number(r.current.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</div>
-        <a class="btn" href="/room/${encodeURIComponent(r.id)}" style="margin-top:8px">${tr('viewDetail')}</a>
       </div>
-    `
+    `;
+      }
     )
     .join('');
 }
@@ -81,59 +87,54 @@ async function loadRiskArtworks(code) {
     : `<div class="small">${tr('noDataAvailable')}</div>`;
 }
 
+function buildSingleChart(id, label, data, labels, color, unit) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (historyCharts[id]) historyCharts[id].destroy();
+  historyCharts[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: label,
+        data: data,
+        borderColor: color,
+        backgroundColor: `${color}22`,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              return `${label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: false }
+      }
+    }
+  });
+}
+
 async function loadHistory(code) {
   const range = document.getElementById('rangeSelect').value;
   const history = await apiGet(`/api/centers/${code}/history?range=${range}`);
   const labels = history.temperature.map((p) => formatTimestampLabel(p.timestamp));
 
-  const dataSets = [
-    { key: 'temperature', color: '#0e7c74', label: tr('temperature') },
-    { key: 'relativeHumidity', color: '#3d9ecf', label: tr('humidity') },
-    { key: 'co2', color: '#d27d3f', label: tr('co2') },
-    { key: 'LAeq', color: '#7c5bd6', label: 'LAeq' },
-    { key: 'peopleCount', color: '#a86b18', label: tr('occupancy') },
-  ];
-
-  const datasets = dataSets.map((s) => {
-    let axis = 'y';
-    if (s.key === 'co2') axis = 'yCo2';
-    if (s.key === 'peopleCount' || s.key === 'occupancy') axis = 'yOcc';
-    return {
-      label: s.label,
-      data: history[s.key].map((p) => (p.value === null || p.value === undefined ? null : Number(p.value))),
-      borderColor: s.color,
-      backgroundColor: `${s.color}22`,
-      fill: false,
-      tension: 0.2,
-      pointRadius: 0,
-      yAxisID: axis,
-    };
-  });
-
-  if (historyChart) historyChart.destroy();
-  historyChart = new Chart(document.getElementById('historyChart'), {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: { type: 'linear', display: true, position: 'left' },
-        yCo2: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
-        yOcc: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
-      },
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: {
-          callbacks: {
-            label(context) {
-              return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, zeroAsMissing: false })}`;
-            },
-          },
-        },
-      },
-    },
-  });
+  buildSingleChart('chartTemp', tr('temperature'), history.temperature.map(p => p.value), labels, '#0e7c74', '°C');
+  buildSingleChart('chartHum', tr('humidity'), history.relativeHumidity.map(p => p.value), labels, '#3d9ecf', '%');
+  buildSingleChart('chartCo2', tr('co2'), history.co2.map(p => p.value), labels, '#d27d3f', 'ppm');
+  buildSingleChart('chartNoise', 'Noise (LAeq)', history.LAeq.map(p => p.value), labels, '#7c5bd6', 'dB');
+  buildSingleChart('chartCrowd', tr('occupancy'), history.peopleCount.map(p => p.value), labels, '#a86b18', 'pax');
 }
 
 async function loadActuators(code) {
@@ -142,14 +143,14 @@ async function loadActuators(code) {
   wrap.innerHTML = acts
     .map(
       (a) => `
-      <div class="card" style="padding:10px">
+      <div class="card" style="padding:10px; align-self: stretch;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
           <strong>${a.name || a.id}</strong>
           <span class="pill">${a.status || 'off'}</span>
         </div>
         <div class="controls-row" style="margin-top:8px">
-          <button class="btn btn-primary" data-act="${a.id}" data-cmd="on">ON</button>
-          <button class="btn" data-act="${a.id}" data-cmd="off">OFF</button>
+          <button class="btn btn-primary" data-act="${a.id}" data-cmd="on" style="flex:1">ON</button>
+          <button class="btn" data-act="${a.id}" data-cmd="off" style="flex:1">OFF</button>
         </div>
       </div>
     `
@@ -187,7 +188,10 @@ async function bootCenterDetail() {
   const socket = ensureSocket();
   socket.on('update', () => loadCenterSnapshot(code));
   socket.on('actuators', () => loadActuators(code));
-  socket.on('alerts', () => loadRiskArtworks(code));
+  socket.on('alerts', () => {
+    loadRiskArtworks(code);
+    loadCenterSnapshot(code);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

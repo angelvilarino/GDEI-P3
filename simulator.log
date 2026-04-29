@@ -1,0 +1,2 @@
+/Users/mangelvilarino/Desktop/2-CUAT-4/GDEI/PRACTICAS/GDEI-P3/simulator/mqtt_simulator.py:284: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)

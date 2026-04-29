@@ -133,6 +133,7 @@ services:
       - GRAFANA_URL=http://localhost:3000
       - OLLAMA_URL=http://llm-local:11434/api/generate
       - OLLAMA_MODEL=gemma3:latest
+      - NOTIFY_URL=http://backend:5000/notify
     volumes:
       - ./:/app
     healthcheck:
@@ -154,6 +155,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SECURITY_COOKIE_SAMESITE=none
+      - GF_SECURITY_COOKIE_SECURE=false
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning

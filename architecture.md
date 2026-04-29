@@ -48,7 +48,7 @@ graph LR
     GEMMA[LLM API local\nGemma/Ollama-compatible]
   end
 
-  SIM -->|publish MQTT each 30s| MOS
+  SIM -->|publish MQTT each 15s| MOS
   MOS -->|telemetría| IOTA
   IOTA -->|NGSI-LD upsert| ORION
   ORION -->|context storage| MONGO
@@ -197,6 +197,10 @@ graph LR
 ## 8. Flujo de alertas: creación y resolución
 
 ### 8.1 Creación
+
+- **Backend Heartbeat (15s)**: Un hilo en el backend regenera el resumen global cada 15 segundos y lo emite vía SocketIO.
+- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO para actualizar KPIs, gráficas y alertas instantáneamente.
+- **Suscripciones Automáticas**: El backend asegura al arranque las suscripciones en Orion-LD para recibir notificaciones en el endpoint `/notify`.
 
 1. Backend evalúa reglas de negocio (umbrales y combinaciones).
 2. Si hay condición de riesgo, crea entidad `Alert` en Orion.

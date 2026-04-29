@@ -15,7 +15,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from threading import Lock
+from threading import Lock, Thread
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -66,6 +66,7 @@ OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma3:latest")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+NOTIFY_URL = os.environ.get("NOTIFY_URL", "http://backend:5000/notify")
 
 
 app = Flask(
@@ -637,6 +638,7 @@ def create_alert(room_id: str, subtype: str, severity: str, description: str):
         "@context": [NGSI_LD_CONTEXT],
     }
     bulk_upsert_orion(ORION_URL, ORION_ENTITY_HEADERS, [payload])
+    socketio.emit("alerts", {"action": "created", "alertId": alert_id, "severity": severity})
     return alert_id
 
 
@@ -647,16 +649,30 @@ def evaluate_thresholds(room_id: str, env: Dict, noise: Optional[Dict], crowd: O
     db = to_float((noise or {}).get("LAeq", 50))
     occupancy = to_float((crowd or {}).get("occupancy", 0))
 
-    if co2 > 1000:
+    if co2 > 1200:
+        create_alert(room_id, "CO2Critical", "critical", f"CO2 crítico ({co2:.0f} ppm) en {room_id}")
+    elif co2 > 1000:
         create_alert(room_id, "CO2Exceeded", "high", f"CO2 alto ({co2:.1f} ppm) en {room_id}")
-    if hum < 40 or hum > 60:
+
+    if hum < 35 or hum > 65:
+        create_alert(room_id, "HumidityCritical", "critical", f"Humedad crítica ({hum:.1f}%) en {room_id}")
+    elif hum < 40 or hum > 60:
         create_alert(room_id, "HumidityOutOfRange", "high", f"Humedad fuera de rango ({hum:.1f}%) en {room_id}")
-    if temp < 18 or temp > 25:
+
+    if temp < 16 or temp > 28:
+        create_alert(room_id, "TemperatureCritical", "critical", f"Temperatura crítica ({temp:.1f} C)")
+    elif temp < 18 or temp > 25:
         create_alert(room_id, "TemperatureOutOfRange", "medium", f"Temperatura fuera de rango ({temp:.1f} C)")
-    if db > 74:
+
+    if db > 82:
+        create_alert(room_id, "NoiseCritical", "critical", f"Ruido crítico ({db:.1f} dB(A))")
+    elif db > 74:
         create_alert(room_id, "NoiseExceeded", "medium", f"Ruido elevado ({db:.1f} dB(A))")
-    if occupancy > 0.9:
-        create_alert(room_id, "CrowdingDetected", "high", f"Ocupacion critica ({occupancy*100:.1f}%)")
+
+    if occupancy > 0.95:
+        create_alert(room_id, "CrowdingCritical", "critical", f"Aforo crítico ({occupancy*100:.1f}%)")
+    elif occupancy > 0.9:
+        create_alert(room_id, "CrowdingDetected", "high", f"Ocupación elevada ({occupancy*100:.1f}%)")
 
 
 def check_rate_limit(ip: str, max_per_minute: int = 12) -> bool:
@@ -916,7 +932,7 @@ def api_dashboard_summary():
     at_risk = [a for a in artworks if to_float(a.get("degradationRisk", 0.0)) > 0.5]
 
     devices = device_entities()
-    active = len([d for d in devices if d.get("deviceState", "on") == "on"])
+    active = len([d for d in devices if str(d.get("deviceState", "on")).lower() not in {"off", "fault", "maintenance"}])
 
     LOGGER.debug(
         "api_dashboard_summary centers=%s rooms=%s people=%s risk=%s devices=%s",
@@ -1683,17 +1699,71 @@ def notify():
                 refresh_artwork_risks()
 
     clear_cached_queries()
+    socketio.emit("update", {"action": "notify", "processed": processed, "timestamp": utc_now()})
 
     return jsonify({"received": processed, "timestamp": utc_now()})
 
 
+def ensure_orion_subscriptions():
+    """Crea suscripciones en Orion-LD si no existen."""
+    LOGGER.info("Verificando suscripciones Orion-LD...")
+    from scripts.ngsi_utils import create_orion_subscription
+
+    subs = [
+        {
+            "id": "urn:ngsi-ld:Subscription:AuraVault:Environment",
+            "type": "Subscription",
+            "entities": [{"type": "IndoorEnvironmentObserved"}],
+            "watchedAttributes": ["temperature", "relativeHumidity", "co2", "peopleCount"],
+            "notification": {
+                "endpoint": {"uri": NOTIFY_URL, "accept": "application/json"}
+            },
+        },
+        {
+            "id": "urn:ngsi-ld:Subscription:AuraVault:Alerts",
+            "type": "Subscription",
+            "entities": [{"type": "Alert"}],
+            "notification": {
+                "endpoint": {"uri": NOTIFY_URL, "accept": "application/json"}
+            },
+        }
+    ]
+
+    for sub in subs:
+        try:
+            h = ORION_ENTITY_HEADERS.copy()
+            h["Content-Type"] = "application/ld+json"
+            create_orion_subscription(ORION_URL, h, sub)
+            LOGGER.info("Suscripción %s asegurada.", sub["id"])
+        except Exception as e:
+            LOGGER.warning("Error al crear suscripción %s: %s", sub["id"], e)
+
+
+def background_update_thread():
+    """Hilo para emitir actualizaciones de dashboard cada 15 segundos."""
+    LOGGER.info("Iniciando hilo de actualización en tiempo real (15s)...")
+    while True:
+        try:
+            with app.app_context():
+                summary = api_dashboard_summary().get_json()
+                socketio.emit("summary", summary)
+        except Exception as e:
+            LOGGER.error("Error en background_update_thread: %s", e)
+        time.sleep(15)
+
+
 @socketio.on("connect")
 def socket_connect(auth=None):
+    summary = api_dashboard_summary().get_json()
+    socketio.emit("summary", summary, to=request.sid)
     socketio.emit("update", {"event": "connected", "timestamp": utc_now()})
 
 
 def startup_checks():
     fit_models()
+    ensure_orion_subscriptions()
+    update_thread = Thread(target=background_update_thread, daemon=True)
+    update_thread.start()
     try:
         # Usamos un tipo concreto para evitar el error "Too broad query"
         _ = orion_list("Museum", limit=1)

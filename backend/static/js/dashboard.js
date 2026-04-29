@@ -38,13 +38,17 @@ function buildCenterPopup(center) {
   `;
 }
 
-async function loadSummary() {
-  const data = await apiGet('/api/dashboard/summary');
-  const kpi = data.kpis;
+function updateKPIs(kpi) {
+  if (!kpi) return;
   document.getElementById('kpiVisitors').textContent = formatMetric(kpi.visitorsTotal, { digits: 0, zeroAsMissing: false });
   document.getElementById('kpiRooms').textContent = `${formatMetric(kpi.roomsOptimalPct, { digits: 2, zeroAsMissing: false })}%`;
   document.getElementById('kpiRisk').textContent = formatMetric(kpi.artworksAtRisk, { digits: 0, zeroAsMissing: false });
   document.getElementById('kpiSensors').textContent = `${formatMetric(kpi.sensorsActive, { digits: 0, zeroAsMissing: false })}/${formatMetric(kpi.sensorsTotal, { digits: 0, zeroAsMissing: false })}`;
+}
+
+async function loadSummary() {
+  const data = await apiGet('/api/dashboard/summary');
+  updateKPIs(data.kpis);
 }
 
 async function loadCentersMap() {
@@ -165,7 +169,7 @@ async function loadTrend() {
         legend: { position: 'bottom' },
         title: {
           display: true,
-          text: `${tr('last12Hours')} — ${tr('from')} ${formatTimestampLabel(earliest)} ${tr('to')} ${formatTimestampLabel(latest)}`,
+          text: `${tr('last12Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest)} ${tr('to')} ${formatTimestampLabel(latest)}`,
         },
         tooltip: {
           callbacks: {
@@ -227,6 +231,10 @@ async function loadAlerts() {
 }
 
 function loadMermaid() {
+  if (typeof mermaid === 'undefined') {
+    setTimeout(loadMermaid, 500);
+    return;
+  }
   const el = document.getElementById('modelMermaid');
   const graph = {
     Museum: 'museum',
@@ -258,14 +266,16 @@ function loadMermaid() {
   lines.push('  device -->|observes| crowd');
   lines.push('  alert -->|relates| room');
   el.textContent = lines.join('\n');
-  mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
   mermaid.run({ nodes: [el] });
 
   const toggle = document.getElementById('toggleMermaid');
   const body = document.getElementById('mermaidBody');
-  toggle.addEventListener('click', () => {
-    body.style.display = body.style.display === 'none' ? 'block' : 'none';
-  });
+  if (toggle && body) {
+    toggle.addEventListener('click', () => {
+      body.style.display = body.style.display === 'none' ? 'block' : 'none';
+    });
+  }
 }
 
 async function bootDashboard() {
@@ -274,7 +284,7 @@ async function bootDashboard() {
 
   const socket = ensureSocket();
   socket.on('alerts', () => loadAlerts());
-  socket.on('update', () => loadSummary());
+  socket.on('summary', (data) => updateKPIs(data.kpis));
 }
 
 document.addEventListener('DOMContentLoaded', () => {

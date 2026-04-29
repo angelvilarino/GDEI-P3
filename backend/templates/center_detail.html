@@ -31,7 +31,7 @@
         </div>
       </section>
 
-      <section class="grid grid-4" style="margin-top:14px">
+      <section class="grid grid-5" style="margin-top:14px">
         <article class="card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
         <article class="card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
         <article class="card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
@@ -39,10 +39,29 @@
         <article class="card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
       </section>
 
-      <section class="grid" style="margin-top:14px">
+      <main class="grid" style="margin-top:14px">
+        <div class="grid grid-2">
+            <article class="card">
+                <h4 data-i18n="temperature">Temperatura</h4>
+                <div class="chart-wrap" style="height:200px"><canvas id="chartTemp"></canvas></div>
+            </article>
+            <article class="card">
+                <h4 data-i18n="humidity">Humedad</h4>
+                <div class="chart-wrap" style="height:200px"><canvas id="chartHum"></canvas></div>
+            </article>
+            <article class="card">
+                <h4 data-i18n="co2">CO2</h4>
+                <div class="chart-wrap" style="height:200px"><canvas id="chartCo2"></canvas></div>
+            </article>
+            <article class="card">
+                <h4>LAeq (Noise)</h4>
+                <div class="chart-wrap" style="height:200px"><canvas id="chartNoise"></canvas></div>
+            </article>
+        </div>
+
         <article class="card">
           <div class="controls-row">
-            <h3 style="margin:0" data-i18n="historyTitle">Histórico multivariable</h3>
+            <h3 style="margin:0" data-i18n="occupancy">Aforo</h3>
             <select id="rangeSelect" class="input">
               <option value="1h">1h</option>
               <option value="6h">6h</option>
@@ -50,22 +69,26 @@
               <option value="7d">7d</option>
             </select>
           </div>
-          <div class="chart-wrap" style="height:300px;margin-top:8px"><canvas id="historyChart"></canvas></div>
-
-            <h3 style="margin-top:10px" data-i18n="devices">Actuadores</h3>
-          <div id="actuatorPanel" class="grid grid-2"></div>
-
-          <h3 style="margin-top:10px" data-i18n="grafana">Grafana</h3>
-          <div class="grafana-frame"><iframe id="grafanaFrame" title="Grafana center"></iframe></div>
+          <div class="chart-wrap" style="height:240px;margin-top:8px"><canvas id="chartCrowd"></canvas></div>
         </article>
-      </section>
 
-      <aside class="fixed-panel grid" style="align-content:start">
-          <div class="card">
+        <article class="card">
+            <h3 data-i18n="devices">Actuadores</h3>
+            <div id="actuatorPanel" class="grid grid-2"></div>
+        </article>
+
+        <article class="card">
+            <h3 data-i18n="grafana">Grafana</h3>
+            <div class="grafana-frame"><iframe id="grafanaFrame" title="Grafana center"></iframe></div>
+        </article>
+      </main>
+
+      <aside class="fixed-panel grid">
+          <div class="card" style="align-self:stretch">
             <h3 data-i18n="room">Salas</h3>
             <div id="roomsList" class="grid"></div>
           </div>
-          <div class="card">
+          <div class="card" style="align-self:stretch">
             <h3 data-i18n="riskWorks">Obras en riesgo</h3>
             <div id="riskList" class="alert-list"></div>
           </div>

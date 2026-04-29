@@ -223,6 +223,8 @@ Endpoints del backend necesarios:
 - El gemelo 3D y la vista de sala usan paneles laterales para lecturas y selección contextual.
 - La vista de centros añade búsqueda textual y filtros combinados.
 - La interfaz se mantiene bilingüe en español e inglés con traducción de labels y placeholders.
+- **Sincronización en tiempo real (15s)**: Implementada mediante hilos de fondo en el backend y eventos SocketIO para KPIs, alertas y estado de dispositivos.
+- **Suscripciones NGSI-LD**: El sistema gestiona automáticamente las suscripciones en Orion-LD para recibir eventos proactivos.
 ### 8.2 Vista 2 — Explorador de Centros
 
 Objetivo: permitir descubrir y comparar rápidamente los cuatro centros.

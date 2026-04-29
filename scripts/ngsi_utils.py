@@ -39,9 +39,13 @@ def request_json(
 ):
     final_headers = (headers or {}).copy()
     if method.upper() in ("POST", "PATCH", "PUT") and payload is not None:
-        # Para operaciones de escritura con @context en el body, usamos application/ld+json
-        # y eliminamos la cabecera Link para evitar conflictos en Orion-LD.
+        # Para escritura con @context en el body → ld+json sin Link
         final_headers["Content-Type"] = "application/ld+json"
+        final_headers.pop("Link", None)
+    elif method.upper() == "GET":
+        # Para lecturas usamos application/json puro — sin Link header —
+        # así Orion-LD responde con JSON compacto que se parsea directamente.
+        final_headers["Accept"] = "application/json"
         final_headers.pop("Link", None)
 
     response = requests.request(

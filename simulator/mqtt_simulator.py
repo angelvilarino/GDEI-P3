@@ -320,8 +320,9 @@ def main():
     parser.add_argument("--mqtt-host", default="localhost")
     parser.add_argument("--mqtt-port", type=int, default=1883)
     parser.add_argument("--orion-url", default="http://localhost:1026/ngsi-ld/v1")
-    parser.add_argument("--interval", type=int, default=30)
-    parser.add_argument("--actuator-poll-every", type=int, default=4)
+    parser.add_argument("--interval", type=int, default=15)
+    parser.add_argument("--actuator-poll-every", type=int, default=5)
+
     parser.add_argument("--seed", type=int, default=13)
     args = parser.parse_args()
 
