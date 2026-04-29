@@ -360,7 +360,7 @@ def ensure_orion(orion_url: str):
     get_entity(orion_url, ORION_ENTITY_HEADERS, "urn:ngsi-ld:Museum:muncyt-coruna") if False else None
     import requests
 
-    resp = requests.get(probe, headers=ORION_ENTITY_HEADERS, timeout=15)
+    resp = requests.get(probe, headers=ORION_ENTITY_HEADERS, timeout=60)
     if resp.status_code not in (200, 204):
         raise RuntimeError(f"Orion no disponible: {resp.status_code} {resp.text[:300]}")
 

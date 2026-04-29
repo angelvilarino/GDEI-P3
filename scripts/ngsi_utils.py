@@ -10,7 +10,7 @@ from typing import Dict, Iterable, List, Optional
 import requests
 
 
-DEFAULT_TIMEOUT = 20
+DEFAULT_TIMEOUT = 60
 
 
 def now_iso() -> str:
@@ -37,10 +37,17 @@ def request_json(
     payload: Optional[Dict] = None,
     timeout: int = DEFAULT_TIMEOUT,
 ):
+    final_headers = (headers or {}).copy()
+    if method.upper() in ("POST", "PATCH", "PUT") and payload is not None:
+        # Para operaciones de escritura con @context en el body, usamos application/ld+json
+        # y eliminamos la cabecera Link para evitar conflictos en Orion-LD.
+        final_headers["Content-Type"] = "application/ld+json"
+        final_headers.pop("Link", None)
+
     response = requests.request(
         method=method,
         url=url,
-        headers=headers,
+        headers=final_headers,
         params=params,
         data=json.dumps(payload) if payload is not None else None,
         timeout=timeout,
@@ -49,7 +56,8 @@ def request_json(
         raise RuntimeError(f"HTTP {response.status_code} {url}: {response.text[:600]}")
     if not response.text.strip():
         return None
-    if "application/json" in response.headers.get("Content-Type", ""):
+    content_type = response.headers.get("Content-Type", "")
+    if "application/json" in content_type or "application/ld+json" in content_type:
         return response.json()
     return response.text
 

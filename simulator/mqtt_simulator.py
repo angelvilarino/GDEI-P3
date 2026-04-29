@@ -183,8 +183,6 @@ def poll_actuator_state(orion_url: str, actuator_id: str) -> str:
     try:
         headers = {
             "Accept": "application/ld+json",
-            "Content-Type": "application/ld+json",
-            "Link": '<https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
         }
         response = requests.get(f"{orion_url.rstrip('/')}/entities/{actuator_id}", headers=headers, timeout=4)
         if response.status_code != 200:

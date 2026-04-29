@@ -148,11 +148,12 @@ def orion_headers() -> Dict[str, str]:
 
 
 def orion_get(path: str, params: Optional[Dict] = None):
+    headers = orion_headers()
     LOGGER.debug("Orion GET %s params=%s", path, params)
     return cached(
         "orion_get",
-        {"path": path, "params": params},
-        lambda: request_json("GET", f"{ORION_URL.rstrip('/')}/{path.lstrip('/')}", headers=orion_headers(), params=params),
+        {"path": path, "params": params, "headers": headers},
+        lambda: request_json("GET", f"{ORION_URL.rstrip('/')}/{path.lstrip('/')}", headers=headers, params=params),
     )
 
 
@@ -173,7 +174,7 @@ def orion_list(entity_type: Optional[str] = None, q: Optional[str] = None, limit
     data = orion_get("entities", params=params)
     raw_entities = data if isinstance(data, list) else []
     
-    if raw_entities and entity_type in ("IndoorEnvironmentObserved", "NoiseLevelObserved", "CrowdFlowObserved", "Room", "Museum"):
+    if raw_entities and entity_type in ("IndoorEnvironmentObserved", "NoiseLevelObserved", "CrowdFlowObserved", "Room", "Museum", "Device", "Actuator"):
         LOGGER.debug(f"[Orion Raw] {entity_type} -> {json.dumps(raw_entities[0])[:200]}...")
         norm = normalize_entity(raw_entities[0])
         LOGGER.debug(f"[Backend Normalized] -> {json.dumps(norm)[:200]}...")
@@ -1694,8 +1695,9 @@ def socket_connect(auth=None):
 def startup_checks():
     fit_models()
     try:
-        _ = orion_list(limit=1)
-        print("[backend] Orion conectado")
+        # Usamos un tipo concreto para evitar el error "Too broad query"
+        _ = orion_list("Museum", limit=1)
+        print("[backend] Orion conectado y verificado")
     except Exception as exc:  # noqa: BLE001
         print(f"[backend] Aviso Orion no disponible al arranque: {exc}")
 
