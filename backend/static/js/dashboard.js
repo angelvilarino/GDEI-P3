@@ -49,6 +49,15 @@ function updateKPIs(kpi) {
 async function loadSummary() {
   const data = await apiGet('/api/dashboard/summary');
   updateKPIs(data.kpis);
+  // Ocultar skeletons de KPIs
+  document.querySelectorAll('.kpi .value').forEach(el => {
+    if (el.textContent !== 'Cargando...') el.style.display = 'block';
+  });
+}
+
+async function loadSensorsStatus() {
+  const data = await apiGet('/api/sensors/status');
+  document.getElementById('kpiSensors').textContent = `${data.active}/${data.total}`;
 }
 
 async function loadCentersMap() {
@@ -77,6 +86,10 @@ async function loadCentersMap() {
     });
     window._centerMarkers.push(marker);
   });
+
+  // Ocultar skeleton del mapa
+  document.getElementById('mapSkeleton').style.display = 'none';
+  document.getElementById('globalMap').style.display = 'block';
 }
 
 async function loadTrend() {
@@ -191,6 +204,10 @@ async function loadTrend() {
       },
     },
   });
+
+  // Ocultar skeleton de la gráfica
+  document.getElementById('chartSkeleton').style.display = 'none';
+  document.getElementById('trendChart').style.display = 'block';
 }
 
 function renderAlerts(alerts) {
@@ -276,13 +293,7 @@ function loadMermaid() {
   });
   
   // Forzamos el renderizado tras asegurar que el DOM está listo
-  setTimeout(async () => {
-    try {
-      await mermaid.run({ nodes: [el] });
-    } catch (err) {
-      console.error("Mermaid error:", err);
-    }
-  }, 100);
+  mermaid.run({ nodes: [el] }).catch(err => console.error("Mermaid error:", err));
 
   const toggle = document.getElementById('toggleMermaid');
   const body = document.getElementById('mermaidBody');
@@ -296,7 +307,7 @@ function loadMermaid() {
 }
 
 async function bootDashboard() {
-  await Promise.all([loadSummary(), loadCentersMap(), loadTrend(), loadAlerts()]);
+  await Promise.all([loadSummary(), loadCentersMap(), loadTrend(), loadAlerts(), loadSensorsStatus()]);
   loadMermaid();
 
   const socket = ensureSocket();
