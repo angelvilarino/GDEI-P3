@@ -9,17 +9,22 @@ Fuentes principales usadas para nombres e imagenes:
 
 from __future__ import annotations
 
+import os
 from typing import Dict, List
 
 NGSI_LD_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
+
+ORION_SERVICE = os.environ.get("ORION_SERVICE")
+ORION_SERVICE_PATH = os.environ.get("ORION_SERVICE_PATH", "/")
 
 ORION_ENTITY_HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/ld+json",
     "Link": f'<{NGSI_LD_CONTEXT}>; rel="http://www.w3.org/ns/json-ld#context"; type="application/ld+json"',
-    "fiware-service": "openiot",
-    "fiware-servicepath": "/",
 }
+if ORION_SERVICE:
+    ORION_ENTITY_HEADERS["Fiware-Service"] = ORION_SERVICE
+    ORION_ENTITY_HEADERS["Fiware-ServicePath"] = ORION_SERVICE_PATH
 
 MUSEUMS: List[Dict] = [
     {

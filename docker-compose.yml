@@ -129,6 +129,7 @@ services:
       - "5000:5000"
     environment:
       - ORION_URL=http://orion:1026/ngsi-ld/v1
+      - ORION_SERVICE=openiot
       - QL_URL=http://quantumleap:8668
       - GRAFANA_URL=http://localhost:3000
       - OLLAMA_URL=http://llm-local:11434/api/generate

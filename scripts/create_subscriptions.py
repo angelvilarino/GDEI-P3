@@ -38,18 +38,44 @@ def create_subscription(orion_url: str, headers: Dict[str, str], payload: Dict):
     raise RuntimeError(f"Error creando suscripcion: {response.status_code} {response.text[:700]}")
 
 
+def patch_subscription(orion_url: str, headers: Dict[str, str], subscription_id: str, payload: Dict):
+    endpoint = f"{orion_url.rstrip('/')}/subscriptions/{subscription_id}"
+    response = requests.patch(endpoint, headers=headers, data=json.dumps(payload), timeout=20)
+    if response.status_code in (200, 204):
+        return
+    raise RuntimeError(f"Error actualizando suscripcion: {response.status_code} {response.text[:700]}")
+
+
 def ensure_subscription(orion_url: str, headers: Dict[str, str], payload: Dict):
     existing = list_subscriptions(orion_url, headers)
-    names = {sub.get("name") for sub in existing if "name" in sub}
-    if payload.get("name") in names:
-        print(f"[subscriptions] Ya existe: {payload.get('name')}")
+    target_name = payload.get("name")
+    target_id = payload.get("id")
+    existing_by_name = {sub.get("name") or sub.get("subscriptionName"): sub for sub in existing if sub.get("name") or sub.get("subscriptionName")}
+    existing_by_id = {sub.get("id"): sub for sub in existing if sub.get("id")}
+
+    sub = None
+    if target_name and target_name in existing_by_name:
+        sub = existing_by_name[target_name]
+    elif target_id and target_id in existing_by_id:
+        sub = existing_by_id[target_id]
+
+    if sub is not None:
+        print(f"[subscriptions] Ya existe: {target_name or target_id}")
+        if not sub.get("isActive", True) or sub.get("status") == "paused":
+            update_payload = {"isActive": True}
+            if payload.get("@context"):
+                update_payload["@context"] = payload["@context"]
+            patch_subscription(orion_url, headers, sub["id"], update_payload)
+            print(f"[subscriptions] Activada: {sub['id']}")
         return
+
     create_subscription(orion_url, headers, payload)
     print(f"[subscriptions] Creada: {payload.get('name')}")
 
 
 def ql_subscription(ql_url: str) -> Dict:
     return {
+        "@context": NGSI_LD_CONTEXT,
         "id": "urn:ngsi-ld:Subscription:auravault-ql-history",
         "type": "Subscription",
         "name": "auravault-ql-history",
@@ -88,6 +114,7 @@ def ql_subscription(ql_url: str) -> Dict:
 
 def backend_subscription(backend_notify_url: str) -> Dict:
     return {
+        "@context": NGSI_LD_CONTEXT,
         "id": "urn:ngsi-ld:Subscription:auravault-backend-notify",
         "type": "Subscription",
         "name": "auravault-backend-notify",

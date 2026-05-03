@@ -60,7 +60,11 @@ def utc_now() -> str:
 
 
 ORION_URL = os.environ.get("ORION_URL", "http://localhost:1026/ngsi-ld/v1")
+ORION_SERVICE = os.environ.get("ORION_SERVICE")
+ORION_SERVICE_PATH = os.environ.get("ORION_SERVICE_PATH", "/")
 QL_URL = os.environ.get("QL_URL", "http://localhost:8668")
+QL_SERVICE = os.environ.get("QL_SERVICE", "openiot")
+QL_SERVICE_PATH = os.environ.get("QL_SERVICE_PATH", "/")
 GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://localhost:3000")
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma3:latest")
@@ -146,7 +150,16 @@ def request_json(
 
 
 def orion_headers() -> Dict[str, str]:
-    return ORION_ENTITY_HEADERS.copy()
+    headers = ORION_ENTITY_HEADERS.copy()
+    if ORION_SERVICE:
+        headers["Fiware-Service"] = ORION_SERVICE
+        headers["Fiware-ServicePath"] = ORION_SERVICE_PATH
+    else:
+        headers.pop("Fiware-Service", None)
+        headers.pop("Fiware-ServicePath", None)
+        headers.pop("fiware-service", None)
+        headers.pop("fiware-servicepath", None)
+    return headers
 
 
 def orion_get(path: str, params: Optional[Dict] = None):
@@ -386,11 +399,10 @@ def center_snapshot(center_id: str, current_data: Optional[Tuple] = None) -> Dic
 def ql_attr_series(entity_id: str, attr: str, last_n: int = 200) -> List[Dict]:
     def loader():
         endpoint = f"{QL_URL.rstrip('/')}/v2/entities/{entity_id}/attrs/{attr}"
-        headers = {
-            "Accept": "application/json",
-            "Fiware-Service": "openiot",
-            "Fiware-ServicePath": "/",
-        }
+        headers = {"Accept": "application/json"}
+        if QL_SERVICE:
+            headers["Fiware-Service"] = QL_SERVICE
+            headers["Fiware-ServicePath"] = QL_SERVICE_PATH
         try:
             response = requests.get(endpoint, headers=headers, params={"lastN": last_n}, timeout=12)
             if response.status_code >= 400:
@@ -1508,6 +1520,39 @@ def api_admin_devices():
     payload.sort(key=lambda item: item.get("name") or item.get("id") or "")
     LOGGER.debug("api_admin_devices devices=%s", len(payload))
     return jsonify(payload)
+
+
+@app.route("/api/devices")
+def api_devices():
+    """Alias para /api/admin/devices usado por frontend."""
+    return api_admin_devices()
+
+
+@app.route("/api/alerts")
+def api_alerts():
+    """Alias para /api/admin/alerts usado por frontend."""
+    return api_admin_alerts()
+
+
+@app.route("/api/sensors/status")
+def api_sensors_status():
+    """Devuelve conteo de sensores (Device) activos vs totales."""
+    devices = device_entities()
+    active_count = 0
+    total_count = len(devices)
+    
+    for device in devices:
+        state = device.get("deviceState", "").lower()
+        battery = to_float(device.get("batteryLevel", -1), -1)
+        # Considerar activo si state es 'on' y battery > 0 (o desconocida)
+        if state in {"on", "active", "running"} and (battery > 0 or battery == -1):
+            active_count += 1
+    
+    return jsonify({
+        "active": active_count,
+        "total": total_count,
+        "status": "ok" if active_count > 0 else "warning"
+    })
 
 
 @app.route("/api/devices/<device_id>")
