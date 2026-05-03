@@ -39,7 +39,7 @@ El resultado es una solución de dominio cultural interior que integra monitoriz
 
 ## 4. Funcionalidades detalladas (resumen del PRD.md)
 
-Vista 1 - Dashboard Global: consolida KPIs de confort, ocupación, riesgo y estado de sensores; permite resolver alertas y navegar al detalle por centro.
+Vista 1 - Dashboard Global: consolida KPIs de confort, ocupación, riesgo y estado de sensores; permite resolver alertas y navegar al detalle por centro. Incluye loaders visuales durante la carga de datos, mapa y gráficos para mejorar la experiencia de usuario, y un diagrama del modelo de datos NGSI-LD renderizado gráficamente en una tarjeta independiente.
 
 Vista 2 - Explorador de Centros: presenta tarjetas comparables por estado ambiental, aforo y tendencia corta; incorpora filtros por tipo, estado y ocupación.
 
