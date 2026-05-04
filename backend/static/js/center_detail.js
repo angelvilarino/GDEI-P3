@@ -28,7 +28,7 @@ function gaugeConfig(value, max, color) {
   };
 }
 
-function upsertGauge(id, value, max, color, label) {
+function setKpiText(id, value, max, color, label) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
   if (gaugeCharts[id]) gaugeCharts[id].destroy();
@@ -42,11 +42,14 @@ async function loadCenterSnapshot(code) {
   document.getElementById('centerTitle').textContent = center.name;
   document.getElementById('centerStatus').innerHTML = statusBadge(snap.status);
 
-  upsertGauge('gTemp', snap.avgTemperature, 35, '#0e7c74', '°C');
-  upsertGauge('gHum', snap.avgHumidity, 100, '#3d9ecf', '%');
-  upsertGauge('gCo2', snap.avgCo2, 1800, '#d27d3f', 'ppm');
-  upsertGauge('gNoise', snap.avgNoise, 100, '#7c5bd6', 'dB');
-  upsertGauge('gOcc', snap.avgOccupancy ? snap.avgOccupancy * 100 : null, 100, '#a86b18', '%');
+  document.getElementById('gTemp-value').textContent = formatMetric(snap.avgTemperature, { digits: 1, zeroAsMissing: true });
+  document.getElementById('gHum-value').textContent = formatMetric(snap.avgHumidity, { digits: 1, zeroAsMissing: true });
+  document.getElementById('gCo2-value').textContent = formatMetric(snap.avgCo2, { digits: 0, zeroAsMissing: true });
+  document.getElementById('gNoise-value').textContent = formatMetric(snap.avgNoise, { digits: 1, zeroAsMissing: true });
+  
+  let occPct = snap.avgOccupancy ? snap.avgOccupancy * 100 : null;
+  document.getElementById('gOcc-value').textContent = formatMetric(snap.peopleCount || 0, { digits: 0, zeroAsMissing: false });
+  document.getElementById('gOcc-pct').textContent = formatMetric(occPct, { digits: 0, zeroAsMissing: false });
 }
 
 async function loadRooms(code) {
@@ -85,14 +88,14 @@ async function loadRiskArtworks(code) {
     : `<div class="small">${tr('noDataAvailable')}</div>`;
 }
 
-function buildSingleChart(id, label, data, labels, color, unit) {
+function buildSingleChart(id, label, data, rawLabels, color, unit, range) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
   if (historyCharts[id]) historyCharts[id].destroy();
   historyCharts[id] = new Chart(ctx, {
     type: 'line',
     data: {
-      labels,
+      labels: rawLabels,
       datasets: [{
         label: label,
         data: data,
@@ -110,6 +113,12 @@ function buildSingleChart(id, label, data, labels, color, unit) {
         legend: { display: false },
         tooltip: {
           callbacks: {
+            title(context) {
+                const ts = context[0].label;
+                const d = new Date(ts);
+                if (Number.isNaN(d.getTime())) return ts;
+                return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            },
             label(context) {
               return `${label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
             }
@@ -117,6 +126,40 @@ function buildSingleChart(id, label, data, labels, color, unit) {
         }
       },
       scales: {
+        x: {
+            ticks: {
+                maxRotation: 0,
+                autoSkip: false,
+                callback: function(val, index) {
+                    const ts = rawLabels[index];
+                    if (!ts) return '';
+                    const d = new Date(ts);
+                    if (Number.isNaN(d.getTime())) return '';
+                    
+                    const m = d.getMinutes();
+                    const h = d.getHours();
+                    const s = d.getSeconds();
+
+                    if (range === '1h') {
+                        // cada 10 min
+                        if (m % 10 === 0 && s < 30) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        }
+                    } else if (range === '12h') {
+                        // cada hora
+                        if (m === 0) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        }
+                    } else if (range === '24h') {
+                        // cada 2 horas
+                        if (h % 2 === 0 && m === 0) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        }
+                    }
+                    return '';
+                }
+            }
+        },
         y: { beginAtZero: false }
       }
     }
@@ -126,13 +169,13 @@ function buildSingleChart(id, label, data, labels, color, unit) {
 async function loadHistory(code) {
   const range = document.getElementById('rangeSelect').value;
   const history = await apiGet(`/api/centers/${code}/history?range=${range}`);
-  const labels = history.temperature.map((p) => formatTimestampLabel(p.timestamp));
+  const rawLabels = history.temperature.map(p => p.timestamp);
 
-  buildSingleChart('chartTemp', tr('temperature'), history.temperature.map(p => p.value), labels, '#0e7c74', '°C');
-  buildSingleChart('chartHum', tr('humidity'), history.relativeHumidity.map(p => p.value), labels, '#3d9ecf', '%');
-  buildSingleChart('chartCo2', tr('co2'), history.co2.map(p => p.value), labels, '#d27d3f', 'ppm');
-  buildSingleChart('chartNoise', 'Noise (LAeq)', history.LAeq.map(p => p.value), labels, '#7c5bd6', 'dB');
-  buildSingleChart('chartCrowd', tr('occupancy'), history.peopleCount.map(p => p.value), labels, '#a86b18', 'pax');
+  buildSingleChart('chartTemp', tr('temperature'), history.temperature.map(p => p.value), rawLabels, '#0e7c74', '°C', range);
+  buildSingleChart('chartHum', tr('humidity'), history.relativeHumidity.map(p => p.value), rawLabels, '#3d9ecf', '%', range);
+  buildSingleChart('chartCo2', tr('co2'), history.co2.map(p => p.value), rawLabels, '#d27d3f', 'ppm', range);
+  buildSingleChart('chartNoise', 'Noise (LAeq)', history.LAeq.map(p => p.value), rawLabels, '#7c5bd6', 'dB', range);
+  buildSingleChart('chartCrowd', tr('occupancy'), history.peopleCount.map(p => p.value), rawLabels, '#a86b18', 'pax', range);
 }
 
 async function loadActuators(code) {

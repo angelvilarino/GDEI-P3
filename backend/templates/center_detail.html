@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AuraVault - Detalle de Centro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body data-page="center-detail">
@@ -32,11 +33,31 @@
       </section>
 
       <section class="gauges-row stagger" style="margin-top:14px">
-        <article class="card gauge-card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
-        <article class="card gauge-card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
-        <article class="card gauge-card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
-        <article class="card gauge-card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
-        <article class="card gauge-card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
+        <article class="card gauge-card">
+          <i class="fa-solid fa-temperature-half" style="font-size: 1.6rem; margin-bottom: 4px; color: var(--accent); align-self: center;"></i>
+          <div class="gauge-label" style="text-align:center;font-weight:bold;margin-bottom:8px;font-size:0.85rem;" data-i18n="temperature">Temperatura</div>
+          <div class="kpi value" style="text-align:center;font-size:1.8rem;"><span id="gTemp-value">-</span> <span style="font-size:1.1rem; color:var(--muted);">ºC</span></div>
+        </article>
+        <article class="card gauge-card">
+          <i class="fa-solid fa-droplet" style="font-size: 1.6rem; margin-bottom: 4px; color: #3d9ecf; align-self: center;"></i>
+          <div class="gauge-label" style="text-align:center;font-weight:bold;margin-bottom:8px;font-size:0.85rem;" data-i18n="humidity">Humedad</div>
+          <div class="kpi value" style="text-align:center;font-size:1.8rem;"><span id="gHum-value">-</span> <span style="font-size:1.1rem; color:var(--muted);">%</span></div>
+        </article>
+        <article class="card gauge-card">
+          <i class="fa-solid fa-cloud" style="font-size: 1.6rem; margin-bottom: 4px; color: var(--accent-2); align-self: center;"></i>
+          <div class="gauge-label" style="text-align:center;font-weight:bold;margin-bottom:8px;font-size:0.85rem;" data-i18n="co2">CO2</div>
+          <div class="kpi value" style="text-align:center;font-size:1.8rem;"><span id="gCo2-value">-</span> <span style="font-size:1.1rem; color:var(--muted);">ppm</span></div>
+        </article>
+        <article class="card gauge-card">
+          <i class="fa-solid fa-volume-high" style="font-size: 1.6rem; margin-bottom: 4px; color: #7c5bd6; align-self: center;"></i>
+          <div class="gauge-label" style="text-align:center;font-weight:bold;margin-bottom:8px;font-size:0.85rem;">Ruido</div>
+          <div class="kpi value" style="text-align:center;font-size:1.8rem;"><span id="gNoise-value">-</span> <span style="font-size:1.1rem; color:var(--muted);">dB</span></div>
+        </article>
+        <article class="card gauge-card">
+          <i class="fa-solid fa-users" style="font-size: 1.6rem; margin-bottom: 4px; color: var(--warn); align-self: center;"></i>
+          <div class="gauge-label" style="text-align:center;font-weight:bold;margin-bottom:8px;font-size:0.85rem;" data-i18n="occupancy">Aforo</div>
+          <div class="kpi value" style="text-align:center;font-size:1.5rem;"><span id="gOcc-value">-</span> <span style="font-size:1.0rem; color:var(--muted);">personas (<span id="gOcc-pct">-</span>%)</span></div>
+        </article>
       </section>
 
       <main class="grid stagger" style="margin-top:14px">
@@ -44,10 +65,9 @@
             <div class="controls-row" style="margin-bottom:8px">
               <h3 style="margin:0" data-i18n="history">Histórico ambiental</h3>
               <select id="rangeSelect" class="input">
-                <option value="1h">1h</option>
-                <option value="6h">6h</option>
-                <option value="24h" selected>24h</option>
-                <option value="7d">7d</option>
+                <option value="1h">Última hora</option>
+                <option value="12h">Últimas 12h</option>
+                <option value="24h" selected>Últimas 24h</option>
               </select>
             </div>
             <h4 data-i18n="temperature" style="margin:8px 0 4px">Temperatura</h4>

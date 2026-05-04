@@ -295,14 +295,17 @@ function formatMetric(val, options = {}) {
   return `${numeric.toFixed(digits)}${unit ? ` ${unit}` : ''}`;
 }
 
-function formatTimestampLabel(timestamp) {
+function formatTimestampLabel(timestamp, range = '1h') {
   if (!timestamp) return '—';
   const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return String(timestamp);
-  return new Intl.DateTimeFormat(AURA.lang === 'en' ? 'en-GB' : 'es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  
+  let options = { hour: '2-digit', minute: '2-digit' };
+  if (range === '24h' || range === '7d') {
+    options = { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  }
+  
+  return new Intl.DateTimeFormat(AURA.lang === 'en' ? 'en-GB' : 'es-ES', options).format(date);
 }
 
 function escapeHtml(value) {

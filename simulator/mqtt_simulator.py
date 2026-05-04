@@ -71,9 +71,37 @@ def museum_code(museum_id: str) -> str:
     raise KeyError(museum_id)
 
 
-def init_state(room: Dict) -> SimState:
+def init_state(room: Dict, orion_url: str) -> SimState:
+    rc = room_code(room["id"])
+    env_url = f"{orion_url}/entities/urn:ngsi-ld:IndoorEnvironmentObserved:{rc}"
+    noise_url = f"{orion_url}/entities/urn:ngsi-ld:NoiseLevelObserved:{rc}"
+    
+    try:
+        env_resp = requests.get(env_url, headers={"Accept": "application/ld+json"}, timeout=2)
+        noise_resp = requests.get(noise_url, headers={"Accept": "application/ld+json"}, timeout=2)
+        if env_resp.status_code == 200 and noise_resp.status_code == 200:
+            env = normalize_entity(env_resp.json())
+            ns = normalize_entity(noise_resp.json())
+            return SimState(
+                temperature=env.get("temperature", 21.0),
+                humidity=env.get("relativeHumidity", 48.0),
+                co2=env.get("co2", 690.0),
+                illuminance=env.get("illuminance", 150.0),
+                pressure=env.get("atmosphericPressure", 1013.0),
+                people=int(env.get("peopleCount", 0)),
+                laeq=ns.get("LAeq", 45.0),
+                lamax=ns.get("LAmax", 56.0),
+                las=ns.get("LAS", 47.0),
+                occupancy=env.get("peopleCount", 0) / room["capacity"],
+                battery=0.99,
+                latency_ms=120.0,
+                rssi=-59.0,
+                hvac_active=False
+            )
+    except Exception:
+        pass
+    
     base_people = max(2, int(room["capacity"] * 0.12))
-    # Diversificar valores iniciales para evitar que todos los centros empiecen iguales
     return SimState(
         temperature=round(21.0 + random.uniform(-1.5, 1.5), 1),
         humidity=round(48.5 + random.uniform(-5.0, 5.0), 1),
@@ -256,7 +284,7 @@ def publish_room_payloads(
 
 
 def simulator_loop(args):
-    states = {room["id"]: init_state(room) for room in ROOMS}
+    states = {room["id"]: init_state(room, args.orion_url) for room in ROOMS}
     actuator_cache: Dict[str, str] = {}
 
     client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
@@ -298,7 +326,7 @@ def main():
     parser.add_argument("--mqtt-host", default="localhost")
     parser.add_argument("--mqtt-port", type=int, default=1883)
     parser.add_argument("--orion-url", default="http://localhost:1026/ngsi-ld/v1")
-    parser.add_argument("--interval", type=int, default=15)
+    parser.add_argument("--interval", type=int, default=30)
     parser.add_argument("--actuator-poll-every", type=int, default=5)
 
     parser.add_argument("--seed", type=int, default=13)

@@ -90,12 +90,13 @@ function renderArtworkTable(artworks) {
 }
 
 function renderHistory(history) {
-  const labels = history.temperature.map((p) => formatTimestampLabel(p.timestamp));
+  const range = document.getElementById('roomRange') ? document.getElementById('roomRange').value : '24h';
+  const rawLabels = history.temperature.map(p => p.timestamp);
   if (roomHistoryChart) roomHistoryChart.destroy();
   roomHistoryChart = new Chart(document.getElementById('roomHistoryChart'), {
     type: 'line',
     data: {
-      labels,
+      labels: rawLabels,
       datasets: [
         {
           label: tr('temperature'),
@@ -127,10 +128,53 @@ function renderHistory(history) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
+        x: {
+            ticks: {
+                maxRotation: 0,
+                autoSkip: false,
+                callback: function(val, index) {
+                    const ts = rawLabels[index];
+                    if (!ts) return '';
+                    const d = new Date(ts);
+                    if (Number.isNaN(d.getTime())) return '';
+                    
+                    const m = d.getMinutes();
+                    const h = d.getHours();
+                    const s = d.getSeconds();
+
+                    if (range === '1h') {
+                        if (m % 10 === 0 && s < 30) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        }
+                    } else if (range === '12h') {
+                        if (m === 0) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        }
+                    } else if (range === '24h') {
+                        if (h % 2 === 0 && m === 0) {
+                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        }
+                    }
+                    return '';
+                }
+            }
+        },
         y: { type: 'linear', display: true, position: 'left' },
         yCo2: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } },
       },
-      plugins: { legend: { position: 'bottom' } },
+      plugins: { 
+          legend: { position: 'bottom' },
+          tooltip: {
+              callbacks: {
+                  title(context) {
+                      const ts = context[0].label;
+                      const d = new Date(ts);
+                      if (Number.isNaN(d.getTime())) return ts;
+                      return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                  }
+              }
+          }
+      },
     },
   });
 }

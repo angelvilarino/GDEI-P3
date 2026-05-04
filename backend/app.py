@@ -520,8 +520,8 @@ def to_float(value, default=0.0) -> float:
 
 
 def series_for_room(room_id: str, range_key: str = "24h") -> Dict[str, List[Dict]]:
-    mapping = {"1h": 20, "6h": 90, "12h": 150, "24h": 300, "7d": 900, "30d": 1500}
-    n = mapping.get(range_key, 300)
+    mapping = {"1h": 120, "12h": 1440, "24h": 2880}
+    n = mapping.get(range_key, 2880)
 
     room = resolve_room(room_id)
     rc = room["id"].split(":")[-1]
@@ -1166,8 +1166,26 @@ def api_center_trend(center_id: str):
     def aggregate(points: List[Dict]) -> List[Dict]:
         grouped: Dict[str, List[float]] = defaultdict(list)
         for p in points:
-            ts = p.get("timestamp") or utc_now()
-            grouped[str(ts)].append(to_float(p.get("value"), 0.0))
+            ts_str = str(p.get("timestamp"))
+            if not ts_str: continue
+            # Formatos de agregación:
+            # 1h: cada 30 seg (por defecto vienen así, o redondeamos al truncar T)
+            # 12h: cada minuto
+            # 24h: cada 5 minutos
+            try:
+                # '2026-05-04T12:34:56' o '2026-05-04T12:34:56.000Z'
+                dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                if range_key == "1h":
+                    # Mantener todo igual (o a nivel de segundo corto)
+                    key = dt.isoformat(timespec='seconds')
+                elif range_key == "12h":
+                    key = dt.replace(second=0, microsecond=0).isoformat(timespec='seconds')
+                else: # 24h
+                    minute = (dt.minute // 5) * 5
+                    key = dt.replace(minute=minute, second=0, microsecond=0).isoformat(timespec='seconds')
+            except Exception:
+                key = ts_str
+            grouped[key].append(to_float(p.get("value"), 0.0))
         out = []
         for ts, vals in sorted(grouped.items()):
             out.append({"timestamp": ts, "value": round(sum(vals) / len(vals), 3)})
@@ -1257,7 +1275,20 @@ def api_center_history(center_id: str):
     def aggregate(points: List[Dict]) -> List[Dict]:
         grouped: Dict[str, List[float]] = defaultdict(list)
         for p in points:
-            grouped[str(p.get("timestamp"))].append(to_float(p.get("value"), 0.0))
+            ts_str = str(p.get("timestamp"))
+            if not ts_str: continue
+            try:
+                dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+                if range_key == "1h":
+                    key = dt.isoformat(timespec='seconds')
+                elif range_key == "12h":
+                    key = dt.replace(second=0, microsecond=0).isoformat(timespec='seconds')
+                else: 
+                    minute = (dt.minute // 5) * 5
+                    key = dt.replace(minute=minute, second=0, microsecond=0).isoformat(timespec='seconds')
+            except Exception:
+                key = ts_str
+            grouped[key].append(to_float(p.get("value"), 0.0))
         out = []
         for ts, vals in sorted(grouped.items()):
             out.append({"timestamp": ts, "value": round(sum(vals) / len(vals), 3)})

@@ -65,6 +65,7 @@ def build_device_payloads() -> List[Dict]:
         devices.append(
             {
                 "device_id": f"dev-{rc}-env",
+                "apikey": "auravault",
                 "entity_name": f"urn:ngsi-ld:IndoorEnvironmentObserved:{rc}",
                 "entity_type": "IndoorEnvironmentObserved",
                 "protocol": "PDI-IoTA-JSON",
@@ -89,6 +90,7 @@ def build_device_payloads() -> List[Dict]:
         devices.append(
             {
                 "device_id": f"dev-{rc}-noise",
+                "apikey": "auravault",
                 "entity_name": f"urn:ngsi-ld:NoiseLevelObserved:{rc}",
                 "entity_type": "NoiseLevelObserved",
                 "protocol": "PDI-IoTA-JSON",
@@ -111,6 +113,7 @@ def build_device_payloads() -> List[Dict]:
         devices.append(
             {
                 "device_id": f"dev-{rc}-crowd",
+                "apikey": "auravault",
                 "entity_name": f"urn:ngsi-ld:CrowdFlowObserved:{rc}",
                 "entity_type": "CrowdFlowObserved",
                 "protocol": "PDI-IoTA-JSON",
@@ -137,6 +140,7 @@ def build_device_payloads() -> List[Dict]:
         devices.append(
             {
                 "device_id": f"dev-{rc}-act",
+                "apikey": "auravault",
                 "entity_name": f"urn:ngsi-ld:Actuator:{rc}-act-01",
                 "entity_type": "Actuator",
                 "protocol": "PDI-IoTA-JSON",

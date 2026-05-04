@@ -135,7 +135,7 @@ async function loadTrend() {
   const average = (points) => (points && points.length ? points.reduce((sum, value) => sum + value, 0) / points.length : null);
   const tempData = labelsSource.map((timestamp) => average(temperatureBuckets.get(timestamp)));
   const peopleData = labelsSource.map((timestamp) => average(peopleBuckets.get(timestamp)));
-  const labels = labelsSource.map((timestamp) => formatTimestampLabel(timestamp));
+  const labels = labelsSource.map((timestamp) => formatTimestampLabel(timestamp, '24h'));
   const latest = labelsSource[labelsSource.length - 1];
   const earliest = labelsSource[0];
 
@@ -194,7 +194,7 @@ async function loadTrend() {
         legend: { position: 'bottom' },
         title: {
           display: true,
-          text: `${tr('last12Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest)} ${tr('to')} ${formatTimestampLabel(latest)}`,
+          text: `${tr('last12Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest, '24h')} ${tr('to')} ${formatTimestampLabel(latest, '24h')}`,
         },
         tooltip: {
           callbacks: {
