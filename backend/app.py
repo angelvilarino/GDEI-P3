@@ -66,6 +66,24 @@ QL_URL = os.environ.get("QL_URL", "http://localhost:8668")
 QL_SERVICE = os.environ.get("QL_SERVICE", "openiot")
 QL_SERVICE_PATH = os.environ.get("QL_SERVICE_PATH", "/")
 GRAFANA_URL = os.environ.get("GRAFANA_URL", "http://localhost:3000")
+GRAFANA_INTERNAL_URL = os.environ.get("GRAFANA_INTERNAL_URL", GRAFANA_URL)
+
+# Artwork IDs que siempre deben tener degradationRisk elevado (distribuidos por centro)
+HIGH_RISK_ARTWORK_IDS: dict = {
+    # MUNCYT
+    "urn:ngsi-ld:Artwork:muncyt-abarth-1000": 0.62,
+    "urn:ngsi-ld:Artwork:muncyt-astrolabio-1630": 0.68,
+    "urn:ngsi-ld:Artwork:muncyt-planisferio-celeste-1634": 0.74,
+    "urn:ngsi-ld:Artwork:muncyt-planisferio-terrestre-1634": 0.81,
+    "urn:ngsi-ld:Artwork:muncyt-pila-electrica": 0.88,
+    "urn:ngsi-ld:Artwork:muncyt-pila-clamond": 0.95,
+    # Bellas Artes
+    "urn:ngsi-ld:Artwork:bellasartes-arrepentimiento-san-pedro": 0.71,
+    "urn:ngsi-ld:Artwork:bellasartes-ecce-homo": 0.76,
+    "urn:ngsi-ld:Artwork:bellasartes-sagrada-familia": 0.65,
+    "urn:ngsi-ld:Artwork:bellasartes-jugadores-cartas": 0.83,
+    "urn:ngsi-ld:Artwork:bellasartes-apoteosis-hercules": 0.69,
+}
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/generate")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma3:latest")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -637,7 +655,7 @@ def refresh_artwork_risks(center_id: Optional[str] = None) -> int:
     env_by_room, noise_by_room, _ = room_latest_entities()
 
     updated = 0
-    for i, artwork in enumerate(artwork_entities()):
+    for artwork in artwork_entities():
         room_id = artwork.get("isExposedIn")
         if not room_id:
             continue
@@ -646,9 +664,9 @@ def refresh_artwork_risks(center_id: Optional[str] = None) -> int:
             if not room or room["museumId"] != center_id:
                 continue
 
-        # Forzar risk alto para las primeras 6 obras
-        if i < 6:
-            risk = 0.8
+        artwork_id = artwork.get("id", "")
+        if artwork_id in HIGH_RISK_ARTWORK_IDS:
+            risk = HIGH_RISK_ARTWORK_IDS[artwork_id]
         elif risk_model is not None:
             env = env_by_room.get(room_id, {})
             noise = noise_by_room.get(room_id, {})
@@ -1107,16 +1125,20 @@ def api_center_detail(center_id: str):
     center = resolve_center(center_id)
     snap = center_snapshot(center["id"])
     
-    # Verificación rápida de Grafana
+    # Verificación de Grafana usando URL interna (Docker network)
     grafana_ok = False
-    try:
-        g_url = f"{GRAFANA_URL.rstrip('/')}/api/health"
-        # Usamos un timeout muy corto para no bloquear la UI
-        resp = requests.get(g_url, timeout=1.0)
-        grafana_ok = resp.status_code == 200
-    except Exception:
-        grafana_ok = False
-        
+    for g_url_candidate in [
+        f"{GRAFANA_INTERNAL_URL.rstrip('/')}/api/health",
+        f"{GRAFANA_URL.rstrip('/')}/api/health",
+    ]:
+        try:
+            resp = requests.get(g_url_candidate, timeout=2.0)
+            if resp.status_code == 200:
+                grafana_ok = True
+                break
+        except Exception:
+            continue
+
     return jsonify({**center, "snapshot": snap, "grafanaAlive": grafana_ok})
 
 
@@ -1673,20 +1695,22 @@ def api_actuator_command(actuator_id: str):
 @app.route("/api/grafana/center/<center_id>")
 def api_grafana_center(center_id: str):
     center = resolve_center(center_id)
+    base = GRAFANA_URL.rstrip("/")
     return jsonify(
         {
-            "url": f"{GRAFANA_URL}/d/auravault-centers/auravault-centers?orgId=1&var-center={center['code']}",
-            "embed": f"{GRAFANA_URL}/d/auravault-centers/auravault-centers?orgId=1&kiosk=tv&var-center={center['code']}",
+            "url": f"{base}/d/auravault-center/auravault-center?orgId=1&var-center={center['code']}",
+            "embed": f"{base}/d/auravault-center/auravault-center?orgId=1&kiosk=1&var-center={center['code']}&theme=light",
         }
     )
 
 
 @app.route("/api/grafana/admin")
 def api_grafana_admin():
+    base = GRAFANA_URL.rstrip("/")
     return jsonify(
         {
-            "url": f"{GRAFANA_URL}/d/auravault-ops/auravault-ops?orgId=1",
-            "embed": f"{GRAFANA_URL}/d/auravault-ops/auravault-ops?orgId=1&kiosk=tv",
+            "url": f"{base}/d/auravault-overview/auravault-overview?orgId=1",
+            "embed": f"{base}/d/auravault-overview/auravault-overview?orgId=1&kiosk=1&theme=light",
         }
     )
 

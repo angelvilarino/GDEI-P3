@@ -435,9 +435,38 @@ textarea {
   }
 }
 
+/* ── Gauge cards (temperatura, humedad, CO2, ruido, aforo) ── */
+.gauges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.gauge-card {
+  flex: 1 1 140px;
+  max-width: 200px;
+  min-width: 130px;
+  height: 180px;
+  min-height: 180px;
+  max-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.gauge-card canvas {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 110px;
+}
+
+/* ── Room cards ── */
 .room-card {
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .room-card .room-img {
@@ -445,10 +474,23 @@ textarea {
   height: 140px;
   object-fit: cover;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .room-card .room-info {
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 6px;
+}
+
+.room-card .room-btn {
+  margin-top: auto;
+  width: 100%;
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
 }
 
 .pill {

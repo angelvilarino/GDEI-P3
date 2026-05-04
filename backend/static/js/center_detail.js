@@ -47,42 +47,27 @@ async function loadCenterSnapshot(code) {
   upsertGauge('gCo2', snap.avgCo2, 1800, '#d27d3f', 'ppm');
   upsertGauge('gNoise', snap.avgNoise, 100, '#7c5bd6', 'dB');
   upsertGauge('gOcc', snap.avgOccupancy ? snap.avgOccupancy * 100 : null, 100, '#a86b18', '%');
-
-  // Manejo de visibilidad de Grafana
-  const frame = document.getElementById('grafanaFrame');
-  const error = document.getElementById('grafanaError');
-  if (frame && error) {
-    if (center.grafanaAlive) {
-      frame.style.display = 'block';
-      error.style.display = 'none';
-    } else {
-      frame.style.display = 'none';
-      error.style.display = 'block';
-    }
-  }
 }
 
 async function loadRooms(code) {
   const rooms = await apiGet(`/api/centers/${code}/rooms`);
   const list = document.getElementById('roomsList');
+  const FALLBACK_IMG = 'https://picsum.photos/id/376/400/200';
   list.innerHTML = rooms
     .map(
-      (r) => {
-        const fallbackImg = `https://images.unsplash.com/photo-1554941068-a252680d25d9?auto=format&fit=crop&q=80&w=400&h=200&museum=${encodeURIComponent(r.roomType)}`;
-        return `
+      (r) => `
       <div class="card room-card">
-        <img class="room-img" src="${r.image || fallbackImg}" alt="${escapeHtml(r.name)}" />
+        <img class="room-img" src="${r.image || FALLBACK_IMG}" alt="${escapeHtml(r.name)}" onerror="this.src='${FALLBACK_IMG}'" />
         <div class="room-info">
           <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
             <strong>${escapeHtml(r.name)}</strong>
             ${statusBadge(r.status)}
           </div>
           <div class="small">${tr('occupancy')}: ${formatMetric(Number(r.current.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</div>
-          <a class="btn" href="/room/${encodeURIComponent(r.id)}" style="margin-top:8px; width: 100%; text-align: center;">${tr('viewDetail')}</a>
+          <a class="btn room-btn" href="/room/${encodeURIComponent(r.id)}">${tr('viewDetail')}</a>
         </div>
       </div>
-    `;
-      }
+    `
     )
     .join('');
 }
@@ -181,8 +166,22 @@ async function loadActuators(code) {
 }
 
 async function loadGrafana(code) {
-  const info = await apiGet(`/api/grafana/center/${code}`);
-  document.getElementById('grafanaFrame').src = info.embed;
+  const frame = document.getElementById('grafanaFrame');
+  const errorDiv = document.getElementById('grafanaError');
+  try {
+    const info = await apiGet(`/api/grafana/center/${code}`);
+    if (!info || !info.embed) throw new Error('no embed URL');
+    frame.src = info.embed;
+    frame.style.display = 'block';
+    if (errorDiv) errorDiv.style.display = 'none';
+    frame.onerror = () => {
+      frame.style.display = 'none';
+      if (errorDiv) errorDiv.style.display = '';
+    };
+  } catch (_) {
+    frame.style.display = 'none';
+    if (errorDiv) errorDiv.style.display = '';
+  }
 }
 
 async function bootCenterDetail() {

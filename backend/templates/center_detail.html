@@ -31,71 +31,59 @@
         </div>
       </section>
 
-      <section class="grid grid-5 stagger" style="margin-top:14px">
-        <article class="card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
+      <section class="gauges-row stagger" style="margin-top:14px">
+        <article class="card gauge-card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
+        <article class="card gauge-card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
+        <article class="card gauge-card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
+        <article class="card gauge-card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
+        <article class="card gauge-card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
       </section>
 
       <main class="grid stagger" style="margin-top:14px">
-        <div class="grid grid-2">
-            <article class="card">
-                <h4 data-i18n="temperature">Temperatura</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartTemp"></canvas></div>
-            </article>
-            <article class="card">
-                <h4 data-i18n="humidity">Humedad</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartHum"></canvas></div>
-            </article>
-            <article class="card">
-                <h4 data-i18n="co2">CO2</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartCo2"></canvas></div>
-            </article>
-            <article class="card">
-                <h4>LAeq (Noise)</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartNoise"></canvas></div>
-            </article>
-        </div>
-
         <article class="card">
-          <div class="controls-row">
-            <h3 style="margin:0" data-i18n="occupancy">Aforo</h3>
-            <select id="rangeSelect" class="input">
-              <option value="1h">1h</option>
-              <option value="6h">6h</option>
-              <option value="24h" selected>24h</option>
-              <option value="7d">7d</option>
-            </select>
-          </div>
-          <div class="chart-wrap" style="height:320px;margin-top:8px"><canvas id="chartCrowd"></canvas></div>
+            <div class="controls-row" style="margin-bottom:8px">
+              <h3 style="margin:0" data-i18n="history">Histórico ambiental</h3>
+              <select id="rangeSelect" class="input">
+                <option value="1h">1h</option>
+                <option value="6h">6h</option>
+                <option value="24h" selected>24h</option>
+                <option value="7d">7d</option>
+              </select>
+            </div>
+            <h4 data-i18n="temperature" style="margin:8px 0 4px">Temperatura</h4>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartTemp"></canvas></div>
+            <h4 data-i18n="humidity" style="margin:12px 0 4px">Humedad</h4>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartHum"></canvas></div>
+            <h4 data-i18n="co2" style="margin:12px 0 4px">CO2</h4>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartCo2"></canvas></div>
+            <h4 style="margin:12px 0 4px">LAeq (Ruido)</h4>
+            <div class="chart-wrap" style="height:180px"><canvas id="chartNoise"></canvas></div>
+            <h4 data-i18n="occupancy" style="margin:12px 0 4px">Aforo</h4>
+            <div class="chart-wrap" style="height:200px;margin-top:4px"><canvas id="chartCrowd"></canvas></div>
         </article>
 
-        <!-- Salas moved from sidebar -->
         <article class="card">
             <h3 data-i18n="room">Salas</h3>
             <div id="roomsList" class="grid grid-3"></div>
         </article>
 
-        <div class="grid grid-2">
-            <article class="card">
-                <h3 data-i18n="devices">Actuadores</h3>
-                <div id="actuatorPanel" class="grid grid-2"></div>
-            </article>
-            <article class="card">
-                <h3 data-i18n="riskWorks">Obras en riesgo</h3>
-                <div id="riskList" class="alert-list"></div>
-            </article>
-        </div>
+        <article class="card">
+            <h3 data-i18n="devices">Actuadores</h3>
+            <div id="actuatorPanel" class="grid grid-3"></div>
+        </article>
 
         <article class="card">
-            <h3 data-i18n="grafana">Grafana</h3>
+            <h3 data-i18n="riskWorks">Obras en riesgo</h3>
+            <div id="riskList" class="alert-list"></div>
+        </article>
+
+        <article class="card">
+            <h3 data-i18n="grafana">Grafana — Monitorización avanzada</h3>
+            <div id="grafanaError" class="empty-state" style="display:none;margin-bottom:8px">
+                <p>⚠️ El panel de Grafana no está disponible. Verifique que el servicio esté activo.</p>
+            </div>
             <div class="grafana-frame" id="grafanaContainer">
-                <iframe id="grafanaFrame" title="Grafana center"></iframe>
-                <div id="grafanaError" class="empty-state" style="display:none">
-                    <p>⚠️ El panel de Grafana no se pudo cargar. Verifique que el servicio esté activo.</p>
-                </div>
+                <iframe id="grafanaFrame" title="Grafana center" allowfullscreen></iframe>
             </div>
         </article>
       </main>

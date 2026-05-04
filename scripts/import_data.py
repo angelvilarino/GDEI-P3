@@ -75,6 +75,7 @@ def room_entity(room: Dict) -> Dict:
         "area": ngsi_property(room["area"]),
         "capacity": ngsi_property(room["capacity"]),
         "roomType": ngsi_property(room["roomType"]),
+        "image": ngsi_property(room.get("image", "")),
         "status": ngsi_property("optimal"),
         "currentOccupancy": ngsi_property(0),
         "recommendedMaxOccupancy": ngsi_property(max(1, math.floor(room["capacity"] * 0.9))),
@@ -319,16 +320,31 @@ def baseline_observations(room: Dict) -> List[Dict]:
     return [env, noise, crowd]
 
 
+HIGH_RISK_ARTWORK_IDS: dict = {
+    # MUNCYT — primeras 6 obras
+    "urn:ngsi-ld:Artwork:muncyt-abarth-1000": 0.62,
+    "urn:ngsi-ld:Artwork:muncyt-astrolabio-1630": 0.68,
+    "urn:ngsi-ld:Artwork:muncyt-planisferio-celeste-1634": 0.74,
+    "urn:ngsi-ld:Artwork:muncyt-planisferio-terrestre-1634": 0.81,
+    "urn:ngsi-ld:Artwork:muncyt-pila-electrica": 0.88,
+    "urn:ngsi-ld:Artwork:muncyt-pila-clamond": 0.95,
+    # Bellas Artes — 5 obras con riesgo elevado
+    "urn:ngsi-ld:Artwork:bellasartes-arrepentimiento-san-pedro": 0.71,
+    "urn:ngsi-ld:Artwork:bellasartes-ecce-homo": 0.76,
+    "urn:ngsi-ld:Artwork:bellasartes-sagrada-familia": 0.65,
+    "urn:ngsi-ld:Artwork:bellasartes-jugadores-cartas": 0.83,
+    "urn:ngsi-ld:Artwork:bellasartes-apoteosis-hercules": 0.69,
+}
+
+
 def build_all_entities() -> List[Dict]:
     entities: List[Dict] = []
-
-    high_risks = [0.62, 0.68, 0.74, 0.81, 0.88, 0.95]
 
     entities.extend(museum_entity(m) for m in MUSEUMS)
     entities.extend(room_entity(r) for r in ROOMS)
     entities.extend(
-        artwork_entity(a, high_risks[i] if i < len(high_risks) else 0.12)
-        for i, a in enumerate(ARTWORKS)
+        artwork_entity(a, HIGH_RISK_ARTWORK_IDS.get(a["id"], 0.12))
+        for a in ARTWORKS
     )
     entities.extend(device_model_entity(m) for m in DEVICE_MODELS)
 
