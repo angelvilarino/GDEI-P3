@@ -152,7 +152,7 @@ graph LR
 - El backend Flask reutiliza consultas frecuentes mediante caché temporal y reduce carga sobre Orion.
 - Las lecturas actuales se completan con histórico reciente desde QuantumLeap cuando falta estado vivo.
 - Las notificaciones `/notify` se reducen a payloads mínimos para emitir solo los cambios relevantes.
-- El frontend integra WebSocket para refresco inmediato de KPIs, alertas y paneles operativos.
+- El frontend integra WebSocket para refresco inmediato de KPIs, alertas y paneles operativos, complementado con refresco periódico (fetch) de 15s en la vista de centros.
 - El mapa global admite hover y navegación directa al detalle de centro.
 - La vista 3D y el detalle de sala usan paneles laterales para contexto operativo sin abandonar la escena.
 - Mermaid se genera con sintaxis segura compatible con la versión actual del renderizador.
@@ -199,7 +199,7 @@ graph LR
 ### 8.1 Creación
 
 - **Backend Heartbeat (15s)**: Un hilo en el backend regenera el resumen global cada 15 segundos y lo emite vía SocketIO.
-- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO para actualizar KPIs, gráficas y alertas instantáneamente.
+- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO. El explorador de centros implementa adicionalmente un intervalo de refresco de 15s (polling controlado) para asegurar consistencia en gráficas y aforo.
 - **Suscripciones Automáticas**: El backend asegura al arranque las suscripciones en Orion-LD para recibir notificaciones en el endpoint `/notify`.
 
 1. Backend evalúa reglas de negocio (umbrales y combinaciones).
