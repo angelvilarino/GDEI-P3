@@ -199,7 +199,7 @@ graph LR
 ### 8.1 Creación
 
 - **Backend Heartbeat (15s)**: Un hilo en el backend regenera el resumen global cada 15 segundos y lo emite vía SocketIO.
-- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO. El explorador de centros implementa adicionalmente un intervalo de refresco de 15s (polling controlado) para asegurar consistencia en gráficas y aforo.
+- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO. El explorador de centros implementa un intervalo de refresco de 15s que actualiza dinámicamente las métricas de las tarjetas mediante manipulación del DOM, reduciendo el parpadeo de gráficas.
 - **Suscripciones Automáticas**: El backend asegura al arranque las suscripciones en Orion-LD para recibir notificaciones en el endpoint `/notify`.
 
 1. Backend evalúa reglas de negocio (umbrales y combinaciones).

@@ -235,7 +235,7 @@ Datos que muestra:
 - Temperatura, humedad y CO2 actuales.
 - Aforo actual (porcentaje real calculado sobre capacidad máxima).
 - Indicador de ocupación y color de estado.
-- Dos gráficas sparkline (temperatura y aforo) en la misma fila, con ejes y escalas independientes.
+- Dos gráficas sparkline (temperatura y aforo) en la misma fila, con ejes temporales visibles, escalas independientes y tooltip interactivo (fecha/hora y valor exacto al hacer hover).
 
 Interacciones que permite:
 

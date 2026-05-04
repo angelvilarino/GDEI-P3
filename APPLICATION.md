@@ -66,8 +66,8 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 - La vista pública y el panel de sala/obra usan soporte bilingüe para labels y mensajes principales.
 - La ingesta de datos de Orion resuelve transparentemente los atributos encapsulados en arreglos, asegurando KPIs precisos.
 - Las gráficas analíticas separan los ejes Y por magnitud para evitar superposición visual en el histórico.
-- Sincronización en tiempo real (heartbeat 15s) mediante SocketIO y fetch periódico en el explorador de centros, permitiendo actualizaciones de KPIs, gráficas y alertas sin refresco manual.
-- Interfaz premium con layouts responsivos que incluyen gráficas sparkline independientes (temperatura y aforo) lado a lado en las tarjetas de centros, optimizando la comparativa visual inmediata.
+- Sincronización en tiempo real (heartbeat 15s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas.
+- Interfaz premium con gráficas sparkline interactivas (hover con timestamp y valor exacto) y ejes temporales visibles, optimizando la comparativa visual inmediata.
 - Gestión automática de suscripciones Orion-LD que asegura la recepción inmediata de eventos ambientales y críticos.
 
 ## 6. Diagrama de la arquitectura
