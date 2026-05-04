@@ -18,10 +18,27 @@ async function refreshCenters() {
   try {
     const fresh = await apiGet('/api/centers');
     centersCache = fresh;
-    // Update only the dynamic metric values and sparklines without full re-render
-    // to avoid flickering. Re-render is safe since filters are re-applied.
-    renderCenters();
-    await renderSparklines();
+    
+    // Update only the numeric values in the cards to avoid full re-render and chart flickering
+    fresh.forEach(c => {
+      const card = document.getElementById(`card-${c.code}`);
+      if (!card) return;
+      
+      const metrics = card.querySelectorAll('.metric-value');
+      if (metrics.length >= 4) {
+        metrics[0].textContent = formatMetric(c.snapshot.avgTemperature, { unit: '°C' });
+        metrics[1].textContent = formatMetric(c.snapshot.avgHumidity, { unit: '%' });
+        metrics[2].textContent = formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' });
+        metrics[3].textContent = c.snapshot.avgOccupancy != null
+          ? `${(c.snapshot.avgOccupancy * 100).toFixed(0)} %`
+          : '—';
+      }
+      
+      // Update status badge if changed
+      const badgeWrap = card.querySelector('.badge-wrap');
+      if (badgeWrap) badgeWrap.innerHTML = statusBadge(c.status);
+    });
+    
   } catch (err) {
     console.warn('[centers] Refresh failed:', err);
   }
@@ -50,7 +67,6 @@ function renderCenters() {
     return true;
   });
 
-  // avgOccupancy is a 0-1 ratio; multiply by 100 to show as percentage
   const grid = document.getElementById('centersGrid');
   grid.innerHTML = data.length
     ? data
@@ -64,21 +80,21 @@ function renderCenters() {
         <img class="center-card-image" src="${escapeHtml(c.image)}" alt="${escapeHtml(c.name)}" />
         <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
           <h3 style="margin:0">${escapeHtml(c.name)}</h3>
-          ${statusBadge(c.status)}
+          <div class="badge-wrap">${statusBadge(c.status)}</div>
         </div>
         <p class="small">${escapeHtml(c.type)}</p>
         <div class="grid grid-2">
-          <div>${tr('temperature')}: <strong>${formatMetric(c.snapshot.avgTemperature, { unit: '°C' })}</strong></div>
-          <div>${tr('humidity')}: <strong>${formatMetric(c.snapshot.avgHumidity, { unit: '%' })}</strong></div>
-          <div>${tr('co2')}: <strong>${formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' })}</strong></div>
-          <div>${tr('occupancy')}: <strong>${occupancyPct}</strong></div>
+          <div>${tr('temperature')}: <strong class="metric-value">${formatMetric(c.snapshot.avgTemperature, { unit: '°C' })}</strong></div>
+          <div>${tr('humidity')}: <strong class="metric-value">${formatMetric(c.snapshot.avgHumidity, { unit: '%' })}</strong></div>
+          <div>${tr('co2')}: <strong class="metric-value">${formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' })}</strong></div>
+          <div>${tr('occupancy')}: <strong class="metric-value">${occupancyPct}</strong></div>
         </div>
         <div style="display:flex;gap:10px;margin-top:10px">
-          <div class="chart-wrap" style="flex:1;height:140px">
+          <div class="chart-wrap" style="flex:1;height:160px">
             <div class="small">${tr('temperature')}</div>
             <canvas id="spark-temp-${c.code}"></canvas>
           </div>
-          <div class="chart-wrap" style="flex:1;height:140px">
+          <div class="chart-wrap" style="flex:1;height:160px">
             <div class="small">${tr('occupancy')}</div>
             <canvas id="spark-occ-${c.code}"></canvas>
           </div>
@@ -95,7 +111,6 @@ function renderCenters() {
 }
 
 async function renderSparklines() {
-  // Destroy previous charts before re-creating
   sparklineCharts.forEach((chart) => chart.destroy());
   sparklineCharts.clear();
 
@@ -132,83 +147,101 @@ async function renderSparklines() {
         ? peopleSeries.map((p) => formatTimestampLabel(p.timestamp))
         : tempLabels;
 
-      // Temperature chart – own Y axis, own scale
+      const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: { bottom: 20 } // Add padding to avoid cutting X axis
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false,
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              title(items) {
+                const idx = items[0].dataIndex;
+                const p = items[0].dataset.points[idx];
+                return p ? new Date(p.timestamp).toLocaleString(AURA.lang === 'en' ? 'en-GB' : 'es-ES') : '';
+              },
+              label(context) {
+                const unit = context.dataset.unit || '';
+                return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+              },
+            },
+          }
+        },
+        scales: {
+          x: { 
+            display: true,
+            ticks: {
+              maxRotation: 0,
+              autoSkip: true,
+              maxTicksLimit: 4,
+              font: { size: 9 }
+            }
+          },
+          y: {
+            display: true,
+            title: { display: true, text: '', font: { size: 10 } },
+            ticks: { font: { size: 9 } }
+          }
+        }
+      };
+
       const chartTemp = new Chart(ctxTemp, {
         type: 'line',
         data: {
           labels: tempLabels,
           datasets: [{
-            label: tr('temperatureWithUnit'),
+            label: tr('temperature'),
             data: tempSeries.map(p => p.value),
+            points: tempSeries, // Store for tooltip
             borderColor: '#0e7c74',
             backgroundColor: '#0e7c741a',
             borderWidth: 2,
             fill: true,
             pointRadius: 0,
+            pointHoverRadius: 4,
             tension: 0.25,
             unit: '°C'
           }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label(context) {
-                  const unit = context.dataset.unit || '';
-                  return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
-                },
-              },
-            }
-          },
+          ...baseOptions,
           scales: {
-            x: { display: false },
-            y: {
-              display: true,
-              title: { display: true, text: '°C', font: { size: 10 } },
-            }
+            ...baseOptions.scales,
+            y: { ...baseOptions.scales.y, title: { ...baseOptions.scales.y.title, text: '°C' } }
           }
         }
       });
 
-      // Occupancy chart (people count) – own Y axis, own scale, independent of temperature
       const chartOcc = new Chart(ctxOcc, {
         type: 'line',
         data: {
           labels: occLabels,
           datasets: [{
-            label: tr('occupancyWithUnit'),
+            label: tr('occupancy'),
             data: peopleSeries.map(p => p.value),
+            points: peopleSeries, // Store for tooltip
             borderColor: '#d27d3f',
             backgroundColor: '#d27d3f1a',
             borderWidth: 2,
             fill: true,
             pointRadius: 0,
+            pointHoverRadius: 4,
             tension: 0.25,
-            unit: tr('occupancy')
+            unit: 'pers.'
           }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label(context) {
-                  return `${context.dataset.label}: ${Math.round(context.parsed.y)} personas`;
-                },
-              },
-            }
-          },
+          ...baseOptions,
           scales: {
-            x: { display: false },
-            y: {
-              display: true,
-              title: { display: true, text: 'pers.', font: { size: 10 } },
-            }
+            ...baseOptions.scales,
+            y: { ...baseOptions.scales.y, title: { ...baseOptions.scales.y.title, text: 'pers.' } }
           }
         }
       });
@@ -224,11 +257,13 @@ async function renderSparklines() {
 
 function wireFilters() {
   ['filterType', 'filterStatus', 'filterOccupancy', 'filterSearch'].forEach((id) => {
-    document.getElementById(id).addEventListener('change', () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', () => {
       renderCenters();
       renderSparklines();
     });
-    document.getElementById(id).addEventListener('input', () => {
+    el.addEventListener('input', () => {
       renderCenters();
       renderSparklines();
     });
@@ -240,11 +275,15 @@ document.addEventListener('DOMContentLoaded', () => {
   wireFilters();
   loadCenters().catch((err) => console.error(err));
 
-  // Periodic refresh every 15 seconds
+  // Periodic refresh every 15 seconds - only for numeric metrics as requested
   refreshIntervalId = setInterval(() => {
     refreshCenters().catch((err) => console.warn('[centers] Auto-refresh error:', err));
   }, 15000);
 
-  // Also refresh on SocketIO update events
+  // Refresh sparklines less often (e.g., every 60s) to reduce noise
+  setInterval(() => {
+    renderSparklines().catch(e => console.warn('[centers] Sparkline refresh error:', e));
+  }, 60000);
+
   ensureSocket().on('update', () => refreshCenters());
 });

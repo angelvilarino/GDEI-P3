@@ -73,14 +73,15 @@ def museum_code(museum_id: str) -> str:
 
 def init_state(room: Dict) -> SimState:
     base_people = max(2, int(room["capacity"] * 0.12))
+    # Diversificar valores iniciales para evitar que todos los centros empiecen iguales
     return SimState(
-        temperature=21.0,
-        humidity=48.5,
-        co2=690.0,
-        illuminance=150.0,
-        pressure=1013.0,
+        temperature=round(21.0 + random.uniform(-1.5, 1.5), 1),
+        humidity=round(48.5 + random.uniform(-5.0, 5.0), 1),
+        co2=round(690.0 + random.uniform(-100.0, 150.0), 1),
+        illuminance=150.0 + random.uniform(-20, 20),
+        pressure=1013.0 + random.uniform(-2, 2),
         people=base_people,
-        laeq=45.0,
+        laeq=45.0 + random.uniform(-3, 3),
         lamax=56.0,
         las=47.0,
         occupancy=base_people / room["capacity"],
