@@ -31,31 +31,31 @@
         </div>
       </section>
 
-      <section class="grid grid-5 stagger" style="margin-top:14px">
-        <article class="card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
-        <article class="card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
+      <section class="data-cards-container stagger">
+        <article class="data-card"><canvas id="gTemp"></canvas><div id="gTemp-value" class="kpi value">-</div></article>
+        <article class="data-card"><canvas id="gHum"></canvas><div id="gHum-value" class="kpi value">-</div></article>
+        <article class="data-card"><canvas id="gCo2"></canvas><div id="gCo2-value" class="kpi value">-</div></article>
+        <article class="data-card"><canvas id="gNoise"></canvas><div id="gNoise-value" class="kpi value">-</div></article>
+        <article class="data-card"><canvas id="gOcc"></canvas><div id="gOcc-value" class="kpi value">-</div></article>
       </section>
 
       <main class="grid stagger" style="margin-top:14px">
-        <div class="grid grid-2">
+        <div class="grid" style="grid-template-columns: 1fr;">
             <article class="card">
                 <h4 data-i18n="temperature">Temperatura</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartTemp"></canvas></div>
+                <div class="chart-wrap" style="height:220px"><canvas id="chartTemp"></canvas></div>
             </article>
             <article class="card">
                 <h4 data-i18n="humidity">Humedad</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartHum"></canvas></div>
+                <div class="chart-wrap" style="height:220px"><canvas id="chartHum"></canvas></div>
             </article>
             <article class="card">
                 <h4 data-i18n="co2">CO2</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartCo2"></canvas></div>
+                <div class="chart-wrap" style="height:220px"><canvas id="chartCo2"></canvas></div>
             </article>
             <article class="card">
                 <h4>LAeq (Noise)</h4>
-                <div class="chart-wrap" style="height:200px"><canvas id="chartNoise"></canvas></div>
+                <div class="chart-wrap" style="height:220px"><canvas id="chartNoise"></canvas></div>
             </article>
         </div>
 
@@ -78,7 +78,7 @@
             <div id="roomsList" class="grid grid-3"></div>
         </article>
 
-        <div class="grid grid-2">
+        <div class="grid" style="grid-template-columns: 1fr;">
             <article class="card">
                 <h3 data-i18n="devices">Actuadores</h3>
                 <div id="actuatorPanel" class="grid grid-2"></div>

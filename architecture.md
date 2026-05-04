@@ -139,6 +139,7 @@ graph LR
 - Imagen Docker: `grafana/grafana:latest`.
 - Puerto: `3000`.
 - Dependencias: CrateDB como datasource.
+- Conectividad: El backend utiliza el nombre de servicio interno (`http://grafana:3000`) para comprobaciones de estado (health check), mientras que el frontend utiliza la URL pública para el embebido mediante `<iframe>`.
 
 ### 4.10 LLM local (Gemma)
 
