@@ -57,7 +57,7 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 
 ## 5. Estado actual de la aplicación
 
-- Las consultas repetidas al backend usan caché temporal para mejorar respuesta en vistas globales y de detalle.
+- Las consultas repetidas al backend usan caché temporal reducida (5s) para asegurar la frescura de los datos en tiempo real sin saturar Orion.
 - Si Orion no devuelve dato vivo, la aplicación consulta el histórico más reciente disponible para evitar pantallas vacías.
 - La interfaz visualiza valores ausentes como ausencia de dato, no como cero artificial.
 - El mapa global incorpora hover con contexto y navegación directa al detalle de centro.
