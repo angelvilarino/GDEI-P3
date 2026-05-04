@@ -87,7 +87,7 @@ def room_entity(room: Dict) -> Dict:
     }
 
 
-def artwork_entity(artwork: Dict) -> Dict:
+def artwork_entity(artwork: Dict, risk: float = 0.12) -> Dict:
     ts = now_iso()
     return {
         "id": artwork["id"],
@@ -102,7 +102,7 @@ def artwork_entity(artwork: Dict) -> Dict:
         "source": ngsi_property(artwork["sourceUrl"]),
         "isExposedIn": ngsi_relationship(artwork["roomId"]),
         "conservationRequirements": ngsi_property(artwork["conservationRequirements"]),
-        "degradationRisk": ngsi_property(0.12),
+        "degradationRisk": ngsi_property(risk),
         "stressAccumulated": ngsi_property(0.08),
         "conditionStatus": ngsi_property("good"),
         "lastAssessmentDate": ngsi_property(ts),
@@ -110,6 +110,44 @@ def artwork_entity(artwork: Dict) -> Dict:
         "dateModified": ngsi_property(ts),
         "@context": [NGSI_LD_CONTEXT],
     }
+
+
+def alert_entity(room: Dict, alert_type: str, severity: str, description: str, idx: int) -> Dict:
+    ts = now_iso()
+    room_code = room["id"].split(":")[-1]
+    return {
+        "id": f"urn:ngsi-ld:Alert:{room_code}-{alert_type.lower()}-{idx:02d}",
+        "type": "Alert",
+        "name": ngsi_property(alert_type),
+        "subCategory": ngsi_property(alert_type),
+        "description": ngsi_property(description),
+        "severity": ngsi_property(severity),
+        "status": ngsi_property("open"),
+        "alertSource": ngsi_relationship(room["id"]),
+        "dateCreated": ngsi_property(ts),
+        "dateModified": ngsi_property(ts),
+        "@context": [NGSI_LD_CONTEXT],
+    }
+
+
+def create_alert_entities() -> List[Dict]:
+    kinds = [
+        ("CO2Exceeded", "high", "CO2 levels above safe range"),
+        ("HumidityOutOfRange", "medium", "Humidity outside target bounds"),
+        ("NoiseExceeded", "low", "Noise exceeds comfort thresholds"),
+        ("CrowdingDetected", "critical", "Overcrowding detected in the room"),
+        ("ArtworkAtRisk", "high", "Artwork degradation risk is high"),
+        ("CO2Exceeded", "medium", "Elevated CO2 detected"),
+        ("HumidityOutOfRange", "critical", "Humidity severely out of range"),
+        ("NoiseExceeded", "medium", "Noise levels are elevated"),
+        ("CrowdingDetected", "high", "Crowd density above safe level"),
+        ("ArtworkAtRisk", "critical", "Artwork condition requires immediate attention"),
+    ]
+    entities: List[Dict] = []
+    for idx, (alert_type, severity, description) in enumerate(kinds, start=1):
+        room = ROOMS[(idx - 1) % len(ROOMS)]
+        entities.append(alert_entity(room, alert_type, severity, description, idx))
+    return entities
 
 
 def device_model_entity(model: Dict) -> Dict:
@@ -281,15 +319,21 @@ def baseline_observations(room: Dict) -> List[Dict]:
 def build_all_entities() -> List[Dict]:
     entities: List[Dict] = []
 
+    high_risks = [0.62, 0.68, 0.74, 0.81, 0.88, 0.95]
+
     entities.extend(museum_entity(m) for m in MUSEUMS)
     entities.extend(room_entity(r) for r in ROOMS)
-    entities.extend(artwork_entity(a) for a in ARTWORKS)
+    entities.extend(
+        artwork_entity(a, high_risks[i] if i < len(high_risks) else 0.12)
+        for i, a in enumerate(ARTWORKS)
+    )
     entities.extend(device_model_entity(m) for m in DEVICE_MODELS)
 
     for room in ROOMS:
         entities.extend(build_room_devices(room))
         entities.append(build_room_actuator(room))
         entities.extend(baseline_observations(room))
+    entities.extend(create_alert_entities())
 
     return entities
 
@@ -330,6 +374,14 @@ def reset_entities(orion_url: str):
                 f"urn:ngsi-ld:CrowdFlowObserved:{room_code}",
             ]
         )
+        for idx, alert_type in enumerate([
+            "CO2Exceeded",
+            "HumidityOutOfRange",
+            "NoiseExceeded",
+            "CrowdingDetected",
+            "ArtworkAtRisk",
+        ], start=1):
+            ids.append(f"urn:ngsi-ld:Alert:{room_code}-{alert_type.lower()}-{idx:02d}")
 
     for entity_id in ids:
         delete_entity_if_exists(orion_url, ORION_ENTITY_HEADERS, entity_id)

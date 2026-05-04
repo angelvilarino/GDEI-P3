@@ -43,6 +43,15 @@ def request_json(
         if isinstance(payload, dict) and "@context" in payload:
             final_headers["Content-Type"] = "application/ld+json"
             final_headers.pop("Link", None)
+        # Si el payload es una lista de entidades NGSI-LD, también usamos ld+json sin Link
+        elif (
+            isinstance(payload, list)
+            and len(payload) > 0
+            and isinstance(payload[0], dict)
+            and "@context" in payload[0]
+        ):
+            final_headers["Content-Type"] = "application/ld+json"
+            final_headers.pop("Link", None)
         # Si ya tiene un Content-Type (como de orion_headers), lo respetamos
         elif "Content-Type" not in final_headers:
             final_headers["Content-Type"] = "application/json"

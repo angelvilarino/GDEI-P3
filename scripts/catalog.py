@@ -14,7 +14,7 @@ from typing import Dict, List
 
 NGSI_LD_CONTEXT = "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
 
-ORION_SERVICE = os.environ.get("ORION_SERVICE")
+ORION_SERVICE = os.environ.get("ORION_SERVICE", "openiot")
 ORION_SERVICE_PATH = os.environ.get("ORION_SERVICE_PATH", "/")
 
 ORION_ENTITY_HEADERS = {

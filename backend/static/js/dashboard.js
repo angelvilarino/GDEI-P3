@@ -49,25 +49,37 @@ function updateKPIs(kpi) {
 async function loadSummary() {
   const data = await apiGet('/api/dashboard/summary');
   updateKPIs(data.kpis);
-  // Ocultar skeletons de KPIs
-  document.querySelectorAll('.kpi .value').forEach(el => {
-    if (el.textContent !== 'Cargando...') el.style.display = 'block';
-  });
+  document.querySelectorAll('.kpi .value').forEach((el) => el.classList.remove('skeleton'));
+}
+
+function parseSensorStatusResponse(data) {
+  return {
+    active: Number(data.active ?? data.activeCount ?? data.sensorsActive ?? 0),
+    total: Number(data.total ?? data.totalCount ?? data.sensorsTotal ?? 0),
+  };
 }
 
 async function loadSensorsStatus() {
   const data = await apiGet('/api/sensors/status');
-  document.getElementById('kpiSensors').textContent = `${data.active}/${data.total}`;
+  const { active, total } = parseSensorStatusResponse(data);
+  const kpiSensors = document.getElementById('kpiSensors');
+  kpiSensors.textContent = `${formatMetric(active, { digits: 0, zeroAsMissing: false })}/${formatMetric(total, { digits: 0, zeroAsMissing: false })}`;
+  kpiSensors.classList.remove('skeleton');
 }
 
 async function loadCentersMap() {
+  const mapContainer = document.getElementById('globalMap');
   const centers = await apiGet('/api/centers');
+  mapContainer.style.opacity = '0';
+  mapContainer.style.display = 'block';
   if (!dashboardMap) {
     dashboardMap = L.map('globalMap').setView([43.3705, -8.4075], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(dashboardMap);
+  } else {
+    dashboardMap.invalidateSize();
   }
 
   if (window._centerMarkers) {
@@ -87,9 +99,8 @@ async function loadCentersMap() {
     window._centerMarkers.push(marker);
   });
 
-  // Ocultar skeleton del mapa
   document.getElementById('mapSkeleton').style.display = 'none';
-  document.getElementById('globalMap').style.display = 'block';
+  mapContainer.style.opacity = '1';
 }
 
 async function loadTrend() {
@@ -113,6 +124,7 @@ async function loadTrend() {
 
   const labelsSource = Array.from(new Set([...temperatureBuckets.keys(), ...peopleBuckets.keys()])).filter(Boolean).sort();
   if (!labelsSource.length) {
+    document.getElementById('chartSkeleton').style.display = 'none';
     const canvas = document.getElementById('trendChart');
     if (canvas && canvas.parentElement) {
       canvas.parentElement.innerHTML = `<div class="empty-state">${tr('noDataAvailable')}</div>`;
@@ -252,62 +264,20 @@ function loadMermaid() {
     setTimeout(loadMermaid, 500);
     return;
   }
-  const el = document.getElementById('modelMermaid');
-  const graph = {
-    Museum: 'museum',
-    Room: 'room',
-    Artwork: 'artwork',
-    Device: 'device',
-    Actuator: 'actuator',
-    IndoorEnvironmentObserved: 'envNode',
-    NoiseLevelObserved: 'noise',
-    CrowdFlowObserved: 'crowd',
-    Alert: 'alert',
-  };
-  const lines = ['flowchart TD'];
-  graph.Museum && lines.push('  museum["Museum"]');
-  graph.Room && lines.push('  room["Room"]');
-  graph.Artwork && lines.push('  artwork["Artwork"]');
-  graph.Device && lines.push('  device["Device"]');
-  graph.Actuator && lines.push('  actuator["Actuator"]');
-  graph.IndoorEnvironmentObserved && lines.push('  envNode["IndoorEnvironmentObserved"]');
-  graph.NoiseLevelObserved && lines.push('  noise["NoiseLevelObserved"]');
-  graph.CrowdFlowObserved && lines.push('  crowd["CrowdFlowObserved"]');
-  graph.Alert && lines.push('  alert["Alert"]');
-  lines.push('  museum -->|contains| room');
-  lines.push('  room -->|exposes| artwork');
-  lines.push('  room -->|hosts| device');
-  lines.push('  room -->|contains| actuator');
-  lines.push('  device -->|observes| envNode');
-  lines.push('  device -->|observes| noise');
-  lines.push('  device -->|observes| crowd');
-  lines.push('  alert -->|relates| room');
-  el.textContent = lines.join('\n');
-  
-  // Inicialización explícita de Mermaid
-  mermaid.initialize({ 
-    startOnLoad: false, 
-    theme: 'neutral', 
-    securityLevel: 'loose',
-    fontFamily: 'Space Grotesk'
-  });
-  
-  // Forzamos el renderizado tras asegurar que el DOM está listo
-  mermaid.run({ nodes: [el] }).catch(err => console.error("Mermaid error:", err));
-
-  const toggle = document.getElementById('toggleMermaid');
-  const body = document.getElementById('mermaidBody');
-  if (toggle && body) {
-    // Por defecto oculto si no se ha pulsado
-    body.style.display = 'none';
-    toggle.addEventListener('click', () => {
-      body.style.display = body.style.display === 'none' ? 'block' : 'none';
-    });
-  }
+  mermaid.initialize({ startOnLoad: false, theme: 'default' });
+  mermaid.run({ nodes: document.querySelectorAll('.mermaid') }).catch((err) => console.error('Mermaid error:', err));
 }
 
 async function bootDashboard() {
-  await Promise.all([loadSummary(), loadCentersMap(), loadTrend(), loadAlerts(), loadSensorsStatus()]);
+  const summaryPromise = loadSummary();
+  const mapPromise = loadCentersMap();
+  const alertsPromise = loadAlerts();
+  const sensorsPromise = loadSensorsStatus();
+
+  await Promise.all([summaryPromise, mapPromise]);
+  loadTrend().catch((err) => console.error(err));
+
+  await Promise.allSettled([alertsPromise, sensorsPromise]);
   loadMermaid();
 
   const socket = ensureSocket();
