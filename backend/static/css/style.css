@@ -189,6 +189,7 @@ textarea {
   gap: 16px;
   justify-content: center;
   margin-top: 14px;
+  align-items: flex-start; /* Evita que las tarjetas se estiren verticalmente */
 }
 
 .data-card {
@@ -205,6 +206,7 @@ textarea {
   border-radius: var(--radius);
   padding: 14px;
   box-shadow: var(--shadow);
+  overflow: hidden; /* Evita que el contenido desborde y estire la tarjeta */
 }
 
 .data-card canvas {

@@ -64,13 +64,16 @@ def museum_entity(museum: Dict) -> Dict:
     }
 
 
-def room_entity(room: Dict) -> Dict:
+def room_entity(room: Dict, index: int = 0) -> Dict:
     ts = now_iso()
+    picsum_ids = [376, 159, 177, 210, 249, 267, 274, 280]
+    img = room.get("image") or f"https://picsum.photos/id/{picsum_ids[index % len(picsum_ids)]}/400/300"
     return {
         "id": room["id"],
         "type": "Room",
         "name": ngsi_property(room["name"]),
         "description": ngsi_property(room["description"]),
+        "image": ngsi_property(img),
         "floor": ngsi_property(room["floor"]),
         "area": ngsi_property(room["area"]),
         "capacity": ngsi_property(room["capacity"]),
@@ -325,7 +328,7 @@ def build_all_entities() -> List[Dict]:
     high_risks = [0.65, 0.72, 0.78, 0.84, 0.89, 0.92]
 
     entities.extend(museum_entity(m) for m in MUSEUMS)
-    entities.extend(room_entity(r) for r in ROOMS)
+    entities.extend(room_entity(r, i) for i, r in enumerate(ROOMS))
     entities.extend(
         artwork_entity(a, high_risks[i] if i < len(high_risks) else 0.12)
         for i, a in enumerate(ARTWORKS)

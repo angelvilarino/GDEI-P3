@@ -646,9 +646,10 @@ def refresh_artwork_risks(center_id: Optional[str] = None) -> int:
             if not room or room["museumId"] != center_id:
                 continue
 
-        # Forzar risk alto para las primeras 6 obras
+        # Variamos el riesgo para las primeras 6 obras entre 0.6 y 0.9
         if i < 6:
-            risk = 0.8
+            risks = [0.65, 0.72, 0.78, 0.84, 0.89, 0.92]
+            risk = risks[i]
         elif risk_model is not None:
             env = env_by_room.get(room_id, {})
             noise = noise_by_room.get(room_id, {})
@@ -1115,7 +1116,8 @@ def api_center_detail(center_id: str):
         # Usamos un timeout muy corto para no bloquear la UI
         resp = requests.get(g_url, timeout=1.0)
         grafana_ok = resp.status_code == 200
-    except Exception:
+    except Exception as e:
+        LOGGER.error(f"Grafana health check failed: {e}")
         grafana_ok = False
         
     return jsonify({**center, "snapshot": snap, "grafanaAlive": grafana_ok})

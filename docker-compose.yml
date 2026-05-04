@@ -125,6 +125,8 @@ services:
         condition: service_healthy
       llm-local:
         condition: service_healthy
+      grafana:
+        condition: service_healthy
     ports:
       - "5000:5000"
     environment:
