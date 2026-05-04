@@ -179,6 +179,36 @@ textarea {
   display: flex;
   flex-direction: column;
   align-self: start; /* Prevents stretching in grid */
+  height: auto;
+  transition: all 0.3s ease;
+}
+
+.data-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.data-card {
+  width: 210px;
+  height: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.data-card canvas {
+  max-height: 100px;
 }
 
 .card h2,
@@ -448,7 +478,15 @@ textarea {
 }
 
 .room-card .room-info {
-  padding: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 130px;
+}
+
+.room-card .btn {
+  margin-top: auto !important;
 }
 
 .pill {

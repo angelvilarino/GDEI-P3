@@ -322,7 +322,7 @@ def baseline_observations(room: Dict) -> List[Dict]:
 def build_all_entities() -> List[Dict]:
     entities: List[Dict] = []
 
-    high_risks = [0.62, 0.68, 0.74, 0.81, 0.88, 0.95]
+    high_risks = [0.65, 0.72, 0.78, 0.84, 0.89, 0.92]
 
     entities.extend(museum_entity(m) for m in MUSEUMS)
     entities.extend(room_entity(r) for r in ROOMS)

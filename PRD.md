@@ -559,3 +559,12 @@ Endpoints del backend necesarios:
 - Los requisitos no funcionales quedan cerrados y medibles.
 - El stack tecnológico queda totalmente alineado con Project_Rules.md.
 - No existe ambigüedad sobre qué entidades, métricas y visualizaciones forman parte del producto.
+
+## 14. Actualizaciones de Calidad y Visualización (Revisión de Interfaz)
+
+Se han implementado las siguientes mejoras para asegurar una experiencia premium y datos realistas:
+
+- **Optimización de Layout**: La vista de detalle de centro utiliza ahora una estructura de columna única y tarjetas de datos con tamaño fijo y disposición flexible (`flex-wrap`). Se han eliminado paneles laterales para mejorar la legibilidad.
+- **Calidad de Datos Visuales**: Cada sala dispone de una imagen única y representativa (vía Picsum IDs seleccionados) para evitar la repetición de imágenes genéricas.
+- **Integración de Dashboards**: Se ha corregido la conectividad interna con Grafana para asegurar la carga de paneles analíticos embebidos, utilizando rutas de salud internas de contenedor.
+- **Riesgo de Conservación**: Se garantiza la disponibilidad de datos de obras en riesgo mediante la asignación de niveles de degradación realistas (0.6 - 0.9) para al menos 5 obras por centro.

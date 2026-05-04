@@ -69,6 +69,10 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 - Sincronización en tiempo real (heartbeat 15s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas.
 - Interfaz premium con gráficas sparkline interactivas (hover con timestamp y valor exacto) y ejes temporales visibles, optimizando la comparativa visual inmediata.
 - Gestión automática de suscripciones Orion-LD que asegura la recepción inmediata de eventos ambientales y críticos.
+- Vista de detalle de centro optimizada con layout de columna única, tarjetas de datos flexibles (`flex-wrap`) y altura fija para prevenir deformaciones visuales.
+- Catálogo de imágenes de sala enriquecido con IDs únicos de Picsum, eliminando la duplicidad visual y mejorando el realismo de las fichas técnicas.
+- Integración robusta de Grafana mediante chequeos de salud internos, garantizando la carga de dashboards analíticos en entornos contenedorizados.
+- Aseguramiento de datos de riesgo de obras para conservación preventiva, garantizando al menos 5 piezas críticas por centro con niveles de degradación realistas entre 0.6 y 0.9.
 
 ## 6. Diagrama de la arquitectura
 

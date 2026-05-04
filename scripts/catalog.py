@@ -89,6 +89,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "exhibition",
         "description": "Sala tematica de piezas historicas de ciencia y tecnologia.",
+        "image": "https://picsum.photos/id/376/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-ex-catedra",
@@ -100,6 +101,7 @@ ROOMS: List[Dict] = [
         "capacity": 110,
         "roomType": "exhibition",
         "description": "Espacio expositivo sobre conocimiento cientifico y educacion.",
+        "image": "https://picsum.photos/id/159/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-creadores",
@@ -111,6 +113,7 @@ ROOMS: List[Dict] = [
         "capacity": 95,
         "roomType": "exhibition",
         "description": "Sala dedicada a innovacion, inventores y procesos tecnicos.",
+        "image": "https://picsum.photos/id/177/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-miscelanea",
@@ -122,6 +125,7 @@ ROOMS: List[Dict] = [
         "capacity": 85,
         "roomType": "exhibition",
         "description": "Sala con objetos tecnicos de colecciones mixtas.",
+        "image": "https://picsum.photos/id/210/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-temporales",
@@ -133,6 +137,7 @@ ROOMS: List[Dict] = [
         "capacity": 100,
         "roomType": "exhibition",
         "description": "Area para muestras temporales y rotacion de coleccion.",
+        "image": "https://picsum.photos/id/249/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-salon-de-actos",
@@ -144,6 +149,7 @@ ROOMS: List[Dict] = [
         "capacity": 120,
         "roomType": "performance",
         "description": "Salon para actividades divulgativas y eventos educativos.",
+        "image": "https://picsum.photos/id/267/400/300",
     },
     # Bellas Artes
     {
@@ -156,6 +162,7 @@ ROOMS: List[Dict] = [
         "capacity": 70,
         "roomType": "exhibition",
         "description": "Pintura espanola y europea de los siglos XVI y XVII.",
+        "image": "https://picsum.photos/id/274/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
@@ -167,6 +174,7 @@ ROOMS: List[Dict] = [
         "capacity": 68,
         "roomType": "exhibition",
         "description": "Colecciones neoclasicas y romanticas.",
+        "image": "https://picsum.photos/id/280/400/300",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglo-xx",

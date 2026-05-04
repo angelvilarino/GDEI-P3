@@ -1110,7 +1110,8 @@ def api_center_detail(center_id: str):
     # Verificación rápida de Grafana
     grafana_ok = False
     try:
-        g_url = f"{GRAFANA_URL.rstrip('/')}/api/health"
+        # Usamos el nombre del servicio interno para el healthcheck desde el backend
+        g_url = "http://grafana:3000/api/health"
         # Usamos un timeout muy corto para no bloquear la UI
         resp = requests.get(g_url, timeout=1.0)
         grafana_ok = resp.status_code == 200
@@ -1675,8 +1676,8 @@ def api_grafana_center(center_id: str):
     center = resolve_center(center_id)
     return jsonify(
         {
-            "url": f"{GRAFANA_URL}/d/auravault-centers/auravault-centers?orgId=1&var-center={center['code']}",
-            "embed": f"{GRAFANA_URL}/d/auravault-centers/auravault-centers?orgId=1&kiosk=tv&var-center={center['code']}",
+            "url": f"{GRAFANA_URL}/d/auravault-overview/auravault-overview?orgId=1",
+            "embed": f"{GRAFANA_URL}/d/auravault-overview/auravault-overview?orgId=1&kiosk=tv",
         }
     )
 
