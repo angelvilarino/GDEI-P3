@@ -86,7 +86,7 @@ LOGGER = logging.getLogger("auravault.backend")
 if not LOGGER.handlers:
     logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
-CACHE_TTL_SECONDS = 30
+CACHE_TTL_SECONDS = 5
 query_cache: Dict[Tuple[str, str], Tuple[float, object]] = {}
 query_cache_lock = Lock()
 

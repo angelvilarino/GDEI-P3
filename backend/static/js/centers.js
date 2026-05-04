@@ -19,7 +19,6 @@ async function refreshCenters() {
     const fresh = await apiGet('/api/centers');
     centersCache = fresh;
     
-    // Update only the numeric values in the cards to avoid full re-render and chart flickering
     fresh.forEach(c => {
       const card = document.getElementById(`card-${c.code}`);
       if (!card) return;
@@ -29,12 +28,12 @@ async function refreshCenters() {
         metrics[0].textContent = formatMetric(c.snapshot.avgTemperature, { unit: '°C' });
         metrics[1].textContent = formatMetric(c.snapshot.avgHumidity, { unit: '%' });
         metrics[2].textContent = formatMetric(c.snapshot.avgCo2, { digits: 0, unit: 'ppm' });
+        // Discrete occupancy percentage
         metrics[3].textContent = c.snapshot.avgOccupancy != null
-          ? `${(c.snapshot.avgOccupancy * 100).toFixed(0)} %`
+          ? `${Math.round(c.snapshot.avgOccupancy * 100)} %`
           : '—';
       }
       
-      // Update status badge if changed
       const badgeWrap = card.querySelector('.badge-wrap');
       if (badgeWrap) badgeWrap.innerHTML = statusBadge(c.status);
     });
@@ -73,7 +72,7 @@ function renderCenters() {
         .map(
           (c) => {
             const occupancyPct = c.snapshot.avgOccupancy != null
-              ? `${(c.snapshot.avgOccupancy * 100).toFixed(0)} %`
+              ? `${Math.round(c.snapshot.avgOccupancy * 100)} %`
               : '—';
             return `
       <article class="card fade-up center-card" id="card-${c.code}">
@@ -151,7 +150,7 @@ async function renderSparklines() {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: { bottom: 20 } // Add padding to avoid cutting X axis
+          padding: { bottom: 20 }
         },
         interaction: {
           mode: 'index',
@@ -169,7 +168,8 @@ async function renderSparklines() {
               },
               label(context) {
                 const unit = context.dataset.unit || '';
-                return `${context.dataset.label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
+                const val = context.dataset.discrete ? Math.round(context.parsed.y) : context.parsed.y;
+                return `${context.dataset.label}: ${formatMetric(val, { digits: context.dataset.discrete ? 0 : 1, unit, zeroAsMissing: false })}`;
               },
             },
           }
@@ -199,7 +199,7 @@ async function renderSparklines() {
           datasets: [{
             label: tr('temperature'),
             data: tempSeries.map(p => p.value),
-            points: tempSeries, // Store for tooltip
+            points: tempSeries,
             borderColor: '#0e7c74',
             backgroundColor: '#0e7c741a',
             borderWidth: 2,
@@ -226,7 +226,8 @@ async function renderSparklines() {
           datasets: [{
             label: tr('occupancy'),
             data: peopleSeries.map(p => p.value),
-            points: peopleSeries, // Store for tooltip
+            points: peopleSeries,
+            discrete: true,
             borderColor: '#d27d3f',
             backgroundColor: '#d27d3f1a',
             borderWidth: 2,
@@ -241,7 +242,11 @@ async function renderSparklines() {
           ...baseOptions,
           scales: {
             ...baseOptions.scales,
-            y: { ...baseOptions.scales.y, title: { ...baseOptions.scales.y.title, text: 'pers.' } }
+            y: { 
+              ...baseOptions.scales.y, 
+              title: { ...baseOptions.scales.y.title, text: 'pers.' },
+              ticks: { ...baseOptions.scales.y.ticks, stepSize: 1, precision: 0 } // Discrete axis
+            }
           }
         }
       });
@@ -275,12 +280,11 @@ document.addEventListener('DOMContentLoaded', () => {
   wireFilters();
   loadCenters().catch((err) => console.error(err));
 
-  // Periodic refresh every 15 seconds - only for numeric metrics as requested
+  // Periodic refresh every 15 seconds - now with shorter backend cache, this will show fresh data
   refreshIntervalId = setInterval(() => {
     refreshCenters().catch((err) => console.warn('[centers] Auto-refresh error:', err));
   }, 15000);
 
-  // Refresh sparklines less often (e.g., every 60s) to reduce noise
   setInterval(() => {
     renderSparklines().catch(e => console.warn('[centers] Sparkline refresh error:', e));
   }, 60000);

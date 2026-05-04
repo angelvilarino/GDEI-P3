@@ -247,6 +247,9 @@ def baseline_observations(room: Dict) -> List[Dict]:
     now = now_iso()
     people = 8 if room["roomType"] == "exhibition" else 18
 
+    # Añadir variabilidad determinista basada en el nombre de la sala
+    v = (sum(ord(c) for c in room["name"]) % 10) / 10.0
+    
     env = {
         "id": f"urn:ngsi-ld:IndoorEnvironmentObserved:{room_code}",
         "type": "IndoorEnvironmentObserved",
@@ -258,11 +261,11 @@ def baseline_observations(room: Dict) -> List[Dict]:
         "sensorPlacement": ngsi_property("center"),
         "sensorHeight": ngsi_property(2.1),
         "peopleCount": ngsi_property(people),
-        "temperature": ngsi_property(21.0),
-        "relativeHumidity": ngsi_property(49.0),
-        "atmosphericPressure": ngsi_property(1014.0),
-        "illuminance": ngsi_property(140.0),
-        "co2": ngsi_property(760.0),
+        "temperature": ngsi_property(round(21.0 + (v * 4) - 2, 1)),
+        "relativeHumidity": ngsi_property(round(49.0 + (v * 10) - 5, 1)),
+        "atmosphericPressure": ngsi_property(1014.0 + v),
+        "illuminance": ngsi_property(140.0 + (v * 50)),
+        "co2": ngsi_property(round(760.0 + (v * 200) - 100, 1)),
         "dataProvider": ngsi_property("AuraVault import_data.py"),
         "dateCreated": ngsi_property(now),
         "dateModified": ngsi_property(now),
