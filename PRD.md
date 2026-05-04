@@ -233,7 +233,7 @@ Datos que muestra:
 
 - Tarjetas con imagen, nombre, tipo de centro y estado ambiental.
 - Temperatura, humedad y CO2 actuales.
-- Aforo actual (porcentaje real calculado sobre capacidad máxima).
+- Aforo actual (porcentaje real calculado sobre capacidad máxima, mostrado como variable discreta sin decimales).
 - Indicador de ocupación y color de estado.
 - Dos gráficas sparkline (temperatura y aforo) en la misma fila, con ejes temporales visibles, escalas independientes y tooltip interactivo (fecha/hora y valor exacto al hacer hover).
 
