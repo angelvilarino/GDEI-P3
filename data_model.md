@@ -595,6 +595,8 @@ El chatbot del modo Visitante no crea una nueva entidad persistente en Orion. Co
 - Cada observación dinámica debe tener una referencia trazable al dispositivo fuente y a la sala o centro.
 - Cada `Artwork` debe estar expuesta en una única `Room` en el MVP.
 - Cada `Alert` debe estar relacionada con una fuente concreta y con un centro o sala afectada.
+- **Regla de negocio Vista 5**: La sección "Obras y Riesgo" se renderiza únicamente si el `Museum.museumType` del centro asociado incluye el valor `museum`. Los centros de tipo `theatre` o `concert-hall` no exponen obras y la sección permanece oculta. Esta regla se evalúa en el frontend mediante el campo `museumType` devuelto por `/api/centers/{center_id}`.
+- **Obras reales documentadas**: El catálogo incluye obras con referencias verificadas en CERES, Wikimedia Commons y Wikipedia: Lente de Fresnel del Faro de Estaca de Bares (MUNCYT), Ordenador IBM 650 (MUNCYT), Los Caprichos de Goya (Bellas Artes, Sala Goya), El Muñeco de Modesto Brocos (Bellas Artes, Sala XVIII-XIX), entre otras. Todas vinculadas mediante `isExposedIn` a su sala correspondiente.
 
 ## 21. Resumen operativo para el simulador IoT
 

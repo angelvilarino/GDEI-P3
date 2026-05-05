@@ -342,11 +342,19 @@ Objetivo: ofrecer al Conservador una lectura fina del estado ambiental y del imp
 
 Datos que muestra en el detalle de sala:
 
-- Gauges de todos los sensores de la sala.
-- Comparativa entre condiciones actuales y rangos óptimos según el material más sensible presente.
-- Tabla de obras expuestas en esa sala.
-- Histórico ambiental multivariable por fecha o rango.
-- Resumen de alertas y tendencia ambiental.
+- **Hero Card Premium** (Glassmorphism): tres columnas con nombre+badge de estado, atributos físicos (m², capacidad, planta, ocupación con iconos FontAwesome) y mini-dashboard IoT (temperatura, humedad, CO₂, ruido actualizados cada 30s por SocketIO).
+- Gráfico Radar separado: condiciones actuales vs rango óptimo según materiales presentes.
+- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): galería interactiva con miniaturas 80×80px uniformes, efecto pop-out zoom con overlay CSS, tabla con filas alternas y barra de progreso de `degradationRisk`.
+- Histórico ambiental multivariable con dropdown de rango (1h/6h/12h/24h).
+- Línea de tiempo de alertas filtradas por sala.
+
+Datos que muestra en el detalle de obra:
+
+- Ficha técnica de la obra.
+- Condiciones actuales frente a condiciones ideales.
+- Índice de riesgo de degradación.
+- Estrés térmico acumulado.
+- Línea de tiempo de alertas relacionadas.
 
 Datos que muestra en el detalle de obra:
 
