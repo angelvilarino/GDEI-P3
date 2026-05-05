@@ -47,7 +47,7 @@ Vista 3 - Detalle del Centro: combina gauges en vivo, histórico multivariable, 
 
 Vista 4 - Gemelo Digital 3D: representa salas y variables ambientales con interacción (zoom, rotación, selección de sala) y actualización continua por eventos.
 
-Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación, histórico por obra, comparativa entre piezas y pasaporte ambiental exportable.
+Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación mediante gráficos radar, histórico por obra con selector de rango independiente (1h-24h) y una experiencia visual premium con **Hero Card Glassmorphism** y galería interactiva con efecto **Pop-out CSS**.
 
 Vista 6 - Centro de Control: unifica administración de alertas y dispositivos, con estadísticas operativas, diagnóstico de flota y apoyo a predicción de fallo.
 
@@ -69,6 +69,7 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 - Sincronización en tiempo real (heartbeat 30s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas. El simulador MQTT publica cada 30 segundos para mantener coherencia con el intervalo de refresco.
 - Interfaz premium con gráficas sparkline interactivas (hover con timestamp y valor exacto) y ejes temporales visibles, optimizando la comparativa visual inmediata.
 - Gestión automática de suscripciones Orion-LD que asegura la recepción inmediata de eventos ambientales y críticos.
+- Rediseño premium de la Vista 5: Implementación de estética **Glassmorphism**, lógica de renderizado condicional para museos/teatros, catálogo enriquecido con obras reales de A Coruña y micro-interacciones avanzadas (Pop-out CSS).
 
 ## 6. Diagrama de la arquitectura
 

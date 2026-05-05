@@ -607,6 +607,18 @@ El simulador debe generar valores coherentes con el tipo de centro y con la ocup
 - El peopleCount debe correlacionar con `occupancy` y con el resto de variables.
 - Los estados de `Device` y `Actuator` deben reflejar fallos, mantenimiento y cambios de comando.
 
-## 22. Cierre
+### 22. Catálogo de Obras Reales (Ejemplos)
+
+El sistema carga obras reales vinculadas a los museos de A Coruña para mejorar la fidelidad del gemelo digital y la analítica de conservación.
+
+| ID de Obra | Nombre | Artista | Sala Destino |
+|---|---|---|---|
+| `urn:ngsi-ld:Artwork:bellasartes-el-muneco` | El Muñeco | Modesto Brocos | Sala Siglo XX |
+| `urn:ngsi-ld:Artwork:bellasartes-goya-capricho-43` | El sueño de la razón produce monstruos | Francisco de Goya | Sala Goya |
+| `urn:ngsi-ld:Artwork:bellasartes-picasso-perfil` | Perfil de mujer | Pablo Picasso | Sala Siglo XX |
+| `urn:ngsi-ld:Artwork:bellasartes-sargadelos-albarelo` | Albarelo de Sargadelos | R. F. Sargadelos | Sala Sargadelos |
+| `urn:ngsi-ld:Artwork:muncyt-lente-fresnel` | Lente de Fresnel del Faro de Estaca de Bares | Henry-Lepaute | Sala Miscelánea |
+
+## 23. Cierre
 
 Este modelo NGSI-LD está pensado para alimentar directamente el importador de datos, el simulador MQTT, el backend Flask y las visualizaciones de AuraVault sin introducir decisiones de modelado adicionales durante la implementación.

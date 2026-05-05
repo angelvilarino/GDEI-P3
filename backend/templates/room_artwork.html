@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AuraVault - Detalle de Sala y Obra</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
   <body data-page="room-artwork">
     <div class="app-shell">
@@ -24,21 +25,60 @@
         </div>
       </header>
 
-      <!-- Cabecera de Sala (Hero Card) -->
-      <section class="card fade-up hero-card" style="margin-top:14px">
-        <div class="hero-content">
-          <div class="hero-text">
-            <h2 id="roomName" data-i18n="room">Sala</h2>
-            <div id="roomMeta" class="small"></div>
+      <!-- Cabecera de Sala (Hero Card Premium con Glassmorphism) -->
+      <section class="hero-card">
+        <div class="hero-container">
+          <!-- Sección Izquierda: Nombre y Badge de Estado -->
+          <div class="hero-section hero-left">
+            <h2 id="roomName" class="hero-title">Sala</h2>
+            <div id="roomStatus" class="status-badge">Estado</div>
           </div>
-          <div id="roomStatus" class="status-badge"></div>
+
+          <!-- Sección Centro: Atributos Físicos -->
+          <div class="hero-section hero-center">
+            <div class="attribute-group">
+              <i class="fas fa-ruler-combined"></i>
+              <div class="attribute-content">
+                <span class="attribute-label">Superficie</span>
+                <span class="attribute-value" id="roomArea">-- m²</span>
+              </div>
+            </div>
+            <div class="attribute-group">
+              <i class="fas fa-users"></i>
+              <div class="attribute-content">
+                <span class="attribute-label">Capacidad</span>
+                <span class="attribute-value" id="roomCapacity">-- personas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección Derecha: Mini-Dashboard Ambiental -->
+          <div class="hero-section hero-right">
+            <div class="mini-metric">
+              <div class="metric-icon temp-icon">🌡️</div>
+              <div class="metric-data">
+                <span class="metric-label">Temperatura</span>
+                <span class="metric-value" id="roomTemp">--°C</span>
+              </div>
+            </div>
+            <div class="mini-metric">
+              <div class="metric-icon humidity-icon">💧</div>
+              <div class="metric-data">
+                <span class="metric-label">Humedad</span>
+                <span class="metric-value" id="roomHumidity">--%</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Sección de Obras y Riesgo -->
-      <section class="card fade-up" style="margin-top:14px">
+      <!-- Sección de Obras y Riesgo (Solo para Museos) -->
+      <section id="artworksSection" class="card fade-up" style="margin-top:14px; display: none;">
         <h3 data-i18n="worksRisk">Obras y riesgo</h3>
-        <div class="table-wrap">
+        <div class="gallery-container" id="artworksGallery">
+          <!-- Las miniaturas se insertarán aquí -->
+        </div>
+        <div class="table-wrap" style="margin-top: 20px;">
           <table id="artworksTable">
             <thead>
               <tr>
@@ -47,9 +87,9 @@
                 <th data-i18n="artwork">Nombre</th>
                 <th data-i18n="artist">Artista</th>
                 <th data-i18n="material">Material</th>
-                <th data-i18n="degradationRisk">Riesgo Degradación</th>
-                <th data-i18n="stressAccumulated">Estrés Acumulado</th>
-                <th data-i18n="conditionStatus">Estado Condición</th>
+                <th data-i18n="degradationRisk">Riesgo</th>
+                <th data-i18n="stressAccumulated">Estrés</th>
+                <th data-i18n="conditionStatus">Estado</th>
               </tr>
             </thead>
             <tbody id="artworksTableBody"></tbody>
@@ -67,22 +107,31 @@
         </div>
       </section>
 
-      <!-- Condiciones Actuales vs Rango Óptimo -->
+      <!-- Overlay de Zoom para Miniaturas -->
+      <div id="artworkZoomOverlay" class="artwork-zoom-overlay" style="display: none;">
+        <div class="artwork-zoom-content">
+          <span class="zoom-close">&times;</span>
+          <img id="zoomImage" src="" alt="Obra ampliada"/>
+          <div id="zoomInfo" class="zoom-info"></div>
+        </div>
+      </div>
+
+      <!-- Condiciones Actuales vs Rango Óptimo (Gráfico Radar) -->
       <section class="card fade-up" style="margin-top:14px">
         <h3 data-i18n="currentConditions">Condiciones actuales vs rango óptimo</h3>
-        <div class="chart-wrap" style="height:400px"><canvas id="roomRadar"></canvas></div>
+        <div class="chart-wrap" style="height:420px"><canvas id="roomRadar"></canvas></div>
       </section>
 
-      <!-- Sistema de Analítica Histórica -->
+      <!-- Sistema de Analítica Histórica (Separado) -->
       <section class="card fade-up" style="margin-top:14px">
-        <h3 data-i18n="historicalAnalytics">Analítica histórica</h3>
-        <div class="controls-row">
-          <div class="range-buttons">
-            <button class="btn range-btn active" data-range="1h">1h</button>
-            <button class="btn range-btn" data-range="6h">6h</button>
-            <button class="btn range-btn" data-range="12h">12h</button>
-            <button class="btn range-btn" data-range="24h">24h</button>
-          </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 data-i18n="historicalAnalytics">Analítica histórica</h3>
+          <select id="historicalRange" class="input" style="width: auto;">
+            <option value="1h">Última 1 hora</option>
+            <option value="6h">Últimas 6 horas</option>
+            <option value="12h">Últimas 12 horas</option>
+            <option value="24h" selected>Últimas 24 horas</option>
+          </select>
         </div>
         <div class="charts-grid">
           <div class="chart-item">

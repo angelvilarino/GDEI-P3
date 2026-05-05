@@ -338,39 +338,36 @@ Endpoints del backend necesarios:
 
 ### 8.5 Vista 5 — Detalle de Sala y Detalle de Obra
 
-Objetivo: ofrecer al Conservador una lectura fina del estado ambiental y del impacto sobre cada sala y cada obra.
+Objetivo: ofrecer al Conservador una lectura fina del estado ambiental y del impacto sobre cada sala y cada obra con una estética premium y analítica avanzada.
 
 Datos que muestra en el detalle de sala:
-
-- Gauges de todos los sensores de la sala.
-- Comparativa entre condiciones actuales y rangos óptimos según el material más sensible presente.
-- Tabla de obras expuestas en esa sala.
-- Histórico ambiental multivariable por fecha o rango.
-- Resumen de alertas y tendencia ambiental.
+- **Hero Card Premium (Glassmorphism)**: Cabecera con efecto de desenfoque y tres secciones:
+    - Izquierda: Nombre de sala y badge de estado dinámico.
+    - Centro: Atributos físicos ($m^2$, capacidad) con iconos FontAwesome.
+    - Derecha: Mini-dashboard ambiental (temperatura y humedad) en tiempo real.
+- **Lógica Condicional de Obras**: La sección "Obras y Riesgo" solo se renderiza para centros de tipo museo (MUNCYT, Bellas Artes). En teatros permanece oculta.
+- **Galería Interactiva**: Miniaturas uniformes (80x80px) con efecto **Pop-out CSS puro** al hacer hover para visualizar detalles.
+- **Tabla de Obras Optimizada**: Zebra stripes, tipografía clara y barra de progreso visual para el riesgo de degradación.
+- **Gráfico Radar**: Comparativa entre condiciones actuales y rangos óptimos según el material más sensible.
+- **Analítica Histórica Independiente**: Selector de rango (1h, 6h, 12h, 24h) para series temporales desacoplado del radar.
 
 Datos que muestra en el detalle de obra:
-
-- Ficha técnica de la obra.
-- Condiciones actuales frente a condiciones ideales.
-- Índice de riesgo de degradación.
-- Estrés térmico acumulado.
+- Ficha técnica completa con imagen ampliada.
+- Condiciones actuales frente a condiciones ideales del material.
+- Índice de riesgo de degradación y estrés acumulado.
 - Línea de tiempo de alertas relacionadas.
 
 Interacciones que permite:
-
-- Cambiar el rango temporal o la fecha de consulta.
-- Abrir una obra desde la tabla de sala.
-- Comparar varias obras en una vista lado a lado.
-- Exportar el pasaporte ambiental de la sala.
-- Navegar entre obras relacionadas.
+- Cambiar el rango temporal mediante dropdown (1h a 24h).
+- Zoom/Pop-out de obras mediante hover.
+- Selección múltiple de obras para comparación (máximo 3).
+- Navegar al detalle técnico de la obra.
 
 Tecnologías que usa:
-
-- Chart.js para gauges, radar, barras y líneas temporales.
-- Exportación a PDF o Markdown para el pasaporte ambiental.
-- JavaScript para selección múltiple y comparativa de obras.
-- QuantumLeap como fuente de histórico.
-- scikit-learn para el cálculo del riesgo de degradación.
+- **CSS Avanzado**: Glassmorphism, CSS Pop-out, transitions.
+- **Chart.js**: Radar y series temporales con tooltips corregidos (`interaction: index`).
+- **Flask-SocketIO**: Sincronización en tiempo real cada 30 segundos.
+- **NGSI-LD**: Relaciones `isExposedIn` para vincular obras y salas.
 
 Endpoints del backend necesarios:
 

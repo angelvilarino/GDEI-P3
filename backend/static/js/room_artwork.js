@@ -1,6 +1,8 @@
 let radarChart;
 let tempChart, humidityChart, co2Chart, noiseChart;
 let currentRange = '24h';
+let currentCenter = null;
+let currentArtworks = [];
 
 function roomIdFromPath() {
   const parts = window.location.pathname.split('/').filter(Boolean);
@@ -33,22 +35,31 @@ function avgReq(artworks) {
   };
 }
 
+function getRiskLevel(risk) {
+  if (risk < 0.25) return 'low';
+  if (risk < 0.5) return 'medium';
+  if (risk < 0.75) return 'high';
+  return 'critical';
+}
+
 function statusBadge(status) {
   const classes = {
     ok: 'ok',
     warn: 'warn',
-    danger: 'danger'
+    danger: 'danger',
+    critical: 'danger'
   };
   const labels = {
     ok: 'Buen Estado',
     warn: 'Advertencia',
-    danger: 'Crítico'
+    danger: 'Crítico',
+    critical: 'Crítico'
   };
   return `<span class="status-badge ${classes[status] || 'ok'}">${labels[status] || 'Desconocido'}</span>`;
 }
 
 function renderRadar(current, optimal) {
-  const labels = [tr('temperature'), tr('humidity'), tr('co2'), tr('lux'), tr('decibel')];
+  const labels = ['Temperatura', 'Humedad', 'CO₂', 'Iluminancia', 'Ruido'];
   const cVals = [
     Number(current.temperature || 0),
     Number(current.relativeHumidity || 0),
@@ -65,16 +76,24 @@ function renderRadar(current, optimal) {
       labels,
       datasets: [
         {
-          label: tr('actual'),
+          label: 'Actual',
           data: cVals,
           borderColor: '#0e7c74',
           backgroundColor: '#0e7c7430',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#0e7c74',
         },
         {
-          label: tr('optimalLabel'),
+          label: 'Óptimo',
           data: oVals,
           borderColor: '#d27d3f',
           backgroundColor: '#d27d3f28',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#d27d3f',
         },
       ],
     },
@@ -82,32 +101,135 @@ function renderRadar(current, optimal) {
       responsive: true,
       maintainAspectRatio: false,
       scales: { r: { beginAtZero: true } },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          enabled: true,
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          padding: 14,
+          titleFont: { size: 14, weight: 'bold' },
+          bodyFont: { size: 13 },
+          displayColors: true,
+          borderColor: 'rgba(255, 255, 255, 0.15)',
+          borderWidth: 1,
+          callbacks: {
+            label: function(context) {
+              return ` ${context.dataset.label}: ${context.parsed.r.toFixed(2)}`;
+            }
+          }
+        },
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+      },
     },
   });
 }
 
+function renderGallery(artworks) {
+  const gallery = document.getElementById('artworksGallery');
+  gallery.innerHTML = artworks.map(a => `
+    <div class="gallery-item" data-art-id="${a.id}" data-art-name="${a.name}" data-art-artist="${a.artist || ''}" data-art-image="${a.image}">
+      <img src="${a.image}" alt="${a.name}"/>
+    </div>
+  `).join('');
+
+  // Event listeners para zoom
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const overlay = document.getElementById('artworkZoomOverlay');
+      const img = document.getElementById('zoomImage');
+      const info = document.getElementById('zoomInfo');
+      
+      img.src = item.dataset.artImage;
+      img.alt = item.dataset.artName;
+      
+      const artwork = artworks.find(a => a.id === item.dataset.artId);
+      info.innerHTML = `
+        <div class="zoom-info-item">
+          <span class="zoom-info-label">Título</span>
+          <span class="zoom-info-value">${artwork.name}</span>
+        </div>
+        <div class="zoom-info-item">
+          <span class="zoom-info-label">Artista</span>
+          <span class="zoom-info-value">${artwork.artist || 'Desconocido'}</span>
+        </div>
+        <div class="zoom-info-item">
+          <span class="zoom-info-label">Material</span>
+          <span class="zoom-info-value">${artwork.material || '-'}</span>
+        </div>
+        <div class="zoom-info-item">
+          <span class="zoom-info-label">Año</span>
+          <span class="zoom-info-value">${artwork.year || '-'}</span>
+        </div>
+        <div class="zoom-info-item">
+          <span class="zoom-info-label">Riesgo</span>
+          <span class="zoom-info-value">${(artwork.degradationRisk || 0).toFixed(3)}</span>
+        </div>
+      `;
+      
+      overlay.style.display = 'flex';
+    });
+  });
+}
+
 function renderArtworkTable(artworks) {
+  currentArtworks = artworks;
   const tbody = document.getElementById('artworksTableBody');
-  tbody.innerHTML = artworks
-    .map(
-      (a) => `
+  tbody.innerHTML = artworks.map(a => {
+    const risk = Number(a.degradationRisk || 0);
+    const riskLevel = getRiskLevel(risk);
+    return `
       <tr>
         <td><input type="checkbox" data-art-id="${a.id}"/></td>
         <td><img src="${a.image}" alt="${a.name}"/></td>
-        <td>${a.name}</td>
-        <td>${a.artist || '-'}</td>
-        <td>${a.material || '-'}</td>
-        <td>${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</td>
+        <td style="font-weight:700">${a.name}</td>
+        <td><span class="artist-name">${a.artist || '-'}</span></td>
+        <td><span class="material-tag">${a.material || '-'}</span></td>
+        <td>
+          <div class="risk-bar">
+            <div class="risk-progress">
+              <div class="risk-progress-fill ${riskLevel}" style="width: ${Math.min(risk * 100, 100)}%"></div>
+            </div>
+            <span class="risk-value">${risk.toFixed(3)}</span>
+          </div>
+        </td>
         <td>${formatMetric(a.stressAccumulated || 0, { digits: 2 })}</td>
         <td>${a.conditionStatus || 'Buena'}</td>
       </tr>
-    `
-    )
-    .join('');
+    `;
+  }).join('');
 }
 
 function renderIndividualCharts(history) {
-  const labels = history.temperature.map(p => p.timestamp);
+  const labels = history.temperature?.map(p => p.timestamp) || [];
+
+  // Tooltip callback mejorado
+  const tooltipConfig = {
+    enabled: true,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 12,
+    titleFont: { size: 13, weight: 'bold' },
+    bodyFont: { size: 12 },
+    displayColors: true,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    callbacks: {
+      title(context) {
+        const ts = context[0].label;
+        try {
+          const d = new Date(ts);
+          return d.toLocaleString('es-ES', { 
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+        } catch (e) {
+          return ts;
+        }
+      },
+      label(context) {
+        return context.dataset.label + ': ' + (context.parsed.y !== null ? context.parsed.y.toFixed(2) : 'N/A');
+      }
+    }
+  };
 
   // Temperature Chart
   if (tempChart) tempChart.destroy();
@@ -117,20 +239,31 @@ function renderIndividualCharts(history) {
       labels,
       datasets: [{
         label: 'Temperatura (°C)',
-        data: history.temperature.map(p => p.value),
+        data: history.temperature?.map(p => p.value) || [],
         borderColor: '#0e7c74',
+        backgroundColor: '#0e7c7410',
         pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#0e7c74',
         tension: 0.22,
+        borderWidth: 2,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { ticks: { callback: formatTimeAxis } },
-        y: { beginAtZero: false }
+        x: { 
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+          grid: { display: false }
+        },
+        y: { beginAtZero: false, grid: { drawBorder: false } }
       },
-      plugins: { legend: { display: false } }
+      plugins: { 
+        legend: { display: false },
+        tooltip: tooltipConfig
+      }
     },
   });
 
@@ -142,20 +275,31 @@ function renderIndividualCharts(history) {
       labels,
       datasets: [{
         label: 'Humedad (%)',
-        data: history.relativeHumidity.map(p => p.value),
+        data: history.relativeHumidity?.map(p => p.value) || [],
         borderColor: '#3d9ecf',
+        backgroundColor: '#3d9ecf10',
         pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#3d9ecf',
         tension: 0.22,
+        borderWidth: 2,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { ticks: { callback: formatTimeAxis } },
-        y: { beginAtZero: false }
+        x: { 
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+          grid: { display: false }
+        },
+        y: { beginAtZero: false, grid: { drawBorder: false } }
       },
-      plugins: { legend: { display: false } }
+      plugins: { 
+        legend: { display: false },
+        tooltip: tooltipConfig
+      }
     },
   });
 
@@ -166,21 +310,32 @@ function renderIndividualCharts(history) {
     data: {
       labels,
       datasets: [{
-        label: 'CO2 (ppm)',
-        data: history.co2.map(p => p.value),
+        label: 'CO₂ (ppm)',
+        data: history.co2?.map(p => p.value) || [],
         borderColor: '#d27d3f',
+        backgroundColor: '#d27d3f10',
         pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#d27d3f',
         tension: 0.22,
+        borderWidth: 2,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { ticks: { callback: formatTimeAxis } },
-        y: { beginAtZero: false }
+        x: { 
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+          grid: { display: false }
+        },
+        y: { beginAtZero: false, grid: { drawBorder: false } }
       },
-      plugins: { legend: { display: false } }
+      plugins: { 
+        legend: { display: false },
+        tooltip: tooltipConfig
+      }
     },
   });
 
@@ -192,87 +347,81 @@ function renderIndividualCharts(history) {
       labels,
       datasets: [{
         label: 'Ruido (dB)',
-        data: history.LAeq ? history.LAeq.map(p => p.value) : [],
+        data: history.LAeq?.map(p => p.value) || [],
         borderColor: '#a86b18',
+        backgroundColor: '#a86b1810',
         pointRadius: 0,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#a86b18',
         tension: 0.22,
+        borderWidth: 2,
       }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { ticks: { callback: formatTimeAxis } },
-        y: { beginAtZero: false }
+        x: { 
+          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+          grid: { display: false }
+        },
+        y: { beginAtZero: false, grid: { drawBorder: false } }
       },
-      plugins: { legend: { display: false } }
+      plugins: { 
+        legend: { display: false },
+        tooltip: tooltipConfig
+      }
     },
   });
 }
 
-function formatTimeAxis(value, index, values) {
-  const ts = values[index];
-  if (!ts) return '';
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) return '';
-
-  const range = currentRange;
-  const m = d.getMinutes();
-  const h = d.getHours();
-
-  if (range === '1h') {
-    if (m % 10 === 0) return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  } else if (range === '6h' || range === '12h') {
-    if (m === 0) return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  } else if (range === '24h') {
-    if (h % 2 === 0 && m === 0) return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-  }
-  return '';
-}
-
-function renderAlertsTimeline(alerts) {
-  const timeline = document.getElementById('alertsTimeline');
-  if (!alerts || !alerts.length) {
-    timeline.innerHTML = '<p class="small">No hay alertas recientes.</p>';
-    return;
-  }
-
-  timeline.innerHTML = alerts.map(alert => `
-    <div class="timeline-item">
-      <div class="timeline-marker"></div>
-      <div class="timeline-content">
-        <h5>${alert.description || 'Alerta'}</h5>
-        <p>${alert.cause || 'Causa desconocida'}</p>
-        <div class="timestamp">${new Date(alert.timestamp).toLocaleString('es-ES')}</div>
-        <div class="small">Estado: ${alert.resolved ? 'Resuelta' : 'Activa'}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
 async function loadRoomView() {
   const roomId = roomIdFromPath();
-  const [room, envCurrent, artworks, history] = await Promise.all([
+  const [room, center, envCurrent, artworks, history] = await Promise.all([
     apiGet(`/api/rooms/${encodeURIComponent(roomId)}`),
+    apiGet(`/api/centers/${encodeURIComponent(room?.id?.split(':')[2]?.split('-')[0] || 'muncyt')}`),
     apiGet(`/api/rooms/${encodeURIComponent(roomId)}/environment/current`),
     apiGet(`/api/rooms/${encodeURIComponent(roomId)}/artworks`),
     apiGet(`/api/rooms/${encodeURIComponent(roomId)}/history?range=${currentRange}`),
-  ]);
+  ]).catch(() => []);
 
+  if (!room) return;
+
+  currentCenter = center;
+
+  // Hero Card
   document.getElementById('roomName').textContent = room.name;
-  document.getElementById('roomMeta').textContent = `${room.area} m² · Capacidad: ${room.capacity}`;
   document.getElementById('roomStatus').innerHTML = statusBadge(room.status);
+  document.getElementById('roomArea').textContent = `${room.area} m²`;
+  document.getElementById('roomCapacity').textContent = `${room.capacity} personas`;
+  
+  // Mini-dashboard ambiental
+  if (envCurrent?.environment) {
+    document.getElementById('roomTemp').textContent = (envCurrent.environment.temperature || '--') + '°C';
+    document.getElementById('roomHumidity').textContent = (envCurrent.environment.relativeHumidity || '--') + '%';
+  }
 
-  renderRadar({ ...envCurrent.environment, ...envCurrent.noise }, avgReq(artworks));
-  renderArtworkTable(artworks);
-  renderIndividualCharts(history);
-  renderAlertsTimeline([]); // Mock empty alerts for now
+  // Radar
+  renderRadar({ ...envCurrent?.environment, ...envCurrent?.noise }, avgReq(artworks || []));
+
+  // Mostrar/ocultar sección de obras según tipo de museo
+  const artworksSection = document.getElementById('artworksSection');
+  const isMuseum = center?.museumType?.includes('museum');
+  if (isMuseum && artworks?.length > 0) {
+    artworksSection.style.display = 'block';
+    renderGallery(artworks);
+    renderArtworkTable(artworks);
+  } else {
+    artworksSection.style.display = 'none';
+  }
+
+  // Gráficas
+  renderIndividualCharts(history || {});
 }
 
 async function changeRange(range) {
   currentRange = range;
-  document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`[data-range="${range}"]`).classList.add('active');
   await loadRoomView();
 }
 
@@ -289,35 +438,57 @@ async function compareSelected() {
   const compareWrap = document.getElementById('compareWrap');
   compareWrap.innerHTML = data.map(a => `
     <article class="card">
-      <img src="${a.image}" alt="${a.name}" style="width:100%;height:130px;object-fit:cover;border-radius:8px"/>
+      <img src="${a.image}" alt="${a.name}" style="width:100%;height:150px;object-fit:cover;border-radius:8px"/>
       <h4>${a.name}</h4>
       <div class="small">${a.artist || ''}</div>
-      <div style="margin-top:8px">Riesgo Degradación: <strong>${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</strong></div>
-      <div class="pill" style="margin-top:8px">Estado: ${a.conditionStatus || 'Buena'}</div>
+      <div style="margin-top:12px">
+        <div style="font-size: 0.9rem; margin-bottom: 4px;">
+          <strong>Riesgo:</strong> ${(a.degradationRisk || 0).toFixed(3)}
+        </div>
+        <div style="font-size: 0.9rem;">
+          <strong>Estado:</strong> ${a.conditionStatus || 'Buena'}
+        </div>
+      </div>
     </article>
   `).join('');
   modal.style.display = 'flex';
 }
 
 function wireActions() {
-  document.querySelectorAll('.range-btn').forEach(btn => {
-    btn.addEventListener('click', () => changeRange(btn.getAttribute('data-range')));
+  // Dropdown de rango
+  document.getElementById('historicalRange').addEventListener('change', (e) => {
+    changeRange(e.target.value);
   });
 
+  // Botón comparar
   document.getElementById('compareBtn').addEventListener('click', compareSelected);
 
+  // Select All checkbox
   document.getElementById('selectAll').addEventListener('change', (e) => {
     document.querySelectorAll('input[data-art-id]').forEach(cb => cb.checked = e.target.checked);
   });
 
   // Modal close
+  const modal = document.getElementById('compareModal');
   document.querySelector('.close').addEventListener('click', () => {
-    document.getElementById('compareModal').style.display = 'none';
+    modal.style.display = 'none';
   });
 
   window.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('compareModal')) {
-      document.getElementById('compareModal').style.display = 'none';
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // Zoom close
+  const zoomOverlay = document.getElementById('artworkZoomOverlay');
+  document.querySelector('.zoom-close').addEventListener('click', () => {
+    zoomOverlay.style.display = 'none';
+  });
+
+  zoomOverlay.addEventListener('click', (e) => {
+    if (e.target === zoomOverlay) {
+      zoomOverlay.style.display = 'none';
     }
   });
 }

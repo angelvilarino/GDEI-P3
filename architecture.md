@@ -198,8 +198,9 @@ graph LR
 
 ### 8.1 Creación
 
-- **Backend Heartbeat (30s)**: Un hilo en el backend regenera el resumen global cada 30 segundos y lo emite vía SocketIO.
-- **Frontend Real-Time**: El dashboard y detalle de centro escuchan eventos de SocketIO. El explorador de centros implementa un intervalo de refresco de 30s que actualiza dinámicamente las métricas de las tarjetas mediante manipulación del DOM, reduciendo el parpadeo de gráficas.
+- **Sincronización en tiempo real (30s)**: El backend genera eventos de actualización cada 30 segundos (sincronizados con el simulador MQTT y Orion-LD). Las vistas consumen estos eventos vía SocketIO:
+    - **Vista 1/3**: Actualización de KPIs y alertas.
+    - **Vista 5**: Refresco de la **Hero Card (Glassmorphism)** y del **Gráfico Radar** para reflejar las condiciones ambientales actuales y el riesgo de las obras sin recarga de página.
 - **Suscripciones Automáticas**: El backend asegura al arranque las suscripciones en Orion-LD para recibir notificaciones en el endpoint `/notify`.
 
 1. Backend evalúa reglas de negocio (umbrales y combinaciones).
