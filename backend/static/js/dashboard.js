@@ -105,7 +105,7 @@ async function loadCentersMap() {
 
 async function loadTrend() {
   const centers = await apiGet('/api/centers');
-  const centerData = await Promise.all(centers.map((center) => apiGet(`/api/centers/${center.code}/trend?range=12h`)));
+  const centerData = await Promise.all(centers.map((center) => apiGet(`/api/centers/${center.code}/trend?range=6h`)));
 
   const temperatureBuckets = new Map();
   const peopleBuckets = new Map();
@@ -135,7 +135,7 @@ async function loadTrend() {
   const average = (points) => (points && points.length ? points.reduce((sum, value) => sum + value, 0) / points.length : null);
   const tempData = labelsSource.map((timestamp) => average(temperatureBuckets.get(timestamp)));
   const peopleData = labelsSource.map((timestamp) => average(peopleBuckets.get(timestamp)));
-  const labels = labelsSource.map((timestamp) => formatTimestampLabel(timestamp, '24h'));
+  const labels = labelsSource.map((timestamp) => formatTimestampLabel(timestamp, '6h'));
   const latest = labelsSource[labelsSource.length - 1];
   const earliest = labelsSource[0];
 
@@ -194,7 +194,7 @@ async function loadTrend() {
         legend: { position: 'bottom' },
         title: {
           display: true,
-          text: `${tr('last12Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest, '24h')} ${tr('to')} ${formatTimestampLabel(latest, '24h')}`,
+          text: `${tr('last6Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest, '6h')} ${tr('to')} ${formatTimestampLabel(latest, '6h')}`,
         },
         tooltip: {
           callbacks: {

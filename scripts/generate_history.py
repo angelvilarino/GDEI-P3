@@ -17,16 +17,56 @@ from scripts.catalog import ROOMS, MUSEUMS
 
 # Try import simulator logic
 try:
-    from simulator.mqtt_simulator import init_state, update_state, SimState
+    from simulator.mqtt_simulator import update_state, SimState
 except ImportError:
     print("Cannot import simulator")
     sys.exit(1)
 
+# Perfiles iniciales distintos por centro para garantizar diversidad
+CENTER_PROFILES = {
+    "muncyt":      {"temp": 20.5, "hum": 48.0, "co2": 670.0},
+    "bellasartes": {"temp": 19.0, "hum": 52.0, "co2": 640.0},
+    "rosalia":     {"temp": 21.5, "hum": 44.0, "co2": 740.0},
+    "opera":       {"temp": 20.0, "hum": 50.0, "co2": 710.0},
+}
+
+
+def init_state_for_center(room: dict, center_code: str) -> SimState:
+    p = CENTER_PROFILES.get(center_code, {"temp": 21.0, "hum": 48.0, "co2": 690.0})
+    base_people = max(2, int(room["capacity"] * 0.12))
+    return SimState(
+        temperature=round(p["temp"] + random.uniform(-1.0, 1.0), 1),
+        humidity=round(p["hum"] + random.uniform(-3.0, 3.0), 1),
+        co2=round(p["co2"] + random.uniform(-80.0, 100.0), 1),
+        illuminance=150.0 + random.uniform(-20, 20),
+        pressure=1013.0 + random.uniform(-2, 2),
+        people=base_people,
+        laeq=45.0 + random.uniform(-3, 3),
+        lamax=56.0,
+        las=47.0,
+        occupancy=base_people / room["capacity"],
+        battery=0.99,
+        latency_ms=120.0,
+        rssi=-59.0,
+        hvac_active=False,
+    )
+
+
 def ql_entity(entity_id: str, entity_type: str, attrs: dict, timestamp: str) -> dict:
-    payload = {"id": entity_id, "type": entity_type}
+    payload = {
+        "id": entity_id,
+        "type": entity_type,
+        "TimeInstant": {"type": "DateTime", "value": timestamp},
+    }
     for key, value in attrs.items():
-        attr_type = "Text" if isinstance(value, str) else "Boolean" if isinstance(value, bool) else "Number"
-        payload[key] = {"type": attr_type, "value": value}
+        if key in ("dateObserved", "dateObservedFrom", "dateObservedTo"):
+            payload[key] = {"type": "DateTime", "value": value}
+        elif isinstance(value, bool):
+            payload[key] = {"type": "Boolean", "value": value}
+        elif isinstance(value, str):
+            payload[key] = {"type": "Text", "value": value}
+        else:
+            payload[key] = {"type": "Number", "value": value}
     return payload
 
 def post_ql_batch(ql_url: str, entities: list, fiware_service: str = "openiot"):
@@ -39,7 +79,12 @@ def delete_all_history(ql_url):
     for room in ROOMS:
         rc = room["id"].split(":")[-1]
         for type_ in ["IndoorEnvironmentObserved", "NoiseLevelObserved", "CrowdFlowObserved"]:
-            requests.delete(f"{ql_url.rstrip('/')}/v2/entities/urn:ngsi-ld:{type_}:{rc}", headers={"Fiware-Service": "openiot", "Fiware-ServicePath": "/"}, timeout=10)
+            requests.delete(
+                f"{ql_url.rstrip('/')}/v2/entities/urn:ngsi-ld:{type_}:{rc}",
+                params={"type": type_},
+                headers={"Fiware-Service": "openiot", "Fiware-ServicePath": "/"},
+                timeout=10,
+            )
 
 def main():
     parser = argparse.ArgumentParser()
@@ -48,36 +93,34 @@ def main():
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
     random.seed(args.seed)
-    
+
     delete_all_history(args.ql_url)
-    
+
     now = datetime.now(timezone.utc).replace(microsecond=0)
     # Exactly 24 hours of 30 second intervals => 2880 points
     points = 2880
     start = now - timedelta(seconds=30 * (points - 1))
-    
+
     states = {}
     for room in ROOMS:
-        # Mock a random state to start with 24 hours ago
-        st = init_state(room, "null") # passing null so it generates random
-        states[room["id"]] = st
-        
+        center_code = next(m["code"] for m in MUSEUMS if m["id"] == room["museumId"])
+        states[room["id"]] = init_state_for_center(room, center_code)
+
     batch = []
-    
-    print(f"[generate_history] Generando {points} puntos por sala...")
+
+    print(f"[generate_history] Generando {points} puntos por sala ({len(ROOMS)} salas)...")
     current = start
-    
+
     for i in range(points):
         ts_iso = current.isoformat()
-        
+
         for room in ROOMS:
             rc = room["id"].split(":")[-1]
             museum_code = next(m["code"] for m in MUSEUMS if m["id"] == room["museumId"])
-            
+
             st = states[room["id"]]
-            # Update state with time
             update_state(room, museum_code, st, current)
-            
+
             env_attrs = {
                 "dateObserved": ts_iso,
                 "temperature": round(st.temperature, 2),
@@ -102,17 +145,19 @@ def main():
                 "peopleCount": st.people,
                 "occupancy": round(st.occupancy, 3)
             }
-            
+
             batch.append(ql_entity(f"urn:ngsi-ld:IndoorEnvironmentObserved:{rc}", "IndoorEnvironmentObserved", env_attrs, ts_iso))
             batch.append(ql_entity(f"urn:ngsi-ld:NoiseLevelObserved:{rc}", "NoiseLevelObserved", noise_attrs, ts_iso))
             batch.append(ql_entity(f"urn:ngsi-ld:CrowdFlowObserved:{rc}", "CrowdFlowObserved", crowd_attrs, ts_iso))
-            
+
         if len(batch) >= 500:
             post_ql_batch(args.ql_url, batch)
             batch.clear()
-            
+            if i % 100 == 0:
+                print(f"  {i}/{points} timesteps enviados...")
+
         current += timedelta(seconds=30)
-        
+
     if batch:
         post_ql_batch(args.ql_url, batch)
         

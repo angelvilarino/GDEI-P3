@@ -78,7 +78,7 @@ MUSEUMS: List[Dict] = [
 ]
 
 ROOMS: List[Dict] = [
-    # MUNCYT — imágenes de interiores de museo (Picsum IDs de edificios culturales)
+    # MUNCYT — interiores de museo de ciencia y tecnología (Unsplash)
     {
         "id": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
         "code": "piezas_con_memoria",
@@ -89,7 +89,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "exhibition",
         "description": "Sala tematica de piezas historicas de ciencia y tecnologia.",
-        "image": "https://picsum.photos/id/376/400/200",
+        "image": "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-ex-catedra",
@@ -101,7 +101,7 @@ ROOMS: List[Dict] = [
         "capacity": 110,
         "roomType": "exhibition",
         "description": "Espacio expositivo sobre conocimiento cientifico y educacion.",
-        "image": "https://picsum.photos/id/159/400/200",
+        "image": "https://images.unsplash.com/photo-1565060169194-19fabf63012c?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-creadores",
@@ -113,7 +113,7 @@ ROOMS: List[Dict] = [
         "capacity": 95,
         "roomType": "exhibition",
         "description": "Sala dedicada a innovacion, inventores y procesos tecnicos.",
-        "image": "https://picsum.photos/id/177/400/200",
+        "image": "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-miscelanea",
@@ -125,7 +125,7 @@ ROOMS: List[Dict] = [
         "capacity": 85,
         "roomType": "exhibition",
         "description": "Sala con objetos tecnicos de colecciones mixtas.",
-        "image": "https://picsum.photos/id/210/400/200",
+        "image": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-temporales",
@@ -137,7 +137,7 @@ ROOMS: List[Dict] = [
         "capacity": 100,
         "roomType": "exhibition",
         "description": "Area para muestras temporales y rotacion de coleccion.",
-        "image": "https://picsum.photos/id/249/400/200",
+        "image": "https://images.unsplash.com/photo-1551076805-4c2f3cc6e02c?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-salon-de-actos",
@@ -149,9 +149,9 @@ ROOMS: List[Dict] = [
         "capacity": 120,
         "roomType": "performance",
         "description": "Salon para actividades divulgativas y eventos educativos.",
-        "image": "https://picsum.photos/id/267/400/200",
+        "image": "https://images.unsplash.com/photo-1497366754035-f200968a6ec7?w=400&h=200&fit=crop",
     },
-    # Bellas Artes — interiores de pinacoteca
+    # Bellas Artes — interiores de pinacoteca (Unsplash)
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
         "code": "siglos_xvi_xvii",
@@ -162,7 +162,7 @@ ROOMS: List[Dict] = [
         "capacity": 70,
         "roomType": "exhibition",
         "description": "Pintura espanola y europea de los siglos XVI y XVII.",
-        "image": "https://picsum.photos/id/274/400/200",
+        "image": "https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
@@ -174,7 +174,7 @@ ROOMS: List[Dict] = [
         "capacity": 68,
         "roomType": "exhibition",
         "description": "Colecciones neoclasicas y romanticas.",
-        "image": "https://picsum.photos/id/280/400/200",
+        "image": "https://images.unsplash.com/photo-1574016316382-4b2c9d7a1a2c?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
@@ -186,7 +186,7 @@ ROOMS: List[Dict] = [
         "capacity": 64,
         "roomType": "exhibition",
         "description": "Sala de arte moderno y contemporaneo del museo.",
-        "image": "https://picsum.photos/id/376/400/200",
+        "image": "https://images.unsplash.com/photo-1536924430914-91f9e2041b83?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-goya",
@@ -198,7 +198,7 @@ ROOMS: List[Dict] = [
         "capacity": 40,
         "roomType": "exhibition",
         "description": "Espacio para obra grafica y grabado historico.",
-        "image": "https://picsum.photos/id/159/400/200",
+        "image": "https://images.unsplash.com/photo-1571068316344-75bc8e10ea06?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-sargadelos",
@@ -210,7 +210,7 @@ ROOMS: List[Dict] = [
         "capacity": 35,
         "roomType": "exhibition",
         "description": "Coleccion de loza y ceramica de Sargadelos.",
-        "image": "https://picsum.photos/id/177/400/200",
+        "image": "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-temporales",
@@ -222,9 +222,9 @@ ROOMS: List[Dict] = [
         "capacity": 48,
         "roomType": "exhibition",
         "description": "Espacio para muestras temporales y proyectos curatoriales.",
-        "image": "https://picsum.photos/id/210/400/200",
+        "image": "https://images.unsplash.com/photo-1614094082869-cd4e4b2905c7?w=400&h=200&fit=crop",
     },
-    # Teatro Rosalia — interiores de teatro
+    # Teatro Rosalia — interiores de teatro (Unsplash)
     {
         "id": "urn:ngsi-ld:Room:rosalia-patio-butacas",
         "code": "patio_butacas",
@@ -235,7 +235,7 @@ ROOMS: List[Dict] = [
         "capacity": 360,
         "roomType": "performance",
         "description": "Area principal de publico durante representaciones.",
-        "image": "https://picsum.photos/id/249/400/200",
+        "image": "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-anfiteatro",
@@ -247,7 +247,7 @@ ROOMS: List[Dict] = [
         "capacity": 150,
         "roomType": "performance",
         "description": "Nivel elevado para vision global del escenario.",
-        "image": "https://picsum.photos/id/267/400/200",
+        "image": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-palcos",
@@ -259,7 +259,7 @@ ROOMS: List[Dict] = [
         "capacity": 90,
         "roomType": "performance",
         "description": "Zona lateral superior de palcos historicos.",
-        "image": "https://picsum.photos/id/274/400/200",
+        "image": "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-escenario",
@@ -271,7 +271,7 @@ ROOMS: List[Dict] = [
         "capacity": 80,
         "roomType": "performance",
         "description": "Escenario tecnico para funciones teatrales y conciertos.",
-        "image": "https://picsum.photos/id/280/400/200",
+        "image": "https://images.unsplash.com/photo-1548013146-72479768bada?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-foyer",
@@ -283,7 +283,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "lobby",
         "description": "Vestibulo principal y zona de recepcion de publico.",
-        "image": "https://picsum.photos/id/376/400/200",
+        "image": "https://images.unsplash.com/photo-1559305616-3f35e2b1f40a?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-camerinos",
@@ -295,9 +295,9 @@ ROOMS: List[Dict] = [
         "capacity": 45,
         "roomType": "storage",
         "description": "Zona de preparacion de elenco y equipos tecnicos.",
-        "image": "https://picsum.photos/id/159/400/200",
+        "image": "https://images.unsplash.com/photo-1540575467537-a5c44f1f4d24?w=400&h=200&fit=crop",
     },
-    # Palacio de la Opera — interiores de auditorio y sala de conciertos
+    # Palacio de la Opera — interiores de auditorio y sala de conciertos (Unsplash)
     {
         "id": "urn:ngsi-ld:Room:opera-auditorio-principal",
         "code": "auditorio_principal",
@@ -308,7 +308,7 @@ ROOMS: List[Dict] = [
         "capacity": 1805,
         "roomType": "performance",
         "description": "Sala principal con capacidad para 1805 personas sentadas.",
-        "image": "https://picsum.photos/id/177/400/200",
+        "image": "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-sonata",
@@ -320,7 +320,7 @@ ROOMS: List[Dict] = [
         "capacity": 425,
         "roomType": "performance",
         "description": "Sala de conferencias con escenario para eventos y congresos.",
-        "image": "https://picsum.photos/id/210/400/200",
+        "image": "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-vivace",
@@ -332,7 +332,7 @@ ROOMS: List[Dict] = [
         "capacity": 80,
         "roomType": "performance",
         "description": "Sala auxiliar para reuniones y actos de pequeno formato.",
-        "image": "https://picsum.photos/id/249/400/200",
+        "image": "https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-crescendo",
@@ -344,7 +344,7 @@ ROOMS: List[Dict] = [
         "capacity": 60,
         "roomType": "performance",
         "description": "Sala multiuso para seminarios y formacion.",
-        "image": "https://picsum.photos/id/267/400/200",
+        "image": "https://images.unsplash.com/photo-1504975927706-7a9e9bc84d19?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-salon-wengue",
@@ -356,7 +356,7 @@ ROOMS: List[Dict] = [
         "capacity": 220,
         "roomType": "lobby",
         "description": "Salon de recepciones de doble altura para eventos institucionales.",
-        "image": "https://picsum.photos/id/274/400/200",
+        "image": "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-hall-camara",
@@ -368,7 +368,7 @@ ROOMS: List[Dict] = [
         "capacity": 200,
         "roomType": "lobby",
         "description": "Hall asociado a salas de camara y circulacion de publico.",
-        "image": "https://picsum.photos/id/280/400/200",
+        "image": "https://images.unsplash.com/photo-1590794762512-6af40c0f50b4?w=400&h=200&fit=crop",
     },
 ]
 

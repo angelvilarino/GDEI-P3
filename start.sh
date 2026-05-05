@@ -55,20 +55,20 @@ docker compose exec -T backend python scripts/create_subscriptions.py \
   --ql-url http://quantumleap:8668 \
   --backend-notify-url http://backend:5000/notify
 
-echo "[6/7] Generando historico de 7 dias..."
+echo "[6/7] Generando historico de 24h (2880 puntos por sala)..."
 docker compose exec -T backend python scripts/generate_history.py \
   --ql-url http://quantumleap:8668 \
-  --orion-url http://orion:1026/ngsi-ld/v1 \
-  --days 7 \
-  --step-minutes 15
+  --orion-url http://orion:1026/ngsi-ld/v1
 
-echo "[7/7] Arrancando simulador MQTT realtime..."
+echo "[7/7] Arrancando simulador MQTT realtime (30s)..."
 docker compose exec -T backend sh -lc "pkill -f simulator/mqtt_simulator.py || true"
-docker compose exec -d backend python simulator/mqtt_simulator.py \
-  --mqtt-host mosquitto \
-  --mqtt-port 1883 \
-  --orion-url http://orion:1026/ngsi-ld/v1 \
-  --interval 15
+docker compose exec -d backend sh -lc \
+  "python simulator/mqtt_simulator.py \
+    --mqtt-host mosquitto \
+    --mqtt-port 1883 \
+    --orion-url http://orion:1026/ngsi-ld/v1 \
+    --interval 30 \
+    >> /app/simulator.log 2>&1"
 
 # Carga opcional del modelo local para chatbot. Si falla, backend usa fallback deterministico.
 docker compose exec -T llm-local ollama pull gemma3:latest || true

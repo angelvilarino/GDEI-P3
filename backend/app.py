@@ -520,7 +520,7 @@ def to_float(value, default=0.0) -> float:
 
 
 def series_for_room(room_id: str, range_key: str = "24h") -> Dict[str, List[Dict]]:
-    mapping = {"1h": 120, "12h": 1440, "24h": 2880}
+    mapping = {"1h": 120, "6h": 720, "12h": 1440, "24h": 2880}
     n = mapping.get(range_key, 2880)
 
     room = resolve_room(room_id)
@@ -1178,7 +1178,7 @@ def api_center_trend(center_id: str):
                 if range_key == "1h":
                     # Mantener todo igual (o a nivel de segundo corto)
                     key = dt.isoformat(timespec='seconds')
-                elif range_key == "12h":
+                elif range_key in ("6h", "12h"):
                     key = dt.replace(second=0, microsecond=0).isoformat(timespec='seconds')
                 else: # 24h
                     minute = (dt.minute // 5) * 5
@@ -1281,9 +1281,9 @@ def api_center_history(center_id: str):
                 dt = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
                 if range_key == "1h":
                     key = dt.isoformat(timespec='seconds')
-                elif range_key == "12h":
+                elif range_key in ("6h", "12h"):
                     key = dt.replace(second=0, microsecond=0).isoformat(timespec='seconds')
-                else: 
+                else:
                     minute = (dt.minute // 5) * 5
                     key = dt.replace(minute=minute, second=0, microsecond=0).isoformat(timespec='seconds')
             except Exception:
@@ -1938,8 +1938,8 @@ def ensure_orion_subscriptions():
 
 
 def background_update_thread():
-    """Hilo para emitir actualizaciones de dashboard cada 15 segundos."""
-    LOGGER.info("Iniciando hilo de actualización en tiempo real (15s)...")
+    """Hilo para emitir actualizaciones de dashboard cada 30 segundos."""
+    LOGGER.info("Iniciando hilo de actualización en tiempo real (30s)...")
     while True:
         try:
             with app.app_context():
@@ -1947,7 +1947,7 @@ def background_update_thread():
                 socketio.emit("summary", summary)
         except Exception as e:
             LOGGER.error("Error en background_update_thread: %s", e)
-        time.sleep(15)
+        time.sleep(30)
 
 
 @socketio.on("connect")

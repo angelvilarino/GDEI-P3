@@ -223,7 +223,7 @@ Endpoints del backend necesarios:
 - El gemelo 3D y la vista de sala usan paneles laterales para lecturas y selección contextual.
 - La vista de centros añade búsqueda textual y filtros combinados.
 - La interfaz se mantiene bilingüe en español e inglés con traducción de labels y placeholders.
-- **Sincronización en tiempo real (15s)**: Implementada mediante hilos de fondo en el backend y eventos SocketIO para KPIs, alertas y estado de dispositivos. La vista de explorador de centros incorpora refresco periódico (fetch) cada 15 segundos para asegurar la actualización de gráficas sparkline y aforo.
+- **Sincronización en tiempo real (30s)**: Implementada mediante hilos de fondo en el backend y eventos SocketIO para KPIs, alertas y estado de dispositivos. La vista de explorador de centros incorpora refresco periódico (fetch) cada 30 segundos para asegurar la actualización de gráficas sparkline y aforo; el simulador MQTT publica también cada 30 segundos.
 - **Suscripciones NGSI-LD**: El sistema gestiona automáticamente las suscripciones en Orion-LD para recibir eventos proactivos.
 ### 8.2 Vista 2 — Explorador de Centros
 
@@ -257,7 +257,7 @@ Endpoints del backend necesarios:
 - GET /api/centers
 - GET /api/centers?type={type}&status={status}&occupancy={occupancy}
 - GET /api/centers/{center_id}/snapshot
-- GET /api/centers/{center_id}/trend?range=1h
+- GET /api/centers/{center_id}/trend?range=6h
 
 ### 8.3 Vista 3 — Detalle del Centro
 

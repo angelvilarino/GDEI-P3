@@ -127,7 +127,7 @@ async function renderSparklines() {
 
   const jobs = visible.map(async (c) => {
     try {
-      const trend = await apiGet(`/api/centers/${c.code}/trend?range=1h`);
+      const trend = await apiGet(`/api/centers/${c.code}/trend?range=6h`);
       const ctxTemp = document.getElementById(`spark-temp-${c.code}`);
       const ctxOcc = document.getElementById(`spark-occ-${c.code}`);
       if (!ctxTemp || !ctxOcc) return;
@@ -280,14 +280,13 @@ document.addEventListener('DOMContentLoaded', () => {
   wireFilters();
   loadCenters().catch((err) => console.error(err));
 
-  // Periodic refresh every 15 seconds - now with shorter backend cache, this will show fresh data
   refreshIntervalId = setInterval(() => {
     refreshCenters().catch((err) => console.warn('[centers] Auto-refresh error:', err));
-  }, 15000);
+  }, 30000);
 
   setInterval(() => {
     renderSparklines().catch(e => console.warn('[centers] Sparkline refresh error:', e));
-  }, 60000);
+  }, 30000);
 
   ensureSocket().on('update', () => refreshCenters());
 });

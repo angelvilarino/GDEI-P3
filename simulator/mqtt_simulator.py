@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
 import random
 import signal
@@ -21,6 +22,12 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Dict
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [simulator] %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
 
 import paho.mqtt.client as mqtt
 
@@ -310,6 +317,12 @@ def simulator_loop(args):
             update_state(room, center_code, state, now)
             publish_room_payloads(client, room, center_code, state, actuator_cache.get(actuator_id, "off"))
 
+        logging.info(
+            "Ciclo %d — %s — %d salas publicadas",
+            cycle,
+            now.isoformat(timespec="seconds"),
+            len(ROOMS),
+        )
         time.sleep(args.interval)
 
     client.loop_stop()

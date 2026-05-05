@@ -66,7 +66,7 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 - La vista pública y el panel de sala/obra usan soporte bilingüe para labels y mensajes principales.
 - La ingesta de datos de Orion resuelve transparentemente los atributos encapsulados en arreglos, asegurando KPIs precisos.
 - Las gráficas analíticas separan los ejes Y por magnitud para evitar superposición visual en el histórico.
-- Sincronización en tiempo real (heartbeat 15s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas.
+- Sincronización en tiempo real (heartbeat 30s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas. El simulador MQTT publica cada 30 segundos para mantener coherencia con el intervalo de refresco.
 - Interfaz premium con gráficas sparkline interactivas (hover con timestamp y valor exacto) y ejes temporales visibles, optimizando la comparativa visual inmediata.
 - Gestión automática de suscripciones Orion-LD que asegura la recepción inmediata de eventos ambientales y críticos.
 
