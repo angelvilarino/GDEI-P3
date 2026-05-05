@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AuraVault - Detalle de Sala y Obra</title>
+    <title>AuraVault — Detalle de Sala</title>
+    <meta name="description" content="Vista detallada de sala: monitorización ambiental en tiempo real, obras expuestas y analítica histórica para conservación preventiva." />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   </head>
@@ -25,143 +26,245 @@
         </div>
       </header>
 
-      <!-- Cabecera de Sala (Hero Card Premium con Glassmorphism) -->
-      <section class="hero-card">
+      <!-- ══════════════════════════════════════════
+           HERO CARD PREMIUM — Cabecera de Sala
+           ══════════════════════════════════════════ -->
+      <section class="hero-card fade-up" id="roomHeroCard">
         <div class="hero-container">
-          <!-- Sección Izquierda: Nombre y Badge de Estado -->
+          <!-- Izquierda: Nombre y Badge de Estado -->
           <div class="hero-section hero-left">
-            <h2 id="roomName" class="hero-title">Sala</h2>
-            <div id="roomStatus" class="status-badge">Estado</div>
+            <div class="hero-breadcrumb" id="heroBreadcrumb">
+              <span class="breadcrumb-center" id="breadcrumbCenter">Centro</span>
+              <i class="fas fa-chevron-right breadcrumb-sep"></i>
+              <span class="breadcrumb-room">Sala</span>
+            </div>
+            <h2 id="roomName" class="hero-title">Cargando sala...</h2>
+            <div class="hero-badges">
+              <span id="roomStatusBadge" class="status-badge">—</span>
+              <span id="roomTypeBadge" class="room-type-badge">—</span>
+            </div>
+            <p id="roomDescription" class="hero-description"></p>
           </div>
 
-          <!-- Sección Centro: Atributos Físicos -->
+          <!-- Centro: Atributos Físicos con FontAwesome -->
           <div class="hero-section hero-center">
             <div class="attribute-group">
-              <i class="fas fa-ruler-combined"></i>
+              <div class="attribute-icon-wrap">
+                <i class="fas fa-ruler-combined"></i>
+              </div>
               <div class="attribute-content">
                 <span class="attribute-label">Superficie</span>
                 <span class="attribute-value" id="roomArea">-- m²</span>
               </div>
             </div>
             <div class="attribute-group">
-              <i class="fas fa-users"></i>
+              <div class="attribute-icon-wrap">
+                <i class="fas fa-users"></i>
+              </div>
               <div class="attribute-content">
                 <span class="attribute-label">Capacidad</span>
                 <span class="attribute-value" id="roomCapacity">-- personas</span>
               </div>
             </div>
-          </div>
-
-          <!-- Sección Derecha: Mini-Dashboard Ambiental -->
-          <div class="hero-section hero-right">
-            <div class="mini-metric">
-              <div class="metric-icon temp-icon">🌡️</div>
-              <div class="metric-data">
-                <span class="metric-label">Temperatura</span>
-                <span class="metric-value" id="roomTemp">--°C</span>
+            <div class="attribute-group">
+              <div class="attribute-icon-wrap">
+                <i class="fas fa-layer-group"></i>
+              </div>
+              <div class="attribute-content">
+                <span class="attribute-label">Planta</span>
+                <span class="attribute-value" id="roomFloor">--</span>
               </div>
             </div>
-            <div class="mini-metric">
-              <div class="metric-icon humidity-icon">💧</div>
-              <div class="metric-data">
-                <span class="metric-label">Humedad</span>
-                <span class="metric-value" id="roomHumidity">--%</span>
+            <div class="attribute-group">
+              <div class="attribute-icon-wrap">
+                <i class="fas fa-person-walking"></i>
               </div>
+              <div class="attribute-content">
+                <span class="attribute-label">Ocupación actual</span>
+                <span class="attribute-value" id="roomOccupancy">-- personas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Derecha: Mini-Dashboard Ambiental (IoT sync cada 30s) -->
+          <div class="hero-section hero-right">
+            <div class="mini-dashboard-title">
+              <i class="fas fa-satellite-dish"></i>
+              <span>Condiciones en tiempo real</span>
+              <span class="live-dot"></span>
+            </div>
+            <div class="mini-metrics-grid">
+              <div class="mini-metric" id="metricTemp">
+                <div class="mini-metric-icon temp">
+                  <i class="fas fa-thermometer-half"></i>
+                </div>
+                <div class="mini-metric-data">
+                  <span class="mini-metric-label">Temperatura</span>
+                  <span class="mini-metric-value" id="roomTemp">--°C</span>
+                </div>
+              </div>
+              <div class="mini-metric" id="metricHumidity">
+                <div class="mini-metric-icon humidity">
+                  <i class="fas fa-droplet"></i>
+                </div>
+                <div class="mini-metric-data">
+                  <span class="mini-metric-label">Humedad</span>
+                  <span class="mini-metric-value" id="roomHumidity">--%</span>
+                </div>
+              </div>
+              <div class="mini-metric" id="metricCO2">
+                <div class="mini-metric-icon co2">
+                  <i class="fas fa-wind"></i>
+                </div>
+                <div class="mini-metric-data">
+                  <span class="mini-metric-label">CO₂</span>
+                  <span class="mini-metric-value" id="roomCO2">-- ppm</span>
+                </div>
+              </div>
+              <div class="mini-metric" id="metricNoise">
+                <div class="mini-metric-icon noise">
+                  <i class="fas fa-volume-high"></i>
+                </div>
+                <div class="mini-metric-data">
+                  <span class="mini-metric-label">Ruido</span>
+                  <span class="mini-metric-value" id="roomNoise">-- dB</span>
+                </div>
+              </div>
+            </div>
+            <div class="hero-last-update">
+              <i class="fas fa-clock"></i>
+              <span id="heroLastUpdate">Actualizando...</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Sección de Obras y Riesgo (Solo para Museos) -->
+      <!-- ══════════════════════════════════════════
+           SECCIÓN DE OBRAS Y RIESGO (Solo Museos)
+           Oculta para teatros y salas de conciertos
+           ══════════════════════════════════════════ -->
       <section id="artworksSection" class="card fade-up" style="margin-top:14px; display: none;">
-        <h3 data-i18n="worksRisk">Obras y riesgo</h3>
-        <div class="gallery-container" id="artworksGallery">
-          <!-- Las miniaturas se insertarán aquí -->
+        <div class="section-header">
+          <div class="section-header-left">
+            <i class="fas fa-palette section-icon"></i>
+            <h3 data-i18n="worksRisk">Obras y Riesgo de Conservación</h3>
+          </div>
+          <span class="artworks-count-badge" id="artworksCountBadge">0 obras</span>
         </div>
+
+        <!-- Galería Interactiva con miniaturas uniformes (80×80px) -->
+        <div class="gallery-container" id="artworksGallery" aria-label="Galería de obras">
+          <!-- Miniaturas insertadas por JS -->
+        </div>
+
+        <!-- Tabla de Obras con filas alternas y barra de progreso -->
         <div class="table-wrap" style="margin-top: 20px;">
-          <table id="artworksTable">
+          <table id="artworksTable" aria-label="Tabla de obras expuestas">
             <thead>
               <tr>
-                <th><input type="checkbox" id="selectAll"/></th>
+                <th><input type="checkbox" id="selectAll" aria-label="Seleccionar todas"/></th>
                 <th data-i18n="imageAlt">Imagen</th>
-                <th data-i18n="artwork">Nombre</th>
+                <th data-i18n="artwork">Obra</th>
                 <th data-i18n="artist">Artista</th>
-                <th data-i18n="material">Material</th>
+                <th data-i18n="material">Material / Técnica</th>
                 <th data-i18n="degradationRisk">Riesgo</th>
-                <th data-i18n="stressAccumulated">Estrés</th>
+                <th data-i18n="stressAccumulated">Estrés Acum.</th>
                 <th data-i18n="conditionStatus">Estado</th>
               </tr>
             </thead>
             <tbody id="artworksTableBody"></tbody>
           </table>
         </div>
-        <div class="controls-row" style="margin-top:10px">
-          <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">Comparar seleccionadas (max 3)</button>
+
+        <div class="controls-row" style="margin-top:12px">
+          <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">
+            <i class="fas fa-code-compare"></i> Comparar seleccionadas (máx 3)
+          </button>
         </div>
-        <div id="compareModal" class="modal" style="display:none">
+
+        <!-- Modal Comparador de Obras -->
+        <div id="compareModal" class="modal" style="display:none" role="dialog" aria-modal="true" aria-label="Comparador de obras">
           <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Comparador de Obras</h3>
+            <span class="close" role="button" aria-label="Cerrar">&times;</span>
+            <h3><i class="fas fa-code-compare"></i> Comparador de Obras</h3>
             <div id="compareWrap" class="grid grid-3"></div>
           </div>
         </div>
       </section>
 
-      <!-- Overlay de Zoom para Miniaturas -->
-      <div id="artworkZoomOverlay" class="artwork-zoom-overlay" style="display: none;">
+      <!-- Overlay de Zoom CSS puro (Pop-out) para miniaturas -->
+      <div id="artworkZoomOverlay" class="artwork-zoom-overlay" style="display: none;" role="dialog" aria-modal="true" aria-label="Detalle de obra">
         <div class="artwork-zoom-content">
-          <span class="zoom-close">&times;</span>
-          <img id="zoomImage" src="" alt="Obra ampliada"/>
+          <button class="zoom-close" aria-label="Cerrar">&times;</button>
+          <img id="zoomImage" src="" alt="Obra ampliada" />
           <div id="zoomInfo" class="zoom-info"></div>
         </div>
       </div>
 
-      <!-- Condiciones Actuales vs Rango Óptimo -->
+      <!-- ══════════════════════════════════════════
+           CONDICIONES ACTUALES vs RANGO ÓPTIMO
+           Gráfico Radar (Separado de Históricos)
+           ══════════════════════════════════════════ -->
       <section class="card fade-up" style="margin-top:14px">
-        <h3 data-i18n="currentConditions">Condiciones actuales vs rango óptimo</h3>
+        <div class="section-header">
+          <div class="section-header-left">
+            <i class="fas fa-chart-radar section-icon"></i>
+            <h3 data-i18n="currentConditions">Condiciones actuales vs Rango Óptimo</h3>
+          </div>
+          <span class="radar-subtitle">Comparativa ambiental en tiempo real</span>
+        </div>
         <div class="chart-wrap" style="height:400px"><canvas id="roomRadar"></canvas></div>
       </section>
 
-      <!-- Condiciones Actuales vs Rango Óptimo (Gráfico Radar) -->
+      <!-- ══════════════════════════════════════════
+           ANALÍTICA HISTÓRICA (Separada del Radar)
+           ══════════════════════════════════════════ -->
       <section class="card fade-up" style="margin-top:14px">
-        <h3 data-i18n="currentConditions">Condiciones actuales vs rango óptimo</h3>
-        <div class="chart-wrap" style="height:380px"><canvas id="roomRadar"></canvas></div>
-      </section>
-
-      <!-- Sistema de Analítica Histórica (Separado) -->
-      <section class="card fade-up" style="margin-top:14px">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3 data-i18n="historicalAnalytics">Analítica histórica</h3>
-          <select id="historicalRange" class="input" style="width: auto;">
-            <option value="1h">Última 1 hora</option>
-            <option value="6h">Últimas 6 horas</option>
-            <option value="12h">Últimas 12 horas</option>
-            <option value="24h" selected>Últimas 24 horas</option>
-          </select>
+        <div class="section-header">
+          <div class="section-header-left">
+            <i class="fas fa-chart-line section-icon"></i>
+            <h3 data-i18n="historicalAnalytics">Analítica Histórica</h3>
+          </div>
+          <div class="section-header-right">
+            <label for="historicalRange" class="visually-hidden">Rango temporal</label>
+            <select id="historicalRange" class="input range-select" aria-label="Seleccionar rango temporal">
+              <option value="1h">Última 1 hora</option>
+              <option value="6h">Últimas 6 horas</option>
+              <option value="12h">Últimas 12 horas</option>
+              <option value="24h" selected>Últimas 24 horas</option>
+            </select>
+          </div>
         </div>
         <div class="charts-grid">
           <div class="chart-item">
-            <h4>Temperatura (°C)</h4>
+            <h4><i class="fas fa-thermometer-half" style="color:#0e7c74"></i> Temperatura (°C)</h4>
             <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
           </div>
           <div class="chart-item">
-            <h4>Humedad (%)</h4>
+            <h4><i class="fas fa-droplet" style="color:#3d9ecf"></i> Humedad (%)</h4>
             <div class="chart-wrap"><canvas id="humidityChart"></canvas></div>
           </div>
           <div class="chart-item">
-            <h4>CO2 (ppm)</h4>
+            <h4><i class="fas fa-wind" style="color:#d27d3f"></i> CO₂ (ppm)</h4>
             <div class="chart-wrap"><canvas id="co2Chart"></canvas></div>
           </div>
           <div class="chart-item">
-            <h4>Ruido (dB)</h4>
+            <h4><i class="fas fa-volume-high" style="color:#a86b18"></i> Ruido (dB)</h4>
             <div class="chart-wrap"><canvas id="noiseChart"></canvas></div>
           </div>
         </div>
       </section>
 
-      <!-- Línea de Tiempo de Alertas -->
+      <!-- ══════════════════════════════════════════
+           LÍNEA DE TIEMPO DE ALERTAS
+           ══════════════════════════════════════════ -->
       <section class="card fade-up" style="margin-top:14px">
-        <h3 data-i18n="alertsTimeline">Línea de tiempo de alertas</h3>
+        <div class="section-header">
+          <div class="section-header-left">
+            <i class="fas fa-bell section-icon"></i>
+            <h3 data-i18n="alertsTimeline">Línea de Tiempo de Alertas</h3>
+          </div>
+        </div>
         <div id="alertsTimeline" class="timeline"></div>
       </section>
     </div>
