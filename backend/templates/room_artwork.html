@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   </head>
   <body data-page="room-artwork">
-    <div class="app-shell has-panel">
+    <div class="app-shell">
       <header class="topbar">
         <div class="brand">
           <div class="brand-mark"></div>
@@ -24,51 +24,91 @@
         </div>
       </header>
 
-      <section class="card fade-up" style="margin-top:14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <div>
-            <h2 id="roomName" style="margin:0" data-i18n="room">Sala</h2>
+      <!-- Cabecera de Sala (Hero Card) -->
+      <section class="card fade-up hero-card" style="margin-top:14px">
+        <div class="hero-content">
+          <div class="hero-text">
+            <h2 id="roomName" data-i18n="room">Sala</h2>
             <div id="roomMeta" class="small"></div>
           </div>
-          <div id="roomStatus"></div>
+          <div id="roomStatus" class="status-badge"></div>
         </div>
       </section>
 
-      <section class="grid" style="margin-top:14px">
-        <article class="card">
-          <h3 data-i18n="currentConditions">Condiciones actuales vs rango optimo</h3>
-          <div class="chart-wrap" style="height:320px"><canvas id="roomRadar"></canvas></div>
-
-          <div class="controls-row" style="margin-top:8px">
-            <select id="roomRange" class="input">
-              <option value="24h">24h</option>
-              <option value="7d">7d</option>
-              <option value="30d">30d</option>
-            </select>
-            <button id="exportPdf" class="btn btn-primary" data-i18n="exportPdf">Exportar PDF</button>
-            <button id="exportMd" class="btn" data-i18n="exportMd">Exportar Markdown</button>
+      <!-- Sección de Obras y Riesgo -->
+      <section class="card fade-up" style="margin-top:14px">
+        <h3 data-i18n="worksRisk">Obras y riesgo</h3>
+        <div class="table-wrap">
+          <table id="artworksTable">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll"/></th>
+                <th data-i18n="imageAlt">Imagen</th>
+                <th data-i18n="artwork">Nombre</th>
+                <th data-i18n="artist">Artista</th>
+                <th data-i18n="material">Material</th>
+                <th data-i18n="degradationRisk">Riesgo Degradación</th>
+                <th data-i18n="stressAccumulated">Estrés Acumulado</th>
+                <th data-i18n="conditionStatus">Estado Condición</th>
+              </tr>
+            </thead>
+            <tbody id="artworksTableBody"></tbody>
+          </table>
+        </div>
+        <div class="controls-row" style="margin-top:10px">
+          <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">Comparar seleccionadas (max 3)</button>
+        </div>
+        <div id="compareModal" class="modal" style="display:none">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Comparador de Obras</h3>
+            <div id="compareWrap" class="grid grid-3"></div>
           </div>
-
-          <div class="chart-wrap" style="height:280px;margin-top:8px"><canvas id="roomHistoryChart"></canvas></div>
-        </article>
+        </div>
       </section>
 
-      <aside class="fixed-panel card">
-          <h3 data-i18n="worksRisk">Obras y riesgo</h3>
-          <div class="table-wrap" style="max-height:300px">
-            <table>
-              <thead>
-                <tr><th></th><th data-i18n="imageAlt">Img</th><th data-i18n="artwork">Obra</th><th data-i18n="artist">Artista</th><th data-i18n="material">Material</th><th data-i18n="severity">Riesgo</th></tr>
-              </thead>
-              <tbody id="artworksTableBody"></tbody>
-            </table>
-          </div>
+      <!-- Condiciones Actuales vs Rango Óptimo -->
+      <section class="card fade-up" style="margin-top:14px">
+        <h3 data-i18n="currentConditions">Condiciones actuales vs rango óptimo</h3>
+        <div class="chart-wrap" style="height:400px"><canvas id="roomRadar"></canvas></div>
+      </section>
 
-          <div class="controls-row" style="margin-top:10px">
-            <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">Comparar seleccion (max 3)</button>
+      <!-- Sistema de Analítica Histórica -->
+      <section class="card fade-up" style="margin-top:14px">
+        <h3 data-i18n="historicalAnalytics">Analítica histórica</h3>
+        <div class="controls-row">
+          <div class="range-buttons">
+            <button class="btn range-btn active" data-range="1h">1h</button>
+            <button class="btn range-btn" data-range="6h">6h</button>
+            <button class="btn range-btn" data-range="12h">12h</button>
+            <button class="btn range-btn" data-range="24h">24h</button>
           </div>
-          <div id="compareWrap" class="grid grid-3" style="margin-top:10px"></div>
-        </aside>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-item">
+            <h4>Temperatura (°C)</h4>
+            <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+          </div>
+          <div class="chart-item">
+            <h4>Humedad (%)</h4>
+            <div class="chart-wrap"><canvas id="humidityChart"></canvas></div>
+          </div>
+          <div class="chart-item">
+            <h4>CO2 (ppm)</h4>
+            <div class="chart-wrap"><canvas id="co2Chart"></canvas></div>
+          </div>
+          <div class="chart-item">
+            <h4>Ruido (dB)</h4>
+            <div class="chart-wrap"><canvas id="noiseChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Línea de Tiempo de Alertas -->
+      <section class="card fade-up" style="margin-top:14px">
+        <h3 data-i18n="alertsTimeline">Línea de tiempo de alertas</h3>
+        <div id="alertsTimeline" class="timeline"></div>
+      </section>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
