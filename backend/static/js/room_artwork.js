@@ -101,24 +101,23 @@ function renderRadar(current, optimal) {
       responsive: true,
       maintainAspectRatio: false,
       scales: { r: { beginAtZero: true } },
-      interaction: { mode: 'index', intersect: false },
       plugins: {
         tooltip: {
           enabled: true,
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
-          padding: 14,
-          titleFont: { size: 14, weight: 'bold' },
-          bodyFont: { size: 13 },
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          padding: 12,
+          titleFont: { size: 13, weight: 'bold' },
+          bodyFont: { size: 12 },
           displayColors: true,
-          borderColor: 'rgba(255, 255, 255, 0.15)',
+          borderColor: 'rgba(255, 255, 255, 0.2)',
           borderWidth: 1,
           callbacks: {
             label: function(context) {
-              return ` ${context.dataset.label}: ${context.parsed.r.toFixed(2)}`;
+              return context.dataset.label + ': ' + context.parsed.r.toFixed(2);
             }
           }
         },
-        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }
+        legend: { position: 'bottom' }
       },
     },
   });
@@ -129,6 +128,7 @@ function renderGallery(artworks) {
   gallery.innerHTML = artworks.map(a => `
     <div class="gallery-item" data-art-id="${a.id}" data-art-name="${a.name}" data-art-artist="${a.artist || ''}" data-art-image="${a.image}">
       <img src="${a.image}" alt="${a.name}"/>
+      <div class="artwork-title">${a.name.substring(0, 20)}${a.name.length > 20 ? '...' : ''}</div>
     </div>
   `).join('');
 
@@ -181,9 +181,9 @@ function renderArtworkTable(artworks) {
       <tr>
         <td><input type="checkbox" data-art-id="${a.id}"/></td>
         <td><img src="${a.image}" alt="${a.name}"/></td>
-        <td style="font-weight:700">${a.name}</td>
-        <td><span class="artist-name">${a.artist || '-'}</span></td>
-        <td><span class="material-tag">${a.material || '-'}</span></td>
+        <td>${a.name}</td>
+        <td>${a.artist || '-'}</td>
+        <td>${a.material || '-'}</td>
         <td>
           <div class="risk-bar">
             <div class="risk-progress">
@@ -202,9 +202,10 @@ function renderArtworkTable(artworks) {
 function renderIndividualCharts(history) {
   const labels = history.temperature?.map(p => p.timestamp) || [];
 
-  // Tooltip callback mejorado
+  // Tooltip callback mejorado sin retardo
   const tooltipConfig = {
     enabled: true,
+    animation: false,
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 12,
     titleFont: { size: 13, weight: 'bold' },
@@ -252,7 +253,7 @@ function renderIndividualCharts(history) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: {
         x: { 
           ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
@@ -288,7 +289,7 @@ function renderIndividualCharts(history) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: {
         x: { 
           ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
@@ -324,7 +325,7 @@ function renderIndividualCharts(history) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: {
         x: { 
           ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
@@ -360,7 +361,7 @@ function renderIndividualCharts(history) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false },
       scales: {
         x: { 
           ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
