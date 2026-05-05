@@ -47,7 +47,7 @@ Vista 3 - Detalle del Centro: combina gauges en vivo, histórico multivariable, 
 
 Vista 4 - Gemelo Digital 3D: representa salas y variables ambientales con interacción (zoom, rotación, selección de sala) y actualización continua por eventos.
 
-Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación, histórico por obra, comparativa entre piezas y pasaporte ambiental exportable.
+Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación, visualización ampliada interactiva en galería, seguimiento de estrés acumulado, y pasaporte ambiental exportable.
 
 Vista 6 - Centro de Control: unifica administración de alertas y dispositivos, con estadísticas operativas, diagnóstico de flota y apoyo a predicción de fallo.
 

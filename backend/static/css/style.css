@@ -909,6 +909,15 @@ textarea {
   display: block;
 }
 
+.artwork-thumb-clickable {
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.artwork-thumb-clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
 .artwork-name-cell strong { display: block; font-size: 0.92rem; }
 .artwork-year { font-size: 0.78rem; color: var(--muted); }
 .artwork-artist-cell { color: var(--muted); font-size: 0.88rem; }
@@ -943,6 +952,13 @@ textarea {
 .risk-progress-fill.medium   { background: linear-gradient(90deg,#a86b18,#f0bb62); }
 .risk-progress-fill.high     { background: linear-gradient(90deg,#b5443c,#ea7164); }
 .risk-progress-fill.critical { background: linear-gradient(90deg,#d32f2f,#ff5252); }
+
+/* Stress Accumulated — barra idéntica a degradationRisk */
+.stress-progress-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+.stress-progress-fill.low      { background: linear-gradient(90deg,#26875f,#51d494); }
+.stress-progress-fill.medium   { background: linear-gradient(90deg,#a86b18,#f0bb62); }
+.stress-progress-fill.high     { background: linear-gradient(90deg,#b5443c,#ea7164); }
+.stress-progress-fill.critical { background: linear-gradient(90deg,#d32f2f,#ff5252); }
 .risk-value { font-weight: 700; min-width: 46px; text-align: right; font-size: 0.88rem; }
 .risk-low      { color: var(--ok); }
 .risk-medium   { color: var(--warn); }
@@ -1022,6 +1038,11 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
   gap: 18px;
   margin-top: 8px;
+}
+
+/* Forzar grid 2×2 para las 4 gráficas históricas */
+.charts-grid-2x2 {
+  grid-template-columns: repeat(2, 1fr) !important;
 }
 .chart-item {
   background: var(--panel);
@@ -1108,6 +1129,7 @@ textarea {
   .mini-metrics-grid { grid-template-columns: 1fr 1fr; }
   .gallery-container { gap: 10px; }
   .charts-grid { grid-template-columns: 1fr; }
+  .charts-grid-2x2 { grid-template-columns: 1fr !important; }
   #artworksTable { font-size: 0.82rem; }
   #artworksTable th, #artworksTable td { padding: 8px; }
 }

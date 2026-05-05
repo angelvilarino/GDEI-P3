@@ -48,6 +48,28 @@ function getRiskLabel(risk) {
   return 'Crítico';
 }
 
+function getStressLevel(stress) {
+  // stress is 0-1 normalised (or 0-100 index, clamped to 0-1)
+  const s = stress > 1 ? stress / 100 : stress;
+  if (s < 0.25) return 'low';
+  if (s < 0.5) return 'medium';
+  if (s < 0.75) return 'high';
+  return 'critical';
+}
+
+function getStressLabel(stress) {
+  const s = stress > 1 ? stress / 100 : stress;
+  if (s < 0.25) return 'Bajo';
+  if (s < 0.5) return 'Medio';
+  if (s < 0.75) return 'Alto';
+  return 'Crítico';
+}
+
+function getStressNorm(stress) {
+  // Returns 0-1 value regardless of raw scale
+  return stress > 1 ? Math.min(stress / 100, 1) : Math.min(stress, 1);
+}
+
 function getConditionClass(status) {
   const m = { good: 'ok', watch: 'warn', risk: 'warn', critical: 'danger' };
   return m[status] || 'ok';
@@ -224,15 +246,20 @@ function renderArtworkTable(artworks) {
     const risk = Number(a.degradationRisk || 0);
     const riskLevel = getRiskLevel(risk);
     const condClass = getConditionClass(a.conditionStatus);
+    const stressRaw = Number(a.stressAccumulated || 0);
+    const stressNorm = getStressNorm(stressRaw);
+    const stressLevel = getStressLevel(stressRaw);
+    const stressLabel = getStressLabel(stressRaw);
     return `
       <tr class="${i % 2 === 0 ? 'row-even' : 'row-odd'}">
-        <td><input type="checkbox" data-art-id="${a.id}" aria-label="Seleccionar ${a.name}"/></td>
         <td>
           <img src="${a.image || 'https://placehold.co/60x45/1d2627/0e7c74?text=Arte'}"
                alt="${a.name}"
-               class="artwork-thumb"
+               class="artwork-thumb artwork-thumb-clickable"
+               data-art-id="${a.id}"
                onerror="this.src='https://placehold.co/60x45/1d2627/0e7c74?text=Arte'"
-               loading="lazy"/>
+               loading="lazy"
+               title="Clic para ampliar"/>
         </td>
         <td class="artwork-name-cell">
           <strong>${a.name}</strong>
@@ -251,11 +278,23 @@ function renderArtworkTable(artworks) {
             <span class="risk-value risk-${riskLevel}">${risk.toFixed(3)}</span>
           </div>
         </td>
-        <td>${Number(a.stressAccumulated || 0).toFixed(3)}</td>
+        <td>
+          <div class="risk-bar">
+            <div class="risk-progress">
+              <div class="stress-progress-fill ${stressLevel}" style="width:${Math.min(stressNorm * 100, 100).toFixed(1)}%" title="${stressLabel}"></div>
+            </div>
+            <span class="risk-value risk-${stressLevel}">${stressNorm.toFixed(3)}</span>
+          </div>
+        </td>
         <td><span class="condition-badge ${condClass}">${a.conditionStatus || 'good'}</span></td>
       </tr>
     `;
   }).join('');
+
+  // Wire click-to-zoom on thumbnails in table
+  tbody.querySelectorAll('.artwork-thumb-clickable').forEach(img => {
+    img.addEventListener('click', () => openZoom(img.dataset.artId, artworks));
+  });
 }
 
 /* ── Gráficas históricas ── */
@@ -476,44 +515,15 @@ async function changeRange(range) {
   } catch { /* silent */ }
 }
 
-async function compareSelected() {
-  const checked = Array.from(document.querySelectorAll('input[data-art-id]:checked'))
-    .map(el => el.getAttribute('data-art-id')).slice(0, 3);
-  if (!checked.length) { alert('Selecciona al menos una obra para comparar.'); return; }
-
-  const data = await apiGet(`/api/artworks/compare?ids=${checked.map(encodeURIComponent).join(',')}`).catch(() => []);
-  const modal = document.getElementById('compareModal');
-  document.getElementById('compareWrap').innerHTML = (data || []).map(a => `
-    <article class="card">
-      <img src="${a.image || ''}" alt="${a.name}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px"/>
-      <h4>${a.name}</h4>
-      <div class="small">${a.artist || ''}</div>
-      <div style="margin-top:10px">
-        <div class="risk-bar" style="margin-top:8px">
-          <div class="risk-progress"><div class="risk-progress-fill ${getRiskLevel(Number(a.degradationRisk||0))}" style="width:${Math.min((a.degradationRisk||0)*100,100).toFixed(1)}%"></div></div>
-          <span class="risk-value">${Number(a.degradationRisk||0).toFixed(3)}</span>
-        </div>
-        <div style="margin-top:6px;font-size:0.9rem"><strong>Estado:</strong> ${a.conditionStatus || 'good'}</div>
-      </div>
-    </article>
-  `).join('');
-  modal.style.display = 'flex';
-}
 
 function wireActions() {
   document.getElementById('historicalRange')?.addEventListener('change', e => changeRange(e.target.value));
-  document.getElementById('compareBtn')?.addEventListener('click', compareSelected);
-  document.getElementById('selectAll')?.addEventListener('change', e => {
-    document.querySelectorAll('input[data-art-id]').forEach(cb => { cb.checked = e.target.checked; });
-  });
-
-  const modal = document.getElementById('compareModal');
-  document.querySelector('.close')?.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
-  window.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
 
   const zoomOverlay = document.getElementById('artworkZoomOverlay');
   document.querySelector('.zoom-close')?.addEventListener('click', () => { if (zoomOverlay) zoomOverlay.style.display = 'none'; });
   zoomOverlay?.addEventListener('click', e => { if (e.target === zoomOverlay) zoomOverlay.style.display = 'none'; });
+  // Close zoom on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && zoomOverlay?.style.display === 'flex') zoomOverlay.style.display = 'none'; });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -162,33 +162,17 @@
           <table id="artworksTable" aria-label="Tabla de obras expuestas">
             <thead>
               <tr>
-                <th><input type="checkbox" id="selectAll" aria-label="Seleccionar todas"/></th>
                 <th data-i18n="imageAlt">Imagen</th>
                 <th data-i18n="artwork">Obra</th>
                 <th data-i18n="artist">Artista</th>
                 <th data-i18n="material">Material / Técnica</th>
-                <th data-i18n="degradationRisk">Riesgo</th>
-                <th data-i18n="stressAccumulated">Estrés Acum.</th>
+                <th data-i18n="degradationRisk">Riesgo Degradación</th>
+                <th data-i18n="stressAccumulated">Estrés Acumulado</th>
                 <th data-i18n="conditionStatus">Estado</th>
               </tr>
             </thead>
             <tbody id="artworksTableBody"></tbody>
           </table>
-        </div>
-
-        <div class="controls-row" style="margin-top:12px">
-          <button id="compareBtn" class="btn btn-primary" data-i18n="compareSelected">
-            <i class="fas fa-code-compare"></i> Comparar seleccionadas (máx 3)
-          </button>
-        </div>
-
-        <!-- Modal Comparador de Obras -->
-        <div id="compareModal" class="modal" style="display:none" role="dialog" aria-modal="true" aria-label="Comparador de obras">
-          <div class="modal-content">
-            <span class="close" role="button" aria-label="Cerrar">&times;</span>
-            <h3><i class="fas fa-code-compare"></i> Comparador de Obras</h3>
-            <div id="compareWrap" class="grid grid-3"></div>
-          </div>
         </div>
       </section>
 
@@ -235,7 +219,7 @@
             </select>
           </div>
         </div>
-        <div class="charts-grid">
+        <div class="charts-grid charts-grid-2x2">
           <div class="chart-item">
             <h4><i class="fas fa-thermometer-half" style="color:#0e7c74"></i> Temperatura (°C)</h4>
             <div class="chart-wrap"><canvas id="tempChart"></canvas></div>

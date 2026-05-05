@@ -156,7 +156,7 @@ graph LR
 - El mapa global admite hover y navegación directa al detalle de centro.
 - La vista 3D y el detalle de sala usan paneles laterales para contexto operativo sin abandonar la escena.
 - Mermaid se genera con sintaxis segura compatible con la versión actual del renderizador.
-- **Vista 5 (Detalle de Sala)**: Hero Card Glassmorphism actualizada por SocketIO en cada ciclo MQTT (30s). Sección de obras con lógica condicional: visible solo en museos (`museumType` incluye `museum`). Tooltips de Chart.js corregidos (`animation:false`, `intersect:false`). Dropdown de rango temporal idéntico al de Vista 2. Radar único separado de los históricos. Timeline de alertas filtradas por sala.
+- **Vista 5 (Detalle de Sala)**: Hero Card Glassmorphism actualizada por SocketIO en cada ciclo MQTT (30s). Sección de obras con lógica condicional (solo en museos) incluyendo barra de progreso visual de `stressAccumulated` y modal de ampliación de imagen. Gráficas históricas organizadas en grid estricto 2x2. Tooltips de Chart.js corregidos (`animation:false`, `intersect:false`). Radar único separado de los históricos. Timeline de alertas filtradas por sala.
 
 ## 5. Tabla de servicios Docker
 

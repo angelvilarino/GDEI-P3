@@ -344,8 +344,8 @@ Datos que muestra en el detalle de sala:
 
 - **Hero Card Premium** (Glassmorphism): tres columnas con nombre+badge de estado, atributos físicos (m², capacidad, planta, ocupación con iconos FontAwesome) y mini-dashboard IoT (temperatura, humedad, CO₂, ruido actualizados cada 30s por SocketIO).
 - Gráfico Radar separado: condiciones actuales vs rango óptimo según materiales presentes.
-- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): galería interactiva con miniaturas 80×80px uniformes, efecto pop-out zoom con overlay CSS, tabla con filas alternas y barra de progreso de `degradationRisk`.
-- Histórico ambiental multivariable con dropdown de rango (1h/6h/12h/24h).
+- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): galería interactiva con miniaturas 80×80px uniformes, efecto pop-out zoom con overlay CSS, tabla con filas alternas, barra de progreso de `degradationRisk` y barra de progreso de `stressAccumulated` (misma paleta de colores dinámica: verde/ámbar/rojo según nivel). Click en la miniatura de la tabla abre un modal de zoom a pantalla completa con la imagen ampliada y la ficha técnica de la obra. El botón "Comparar selección" ha sido eliminado.
+- Histórico ambiental multivariable con dropdown de rango (1h/6h/12h/24h), renderizado en grid fijo 2×2 (Temperatura, Humedad, CO₂, Ruido), evitando compresión visual.
 - Línea de tiempo de alertas filtradas por sala.
 
 Datos que muestra en el detalle de obra:
