@@ -298,8 +298,48 @@ function renderArtworkTable(artworks) {
 }
 
 /* ── Gráficas históricas ── */
-function renderIndividualCharts(history) {
+function buildXAxisConfig(range, labels) {
+  // Returns Chart.js x-axis options with real timestamp formatting per range
+  let maxTicksLimit, useSeconds;
+  if (range === '1h') {
+    maxTicksLimit = 8;
+    useSeconds = true;
+  } else if (range === '12h') {
+    maxTicksLimit = 12;
+    useSeconds = false;
+  } else {
+    // 24h (default)
+    maxTicksLimit = 12;
+    useSeconds = false;
+  }
+
+  return {
+    ticks: {
+      maxRotation: 45,
+      minRotation: 0,
+      autoSkip: true,
+      maxTicksLimit,
+      font: { size: 10 },
+      callback: function(val, index) {
+        const ts = labels[index];
+        if (!ts) return '';
+        try {
+          const d = new Date(ts);
+          if (Number.isNaN(d.getTime())) return '';
+          if (useSeconds) {
+            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          }
+          return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        } catch { return ''; }
+      }
+    },
+    grid: { display: false }
+  };
+}
+
+function renderIndividualCharts(history, range) {
   const labels = history.temperature?.map(p => p.timestamp) || [];
+  const xAxis = buildXAxisConfig(range || currentRange, labels);
 
   function makeChart(canvasId, label, dataKey, color, unit) {
     const ctx = document.getElementById(canvasId);
@@ -326,7 +366,7 @@ function renderIndividualCharts(history) {
         maintainAspectRatio: false,
         interaction: { mode: 'nearest', axis: 'x', intersect: false },
         scales: {
-          x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { size: 10 } }, grid: { display: false } },
+          x: xAxis,
           y: { beginAtZero: false, grid: { color: 'rgba(128,128,128,0.08)' } }
         },
         plugins: {
@@ -460,14 +500,13 @@ async function loadRoomView() {
 
   if (isMuseum && artworks?.length > 0) {
     artworksSection.style.display = 'block';
-    renderGallery(artworks);
     renderArtworkTable(artworks);
   } else {
     artworksSection.style.display = 'none';
   }
 
   // ── Gráficas históricas
-  renderIndividualCharts(history || {});
+  renderIndividualCharts(history || {}, currentRange);
 
   // ── Alertas (timeline)
   loadAlerts(roomId);
@@ -511,7 +550,7 @@ async function changeRange(range) {
   const roomId = roomIdFromPath();
   try {
     const history = await apiGet(`/api/rooms/${encodeURIComponent(roomId)}/history?range=${range}`);
-    renderIndividualCharts(history || {});
+    renderIndividualCharts(history || {}, range);
   } catch { /* silent */ }
 }
 

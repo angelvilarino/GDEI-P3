@@ -597,6 +597,7 @@ El chatbot del modo Visitante no crea una nueva entidad persistente en Orion. Co
 - Cada `Alert` debe estar relacionada con una fuente concreta y con un centro o sala afectada.
 - **Regla de negocio Vista 5**: La sección "Obras y Riesgo" se renderiza únicamente si el `Museum.museumType` del centro asociado incluye el valor `museum`. Los centros de tipo `theatre` o `concert-hall` no exponen obras y la sección permanece oculta. Esta regla se evalúa en el frontend mediante el campo `museumType` devuelto por `/api/centers/{center_id}`.
 - **Obras reales documentadas**: El catálogo incluye obras con referencias verificadas en CERES, Wikimedia Commons y Wikipedia: Lente de Fresnel del Faro de Estaca de Bares (MUNCYT), Ordenador IBM 650 (MUNCYT), Los Caprichos de Goya (Bellas Artes, Sala Goya), El Muñeco de Modesto Brocos (Bellas Artes, Sala XVIII-XIX), entre otras. Todas vinculadas mediante `isExposedIn` a su sala correspondiente.
+- **URLs de imagen verificadas**: Las 24 entidades Artwork en Orion tienen el campo `image` verificado. Las URLs de tipo `Special:FilePath` de Wikimedia Commons han sido migradas a URLs directas `upload.wikimedia.org/wikipedia/commons/thumb/...` (formato thumbnail 960px, accesibles sin rate-limiting). Las 7 URLs de CERES (`ceres.mcu.es/pages/Viewer?img=...`) se han verificado con content-type `image/jpeg` correcto.
 
 ## 21. Resumen operativo para el simulador IoT
 

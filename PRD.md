@@ -225,6 +225,9 @@ Endpoints del backend necesarios:
 - La interfaz se mantiene bilingüe en español e inglés con traducción de labels y placeholders.
 - **Sincronización en tiempo real (30s)**: Implementada mediante hilos de fondo en el backend y eventos SocketIO para KPIs, alertas y estado de dispositivos. La vista de explorador de centros incorpora refresco periódico (fetch) cada 30 segundos para asegurar la actualización de gráficas sparkline y aforo; el simulador MQTT publica también cada 30 segundos.
 - **Suscripciones NGSI-LD**: El sistema gestiona automáticamente las suscripciones en Orion-LD para recibir eventos proactivos.
+- **Glassmorphism global (issue #17)**: Se ha aplicado un sistema de diseño glassmorphism consistente en toda la aplicación mediante un único fichero CSS global (style.css). El fondo de cada página usa un gradiente oscuro con blobs decorativos. Todas las tarjetas, paneles, modales, inputs y la navbar usan `backdrop-filter: blur`, bordes semitransparentes y sombras suaves. El modo oscuro intensifica el efecto (menos opacidad, más blur); el modo claro lo suaviza. Texto en colores claros sobre fondo oscuro para garantizar legibilidad.
+- **Imágenes de obras (issue #17)**: Todas las URLs de imágenes de las 24 obras en Orion han sido verificadas. Las 8 que usaban `Special:FilePath` de Wikimedia con rate-limiting han sido actualizadas a URLs directas de `upload.wikimedia.org` con thumbnails de 960px.
+- **Vista 3 sin Grafana**: La tarjeta de Grafana embebido ha sido eliminada del detalle de centro. La tarjeta de control avanzado se mantiene en el Centro de Control (Vista 6).
 ### 8.2 Vista 2 — Explorador de Centros
 
 Objetivo: permitir descubrir y comparar rápidamente los cuatro centros.
@@ -344,8 +347,8 @@ Datos que muestra en el detalle de sala:
 
 - **Hero Card Premium** (Glassmorphism): tres columnas con nombre+badge de estado, atributos físicos (m², capacidad, planta, ocupación con iconos FontAwesome) y mini-dashboard IoT (temperatura, humedad, CO₂, ruido actualizados cada 30s por SocketIO).
 - Gráfico Radar separado: condiciones actuales vs rango óptimo según materiales presentes.
-- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): galería interactiva con miniaturas 80×80px uniformes, efecto pop-out zoom con overlay CSS, tabla con filas alternas, barra de progreso de `degradationRisk` y barra de progreso de `stressAccumulated` (misma paleta de colores dinámica: verde/ámbar/rojo según nivel). Click en la miniatura de la tabla abre un modal de zoom a pantalla completa con la imagen ampliada y la ficha técnica de la obra. El botón "Comparar selección" ha sido eliminado.
-- Histórico ambiental multivariable con dropdown de rango (1h/6h/12h/24h), renderizado en grid fijo 2×2 (Temperatura, Humedad, CO₂, Ruido), evitando compresión visual.
+- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): tabla con filas alternas, barra de progreso de `degradationRisk` y barra de progreso de `stressAccumulated` (misma paleta de colores dinámica: verde/ámbar/rojo según nivel). Click en la miniatura de la tabla abre un modal de zoom a pantalla completa con la imagen ampliada y la ficha técnica de la obra. La galería de miniaturas sobre la tabla ha sido eliminada para evitar duplicación visual.
+- Histórico ambiental multivariable con dropdown de rango (1h/12h/24h), renderizado en grid fijo 2×2 (Temperatura, Humedad, CO₂, Ruido). Eje X con timestamps reales formateados: 1h→HH:MM:SS cada 10 min, 12h→HH:MM cada hora, 24h→HH:MM cada 2 horas. Nunca índices numéricos.
 - Línea de tiempo de alertas filtradas por sala.
 
 Datos que muestra en el detalle de obra:

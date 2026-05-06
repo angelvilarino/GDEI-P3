@@ -208,25 +208,6 @@ async function loadActuators(code) {
   });
 }
 
-async function loadGrafana(code) {
-  const frame = document.getElementById('grafanaFrame');
-  const errorDiv = document.getElementById('grafanaError');
-  try {
-    const info = await apiGet(`/api/grafana/center/${code}`);
-    if (!info || !info.embed) throw new Error('no embed URL');
-    frame.src = info.embed;
-    frame.style.display = 'block';
-    if (errorDiv) errorDiv.style.display = 'none';
-    frame.onerror = () => {
-      frame.style.display = 'none';
-      if (errorDiv) errorDiv.style.display = '';
-    };
-  } catch (_) {
-    frame.style.display = 'none';
-    if (errorDiv) errorDiv.style.display = '';
-  }
-}
-
 async function bootCenterDetail() {
   const code = centerCodeFromPath();
   await Promise.all([
@@ -235,7 +216,6 @@ async function bootCenterDetail() {
     loadRiskArtworks(code),
     loadHistory(code),
     loadActuators(code),
-    loadGrafana(code),
   ]);
 
   document.getElementById('rangeSelect').addEventListener('change', () => loadHistory(code));
