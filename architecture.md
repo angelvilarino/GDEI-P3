@@ -375,3 +375,26 @@ Se prioriza LLM local (Gemma) por privacidad, control operativo y reducción de 
 - Flujo de riesgo de degradación operativo con PATCH a Orion.
 - Modo Visitante con chat contextual operativo sobre LLM local.
 
+## 16. Cambios de arquitectura CSS/UI — Sesión 2 (2026-05-06)
+
+### Sistema de variables glass
+
+Se introduce un sistema centralizado de variables CSS en `:root` y `[data-theme="dark"]` que desacopla los valores glass de los componentes:
+
+```
+--glass-bg, --glass-sm, --glass-border, --glass-topbar,
+--glass-btn, --glass-btn-h, --glass-input, --glass-chart,
+--glass-modal, --blob-1, --blob-2
+```
+
+En modo claro: transparencias blancas altas (0.46–0.86), bordes oscuros suaves (`rgba(0,0,0,0.13)`), fondo base `#c4ddd8`.
+En modo oscuro: transparencias blancas bajas (0.05–0.14), bordes claros tenues (`rgba(255,255,255,0.09)`), fondo base `#060e0d`.
+
+### Eliminación total de Grafana
+
+El iframe de Grafana y la función `loadGrafana()` han sido eliminados completamente. El panel `center_detail.html` ya no incluye ningún bloque Grafana. El JS de `center_detail.js` no hace ninguna llamada a Grafana.
+
+### Imágenes de sala
+
+El campo `imageUrl` de las 24 entidades `Room` en Orion Context Broker ha sido actualizado con URLs directas a `upload.wikimedia.org` (thumbnail 800px). Las imágenes son congruentes con el tipo de espacio de cada sala (museo de ciencia, galería de arte, teatro, sala de conciertos).
+

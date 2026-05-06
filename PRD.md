@@ -570,3 +570,42 @@ Endpoints del backend necesarios:
 - Los requisitos no funcionales quedan cerrados y medibles.
 - El stack tecnológico queda totalmente alineado con Project_Rules.md.
 - No existe ambigüedad sobre qué entidades, métricas y visualizaciones forman parte del producto.
+
+## 14. Implementación — Sesión 2 (2026-05-06)
+
+### 14.1 Modo claro rediseñado (verde claro)
+
+- La paleta `:root` se ha cambiado de fondo oscuro (`#162422`) a fondo verde claro (`#c4ddd8`) con texto oscuro (`#182e2b`) para garantizar legibilidad en modo light.
+- Se introduce un sistema completo de variables CSS glass: `--glass-bg`, `--glass-sm`, `--glass-border`, `--glass-topbar`, `--glass-btn`, `--glass-btn-h`, `--glass-input`, `--glass-chart`, `--glass-modal`, `--blob-1`, `--blob-2`.
+- En modo claro, los fondos glass son semitransparentes blancos (opacidad 0.46–0.74); en modo oscuro se reducen a 0.05–0.10 con negro/oscuro.
+- El gradiente de fondo en modo claro usa verdes suaves (`#c4ddd8` → `#aecfc8`) con blobs decorativos teal y ocre.
+- Todos los componentes principales (topbar, botones, cards, modales, tabla, inputs, skeleton) ahora usan las variables glass en lugar de valores RGBA hardcodeados.
+
+### 14.2 Panel Grafana eliminado definitivamente
+
+- El bloque HTML del panel Grafana fue eliminado de `center_detail.html`.
+- La función `loadGrafana()` fue eliminada de `center_detail.js`.
+- No quedan referencias a Grafana en ninguna vista del frontend.
+
+### 14.3 Imágenes de sala (24 salas en Orion)
+
+- Se asignó una imagen representativa y distinta para cada una de las 24 salas de los 4 centros.
+- MUNCYT: imágenes del Boeing 747 expuesto en el propio MUNCYT A Coruña (Wikimedia Commons) y salas de museo tipo (Museo del Traje, Auditorio de Valladolid).
+- Bellas Artes: salas de galerías de pintura de referencia (Alte Pinakothek, Uffizi, National Gallery) y taller de Sargadelos.
+- Teatro Rosalía: imágenes de teatros españoles reales (Teatro Real de Madrid, Gran Teatre del Liceu, Teatro Salón Cervantes).
+- Palacio de la Ópera: imágenes del propio Palacio de la Ópera de A Coruña (Wikimedia Commons) y salas de concierto tipo.
+- Todas las URLs son directas a `upload.wikimedia.org/wikipedia/commons/thumb/...` (800px), sin redirecciones.
+
+### 14.4 Corrección de imágenes de obras
+
+- 8 artworks tenían URLs rotas (HTTP 400) o altamente rate-limited (Special:FilePath de Wikimedia).
+- Disparate Claro → URL directa de Wikimedia para la obra de Goya.
+- SEAT 600 D, Microscopio Electrónico, Reproducción del Traje Estratosférico → URLs directas de MUNCYT en Wikimedia.
+- La Sagrada Familia → URL directa de Wikimedia (Alonso Cano, Real Academia de Bellas Artes).
+- El Muñeco, Figura Femenina con Cántaro, Figura de Gaiteiro → imágenes temáticas alternativas confirmadas (Galicia, Sargadelos).
+
+### 14.5 Símbolos/emojis en tabla de obras
+
+- Se añade una función `materialEmoji(val)` y `techniqueEmoji(val)` en `room_artwork.js`.
+- Cada material y técnica tiene un emoji representativo: 🖼️ pintura en lienzo, 🏺 cerámica, 🔬 instrumentación científica, ✈️ ingeniería aeroespacial, 🚗 automoción, 📽️ proyección cinematográfica, etc.
+- Los emojis aparecen en la tabla de obras (columna Material/Técnica) y en el modal de zoom.

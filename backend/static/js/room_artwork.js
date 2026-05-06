@@ -13,6 +13,70 @@ function roomIdFromPath() {
   return decodeURIComponent(parts[1]);
 }
 
+const MATERIAL_EMOJI = {
+  'oil-on-canvas':             '🖼️',
+  'oil-on-panel':              '🎨',
+  'bronze':                    '🔶',
+  'papel':                     '📄',
+  'vidrio':                    '🔬',
+  'vidrio-metal':              '🔬',
+  'metal-vidrio':              '🔭',
+  'metal-vidrio-caucho':       '⚙️',
+  'metal-vidrio-madera':       '🔧',
+  'metal-electronica':         '💻',
+  'metal-electronica-polimero':'🔌',
+  'metal-fiberglass':          '🛩️',
+  'metal-madera-papel':        '📰',
+  'metal-amianto':             '⚙️',
+  'madera-acero':              '🪵',
+  'carton-madera-metal':       '📦',
+  'loza-esmalte':              '🏺',
+  'porcelana-esmalte':         '🏺',
+  'tejido-metal-caucho':       '🧵',
+};
+
+const TECHNIQUE_EMOJI = {
+  'pintura':                       '🎨',
+  'pintura barroca':               '🖼️',
+  'pintura barroca flamenca':      '🖼️',
+  'pintura renacentista':          '🖼️',
+  'pintura modernista':            '🎨',
+  'pintura religiosa':             '⛪',
+  'costumbrismo':                  '🏘️',
+  'paisajismo':                    '🏞️',
+  'aguafuerte':                    '✏️',
+  'aguatinta y aguafuerte':        '✏️',
+  'grabado cientifico':            '🔬',
+  'ceramica estampada en azul cobalto':           '🏺',
+  'ceramica vidriada con decoracion transferida':  '🏺',
+  'moldeo y esmaltado artesanal':  '🏺',
+  'fundicion a la cera perdida':   '🔥',
+  'soplado de vidrio cientifico':  '🔬',
+  'instrumentacion cientifica':    '🔬',
+  'instrumentacion de laboratorio':'🧪',
+  'optica':                        '🔭',
+  'computacion electromecanica':   '💾',
+  'maqueta mecanica':              '⚙️',
+  'manufactura industrial':        '🏭',
+  'automocion industrial':         '🚗',
+  'ingenieria aeroespacial':       '✈️',
+  'ingenieria biomedica':          '🩺',
+  'proyeccion cinematografica':    '📽️',
+  'baroque painting':              '🖼️',
+};
+
+function materialEmoji(val) {
+  if (!val) return '';
+  const key = val.toLowerCase().trim();
+  return MATERIAL_EMOJI[key] ? MATERIAL_EMOJI[key] + ' ' : '🪨 ';
+}
+
+function techniqueEmoji(val) {
+  if (!val) return '';
+  const key = val.toLowerCase().trim();
+  return TECHNIQUE_EMOJI[key] ? TECHNIQUE_EMOJI[key] + ' ' : '🛠️ ';
+}
+
 function avgReq(artworks) {
   if (!artworks.length) return { temperature: 21, humidity: 50, co2: 800, illuminance: 120, noise: 55 };
   const sum = artworks.reduce((acc, a) => {
@@ -221,8 +285,8 @@ function openZoom(artId, artworks) {
     <div class="zoom-info-item"><span class="zoom-info-label">Título</span><span class="zoom-info-value">${artwork.name}</span></div>
     <div class="zoom-info-item"><span class="zoom-info-label">Artista</span><span class="zoom-info-value">${artwork.artist || 'Desconocido'}</span></div>
     <div class="zoom-info-item"><span class="zoom-info-label">Año</span><span class="zoom-info-value">${artwork.year || '—'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Material</span><span class="zoom-info-value">${artwork.material || '—'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Técnica</span><span class="zoom-info-value">${artwork.technique || '—'}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">Material</span><span class="zoom-info-value">${materialEmoji(artwork.material)}${artwork.material || '—'}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">Técnica</span><span class="zoom-info-value">${techniqueEmoji(artwork.technique)}${artwork.technique || '—'}</span></div>
     <div class="zoom-info-item"><span class="zoom-info-label">Riesgo</span>
       <span class="zoom-info-value risk-pill-${getRiskLevel(Number(artwork.degradationRisk || 0))}">
         ${getRiskLabel(Number(artwork.degradationRisk || 0))} (${Number(artwork.degradationRisk || 0).toFixed(3)})
@@ -267,8 +331,8 @@ function renderArtworkTable(artworks) {
         </td>
         <td class="artwork-artist-cell">${a.artist || '—'}</td>
         <td class="artwork-material-cell">
-          <span class="material-tag">${a.material || '—'}</span>
-          ${a.technique ? `<span class="technique-tag">${a.technique}</span>` : ''}
+          <span class="material-tag">${materialEmoji(a.material)}${a.material || '—'}</span>
+          ${a.technique ? `<span class="technique-tag">${techniqueEmoji(a.technique)}${a.technique}</span>` : ''}
         </td>
         <td>
           <div class="risk-bar">
