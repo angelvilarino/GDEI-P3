@@ -411,6 +411,16 @@ Entidad custom que representa un actuador controlable ambientalmente.
 | Actuator | isControlledBy | Device | Relación de control |
 | Device | controlledAsset | Actuator / Room | Activo controlado por el dispositivo |
 
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Impacto en el modelo de datos:
+
+- No se han introducido nuevas entidades NGSI-LD. Se han actualizado valores de atributos `image`/`imageUrl` en `Artwork` y `Room` para usar thumbnails directos y evitar redirecciones.
+- Las vistas derivadas (`roomHistory`, `artworkComparison`, `visitorSummary`) consumen las nuevas URLs sin cambio de contrato.
+
 ### 15.1 Diagrama Mermaid del grafo
 
 ```mermaid

@@ -609,3 +609,15 @@ Endpoints del backend necesarios:
 - Se añade una función `materialEmoji(val)` y `techniqueEmoji(val)` en `room_artwork.js`.
 - Cada material y técnica tiene un emoji representativo: 🖼️ pintura en lienzo, 🏺 cerámica, 🔬 instrumentación científica, ✈️ ingeniería aeroespacial, 🚗 automoción, 📽️ proyección cinematográfica, etc.
 - Los emojis aparecen en la tabla de obras (columna Material/Técnica) y en el modal de zoom.
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+- Descripción: `feat: light mode verde claro, room images, artwork emoji symbols, broken image fixes`
+
+Notas de despliegue y verificación:
+
+- Los cambios UI están en `static/css/style.css` y aplican glassmorphism y modo claro.
+- Las imágenes de salas y artworks se actualizaron en Orion; puede ser necesario invalidar caché del CDN para ver cambios inmediatamente.
+- Recomendado: crear PR hacia `main` para integrar estos cambios en la rama principal.

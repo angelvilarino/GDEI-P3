@@ -77,3 +77,14 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 ## 7. Diagrama del modelo de datos
 
 ![Diagrama del modelo de datos](docs/data_model.png)
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Resumen:
+
+- Interfaz: glassmorphism aplicado globalmente; modo claro green-tinted con variables CSS reutilizables en `static/css/style.css`.
+- Contenido: imágenes de salas y artworks corregidas y actualizadas en el catálogo; emojis en la tabla de `room_artwork`.
+- Recomendación: crear PR y proceder al merge tras revisión visual rápida y tests de smoke en staging.

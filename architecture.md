@@ -382,9 +382,6 @@ Se prioriza LLM local (Gemma) por privacidad, control operativo y reducción de 
 Se introduce un sistema centralizado de variables CSS en `:root` y `[data-theme="dark"]` que desacopla los valores glass de los componentes:
 
 ```
---glass-bg, --glass-sm, --glass-border, --glass-topbar,
---glass-btn, --glass-btn-h, --glass-input, --glass-chart,
---glass-modal, --blob-1, --blob-2
 ```
 
 En modo claro: transparencias blancas altas (0.46–0.86), bordes oscuros suaves (`rgba(0,0,0,0.13)`), fondo base `#c4ddd8`.
@@ -397,4 +394,15 @@ El iframe de Grafana y la función `loadGrafana()` han sido eliminados completam
 ### Imágenes de sala
 
 El campo `imageUrl` de las 24 entidades `Room` en Orion Context Broker ha sido actualizado con URLs directas a `upload.wikimedia.org` (thumbnail 800px). Las imágenes son congruentes con el tipo de espacio de cada sala (museo de ciencia, galería de arte, teatro, sala de conciertos).
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Cambios relevantes:
+
+- Sistema de variables CSS (`:root`) y glassmorphism centralizado en `static/css/style.css`.
+- Eliminación del iframe de Grafana en `center_detail.html` y limpieza de la función `loadGrafana()`.
+- URLs de imágenes de sala y obras actualizadas en Orion; verificar caché tras deploy.
 
