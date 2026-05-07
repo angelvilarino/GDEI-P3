@@ -225,6 +225,9 @@ Endpoints del backend necesarios:
 - La interfaz se mantiene bilingüe en español e inglés con traducción de labels y placeholders.
 - **Sincronización en tiempo real (30s)**: Implementada mediante hilos de fondo en el backend y eventos SocketIO para KPIs, alertas y estado de dispositivos. La vista de explorador de centros incorpora refresco periódico (fetch) cada 30 segundos para asegurar la actualización de gráficas sparkline y aforo; el simulador MQTT publica también cada 30 segundos.
 - **Suscripciones NGSI-LD**: El sistema gestiona automáticamente las suscripciones en Orion-LD para recibir eventos proactivos.
+- **Glassmorphism global (issue #17)**: Se ha aplicado un sistema de diseño glassmorphism consistente en toda la aplicación mediante un único fichero CSS global (style.css). El fondo de cada página usa un gradiente oscuro con blobs decorativos. Todas las tarjetas, paneles, modales, inputs y la navbar usan `backdrop-filter: blur`, bordes semitransparentes y sombras suaves. El modo oscuro intensifica el efecto (menos opacidad, más blur); el modo claro lo suaviza. Texto en colores claros sobre fondo oscuro para garantizar legibilidad.
+- **Imágenes de obras (issue #17)**: Todas las URLs de imágenes de las 24 obras en Orion han sido verificadas. Las 8 que usaban `Special:FilePath` de Wikimedia con rate-limiting han sido actualizadas a URLs directas de `upload.wikimedia.org` con thumbnails de 960px.
+- **Vista 3 sin Grafana**: La tarjeta de Grafana embebido ha sido eliminada del detalle de centro. La tarjeta de control avanzado se mantiene en el Centro de Control (Vista 6).
 ### 8.2 Vista 2 — Explorador de Centros
 
 Objetivo: permitir descubrir y comparar rápidamente los cuatro centros.
@@ -342,11 +345,19 @@ Objetivo: ofrecer al Conservador una lectura fina del estado ambiental y del imp
 
 Datos que muestra en el detalle de sala:
 
-- Gauges de todos los sensores de la sala.
-- Comparativa entre condiciones actuales y rangos óptimos según el material más sensible presente.
-- Tabla de obras expuestas en esa sala.
-- Histórico ambiental multivariable por fecha o rango.
-- Resumen de alertas y tendencia ambiental.
+- **Hero Card Premium** (Glassmorphism): tres columnas con nombre+badge de estado, atributos físicos (m², capacidad, planta, ocupación con iconos FontAwesome) y mini-dashboard IoT (temperatura, humedad, CO₂, ruido actualizados cada 30s por SocketIO).
+- Gráfico Radar separado: condiciones actuales vs rango óptimo según materiales presentes.
+- **Sección "Obras y Riesgo"** (solo centros tipo `museum`): tabla con filas alternas, barra de progreso de `degradationRisk` y barra de progreso de `stressAccumulated` (misma paleta de colores dinámica: verde/ámbar/rojo según nivel). Click en la miniatura de la tabla abre un modal de zoom a pantalla completa con la imagen ampliada y la ficha técnica de la obra. La galería de miniaturas sobre la tabla ha sido eliminada para evitar duplicación visual.
+- Histórico ambiental multivariable con dropdown de rango (1h/12h/24h), renderizado en grid fijo 2×2 (Temperatura, Humedad, CO₂, Ruido). Eje X con timestamps reales formateados: 1h→HH:MM:SS cada 10 min, 12h→HH:MM cada hora, 24h→HH:MM cada 2 horas. Nunca índices numéricos.
+- Línea de tiempo de alertas filtradas por sala.
+
+Datos que muestra en el detalle de obra:
+
+- Ficha técnica de la obra.
+- Condiciones actuales frente a condiciones ideales.
+- Índice de riesgo de degradación.
+- Estrés térmico acumulado.
+- Línea de tiempo de alertas relacionadas.
 
 Datos que muestra en el detalle de obra:
 
@@ -559,3 +570,54 @@ Endpoints del backend necesarios:
 - Los requisitos no funcionales quedan cerrados y medibles.
 - El stack tecnológico queda totalmente alineado con Project_Rules.md.
 - No existe ambigüedad sobre qué entidades, métricas y visualizaciones forman parte del producto.
+
+## 14. Implementación — Sesión 2 (2026-05-06)
+
+### 14.1 Modo claro rediseñado (verde claro)
+
+- La paleta `:root` se ha cambiado de fondo oscuro (`#162422`) a fondo verde claro (`#c4ddd8`) con texto oscuro (`#182e2b`) para garantizar legibilidad en modo light.
+- Se introduce un sistema completo de variables CSS glass: `--glass-bg`, `--glass-sm`, `--glass-border`, `--glass-topbar`, `--glass-btn`, `--glass-btn-h`, `--glass-input`, `--glass-chart`, `--glass-modal`, `--blob-1`, `--blob-2`.
+- En modo claro, los fondos glass son semitransparentes blancos (opacidad 0.46–0.74); en modo oscuro se reducen a 0.05–0.10 con negro/oscuro.
+- El gradiente de fondo en modo claro usa verdes suaves (`#c4ddd8` → `#aecfc8`) con blobs decorativos teal y ocre.
+- Todos los componentes principales (topbar, botones, cards, modales, tabla, inputs, skeleton) ahora usan las variables glass en lugar de valores RGBA hardcodeados.
+
+### 14.2 Panel Grafana eliminado definitivamente
+
+- El bloque HTML del panel Grafana fue eliminado de `center_detail.html`.
+- La función `loadGrafana()` fue eliminada de `center_detail.js`.
+- No quedan referencias a Grafana en ninguna vista del frontend.
+
+### 14.3 Imágenes de sala (24 salas en Orion)
+
+- Se asignó una imagen representativa y distinta para cada una de las 24 salas de los 4 centros.
+- MUNCYT: imágenes del Boeing 747 expuesto en el propio MUNCYT A Coruña (Wikimedia Commons) y salas de museo tipo (Museo del Traje, Auditorio de Valladolid).
+- Bellas Artes: salas de galerías de pintura de referencia (Alte Pinakothek, Uffizi, National Gallery) y taller de Sargadelos.
+- Teatro Rosalía: imágenes de teatros españoles reales (Teatro Real de Madrid, Gran Teatre del Liceu, Teatro Salón Cervantes).
+- Palacio de la Ópera: imágenes del propio Palacio de la Ópera de A Coruña (Wikimedia Commons) y salas de concierto tipo.
+- Todas las URLs son directas a `upload.wikimedia.org/wikipedia/commons/thumb/...` (800px), sin redirecciones.
+
+### 14.4 Corrección de imágenes de obras
+
+- 8 artworks tenían URLs rotas (HTTP 400) o altamente rate-limited (Special:FilePath de Wikimedia).
+- Disparate Claro → URL directa de Wikimedia para la obra de Goya.
+- SEAT 600 D, Microscopio Electrónico, Reproducción del Traje Estratosférico → URLs directas de MUNCYT en Wikimedia.
+- La Sagrada Familia → URL directa de Wikimedia (Alonso Cano, Real Academia de Bellas Artes).
+- El Muñeco, Figura Femenina con Cántaro, Figura de Gaiteiro → imágenes temáticas alternativas confirmadas (Galicia, Sargadelos).
+
+### 14.5 Símbolos/emojis en tabla de obras
+
+- Se añade una función `materialEmoji(val)` y `techniqueEmoji(val)` en `room_artwork.js`.
+- Cada material y técnica tiene un emoji representativo: 🖼️ pintura en lienzo, 🏺 cerámica, 🔬 instrumentación científica, ✈️ ingeniería aeroespacial, 🚗 automoción, 📽️ proyección cinematográfica, etc.
+- Los emojis aparecen en la tabla de obras (columna Material/Técnica) y en el modal de zoom.
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+- Descripción: `feat: light mode verde claro, room images, artwork emoji symbols, broken image fixes`
+
+Notas de despliegue y verificación:
+
+- Los cambios UI están en `static/css/style.css` y aplican glassmorphism y modo claro.
+- Las imágenes de salas y artworks se actualizaron en Orion; puede ser necesario invalidar caché del CDN para ver cambios inmediatamente.
+- Recomendado: crear PR hacia `main` para integrar estos cambios en la rama principal.

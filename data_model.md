@@ -411,6 +411,16 @@ Entidad custom que representa un actuador controlable ambientalmente.
 | Actuator | isControlledBy | Device | Relación de control |
 | Device | controlledAsset | Actuator / Room | Activo controlado por el dispositivo |
 
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Impacto en el modelo de datos:
+
+- No se han introducido nuevas entidades NGSI-LD. Se han actualizado valores de atributos `image`/`imageUrl` en `Artwork` y `Room` para usar thumbnails directos y evitar redirecciones.
+- Las vistas derivadas (`roomHistory`, `artworkComparison`, `visitorSummary`) consumen las nuevas URLs sin cambio de contrato.
+
 ### 15.1 Diagrama Mermaid del grafo
 
 ```mermaid
@@ -595,6 +605,12 @@ El chatbot del modo Visitante no crea una nueva entidad persistente en Orion. Co
 - Cada observación dinámica debe tener una referencia trazable al dispositivo fuente y a la sala o centro.
 - Cada `Artwork` debe estar expuesta en una única `Room` en el MVP.
 - Cada `Alert` debe estar relacionada con una fuente concreta y con un centro o sala afectada.
+- **Regla de negocio Vista 5**: La sección "Obras y Riesgo" se renderiza únicamente si el `Museum.museumType` del centro asociado incluye el valor `museum`. Los centros de tipo `theatre` o `concert-hall` no exponen obras y la sección permanece oculta. Esta regla se evalúa en el frontend mediante el campo `museumType` devuelto por `/api/centers/{center_id}`.
+- **Obras reales documentadas**: El catálogo incluye obras con referencias verificadas en CERES, Wikimedia Commons y Wikipedia: Lente de Fresnel del Faro de Estaca de Bares (MUNCYT), Ordenador IBM 650 (MUNCYT), Los Caprichos de Goya (Bellas Artes, Sala Goya), El Muñeco de Modesto Brocos (Bellas Artes, Sala XVIII-XIX), entre otras. Todas vinculadas mediante `isExposedIn` a su sala correspondiente.
+- **URLs de imagen verificadas**: Las 24 entidades Artwork en Orion tienen el campo `image` verificado. Las URLs de tipo `Special:FilePath` de Wikimedia Commons han sido migradas a URLs directas `upload.wikimedia.org/wikipedia/commons/thumb/...` (formato thumbnail 960px, accesibles sin rate-limiting). Las 7 URLs de CERES (`ceres.mcu.es/pages/Viewer?img=...`) se han verificado con content-type `image/jpeg` correcto.
+- **Imágenes de sala (Sesión 2, 2026-05-06)**: Las 24 entidades `Room` en Orion tienen el campo `imageUrl` asignado con URLs directas a `upload.wikimedia.org` (thumbnail 800px). Las imágenes son congruentes y distintas para cada sala: MUNCYT usa fotografías del propio museo (Boeing 747, salas de exhibición), Bellas Artes usa galerías de referencia (Alte Pinakothek, Uffizi, National Gallery, Sargadelos), Teatro Rosalía usa teatros españoles (Teatro Real de Madrid, Gran Teatre del Liceu, Teatro Salón Cervantes), y Palacio de la Ópera usa imágenes del propio edificio en A Coruña más salas de concierto tipo.
+- **Corrección de obras con imagen rota (Sesión 2, 2026-05-06)**: 8 artworks con URLs HTTP 400 o sujetas a rate-limiting intenso han sido corregidas: Disparate Claro, SEAT 600 D, Microscopio Electrónico, Reproducción del Traje Estratosférico, La Sagrada Familia (todos con URLs directas a Wikimedia), El Muñeco, Figura Femenina con Cántaro y Figura de Gaiteiro (imágenes temáticas alternativas confirmadas).
+- **Emojis de material y técnica**: La función `materialEmoji()` y `techniqueEmoji()` en `room_artwork.js` mapean los valores de `material` y `technique` de cada `Artwork` a emojis representativos (🖼️ pintura, 🏺 cerámica, 🔬 instrumento científico, ✈️ aeroespacial, 🚗 automoción, etc.), mostrándolos como prefijo en la tabla de obras y en el modal de zoom.
 
 ## 21. Resumen operativo para el simulador IoT
 

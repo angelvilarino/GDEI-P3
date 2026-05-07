@@ -47,7 +47,7 @@ Vista 3 - Detalle del Centro: combina gauges en vivo, histórico multivariable, 
 
 Vista 4 - Gemelo Digital 3D: representa salas y variables ambientales con interacción (zoom, rotación, selección de sala) y actualización continua por eventos.
 
-Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación, histórico por obra, comparativa entre piezas y pasaporte ambiental exportable.
+Vista 5 - Detalle de Sala y Obra: analiza condiciones actuales frente a rangos de conservación, visualización ampliada interactiva en galería, seguimiento de estrés acumulado, y pasaporte ambiental exportable.
 
 Vista 6 - Centro de Control: unifica administración de alertas y dispositivos, con estadísticas operativas, diagnóstico de flota y apoyo a predicción de fallo.
 
@@ -77,3 +77,14 @@ Capacidades transversales: tiempo real por WebSocket, consulta histórica, traza
 ## 7. Diagrama del modelo de datos
 
 ![Diagrama del modelo de datos](docs/data_model.png)
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Resumen:
+
+- Interfaz: glassmorphism aplicado globalmente; modo claro green-tinted con variables CSS reutilizables en `static/css/style.css`.
+- Contenido: imágenes de salas y artworks corregidas y actualizadas en el catálogo; emojis en la tabla de `room_artwork`.
+- Recomendación: crear PR y proceder al merge tras revisión visual rápida y tests de smoke en staging.

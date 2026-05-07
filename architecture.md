@@ -156,6 +156,10 @@ graph LR
 - El mapa global admite hover y navegación directa al detalle de centro.
 - La vista 3D y el detalle de sala usan paneles laterales para contexto operativo sin abandonar la escena.
 - Mermaid se genera con sintaxis segura compatible con la versión actual del renderizador.
+- **Vista 5 (Detalle de Sala)**: Hero Card Glassmorphism actualizada por SocketIO en cada ciclo MQTT (30s). Sección de obras con lógica condicional (solo en museos) incluyendo barra de progreso visual de `stressAccumulated` y modal de ampliación de imagen. Galería de miniaturas eliminada de la sección de obras (las imágenes solo aparecen en la tabla). Gráficas históricas organizadas en grid estricto 2x2 con eje X formateado: 1h→HH:MM:SS/10min/max8, 12h→HH:MM/1h/max12, 24h→HH:MM/2h/max12; nunca índices numéricos. Tooltips de Chart.js corregidos (`animation:false`, `intersect:false`). Radar único separado de los históricos. Timeline de alertas filtradas por sala.
+- **Vista 3 (Detalle de Centro)**: Tarjeta de Grafana embebido eliminada. El panel avanzado de Grafana solo se expone en Vista 6 (Centro de Control).
+- **Glassmorphism global**: Sistema de diseño glassmorphism aplicado en toda la aplicación mediante `style.css`. Fondo oscuro con gradiente y blobs decorativos (body::before/after). Todas las tarjetas `.card`, `.topbar`, `.btn`, inputs, modales, items de timeline y alertas usan `backdrop-filter: blur`, rgba transparentes y bordes semitransparentes. Dark mode intensifica (blur 20px, panel 5% opacidad); light mode suaviza (blur 12px, panel 12% opacidad). Texto claro (#eef3f0) para legibilidad sobre fondo oscuro.
+- **Imágenes de obras Orion**: URLs actualizadas para 17 de 24 obras (Special:FilePath→upload.wikimedia.org directo, thumbnails 960px). Las 7 restantes usan CERES con content-type image/jpeg verificado.
 
 ## 5. Tabla de servicios Docker
 
@@ -370,4 +374,35 @@ Se prioriza LLM local (Gemma) por privacidad, control operativo y reducción de 
 - Frontend consumiendo WebSocket para KPI, alertas y estado de actuadores.
 - Flujo de riesgo de degradación operativo con PATCH a Orion.
 - Modo Visitante con chat contextual operativo sobre LLM local.
+
+## 16. Cambios de arquitectura CSS/UI — Sesión 2 (2026-05-06)
+
+### Sistema de variables glass
+
+Se introduce un sistema centralizado de variables CSS en `:root` y `[data-theme="dark"]` que desacopla los valores glass de los componentes:
+
+```
+```
+
+En modo claro: transparencias blancas altas (0.46–0.86), bordes oscuros suaves (`rgba(0,0,0,0.13)`), fondo base `#c4ddd8`.
+En modo oscuro: transparencias blancas bajas (0.05–0.14), bordes claros tenues (`rgba(255,255,255,0.09)`), fondo base `#060e0d`.
+
+### Eliminación total de Grafana
+
+El iframe de Grafana y la función `loadGrafana()` han sido eliminados completamente. El panel `center_detail.html` ya no incluye ningún bloque Grafana. El JS de `center_detail.js` no hace ninguna llamada a Grafana.
+
+### Imágenes de sala
+
+El campo `imageUrl` de las 24 entidades `Room` en Orion Context Broker ha sido actualizado con URLs directas a `upload.wikimedia.org` (thumbnail 800px). Las imágenes son congruentes con el tipo de espacio de cada sala (museo de ciencia, galería de arte, teatro, sala de conciertos).
+
+## Implementación — Issue #17
+
+- Branch: `feature/issue-17-ui-artwork-cleanup`
+- Commit: `55970aa` — Hugo — 2026-05-06 18:57:33 +0200
+
+Cambios relevantes:
+
+- Sistema de variables CSS (`:root`) y glassmorphism centralizado en `static/css/style.css`.
+- Eliminación del iframe de Grafana en `center_detail.html` y limpieza de la función `loadGrafana()`.
+- URLs de imágenes de sala y obras actualizadas en Orion; verificar caché tras deploy.
 
