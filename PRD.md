@@ -621,3 +621,39 @@ Notas de despliegue y verificación:
 - Los cambios UI están en `static/css/style.css` y aplican glassmorphism y modo claro.
 - Las imágenes de salas y artworks se actualizaron en Orion; puede ser necesario invalidar caché del CDN para ver cambios inmediatamente.
 - Recomendado: crear PR hacia `main` para integrar estos cambios en la rama principal.
+
+## Implementación — Issue #19
+
+- Branch: `feature/issue-19-ui-fixes-images-toggle`
+- Merged: `main` — 2026-05-09
+
+### 15.1 Corrección del layout de tarjetas en Vista Detalle de Centro
+
+- `<main class="stagger">` ahora tiene `width:100%` explícito.
+- Cada `<article class="card">` dentro de `main.stagger` tiene `width:100%;box-sizing:border-box`.
+- Regla CSS añadida: `main.stagger > .card { width:100%; box-sizing:border-box; align-self:stretch; }`.
+- Contenedores `#roomsList` y `#actuatorPanel` tienen `box-sizing:border-box`.
+- Tarjetas individuales mantienen `flex: 1 1 160px; max-width: 220px`.
+
+### 15.2 Imágenes reales de salas (24 salas)
+
+- **MUNCYT**: Boeing 747 en MUNCYT y Lente de Fresnel de la Torre de Hércules.
+- **Bellas Artes**: Sala 6, Caprichos LDUT182, panorámica, obras permanentes.
+- **Teatro Rosalía**: Fachada oficial, puerta de entrada, placas del teatro.
+- **Palacio Ópera**: Interior del Pazo da Ópera (200 OK), fachadas oficiales 1-3.
+
+### 15.3 Toggle CSS-only para dispositivos
+
+- Implementado con `<label class="device-toggle">` + `<input type="checkbox">` oculto.
+- Verde `#2ecc71` (ON), Rojo `#e74c3c` (OFF), Naranja `#e67e22` (ERROR).
+- Envía `POST /api/actuators/{id}/command` al cambiar estado.
+
+### 15.4 Corrección de imágenes de obras
+
+- Lente Fresnel: URL 404 corregida a Lente_de_Fresnel_de_la_Torre_de_Hércules.002_-_MUNCYT.jpg.
+- Los Caprichos de Goya: sustituida por LDUT182(10) de Wikimedia Commons.
+- El Muñeco (Brocos): no existe en Wikimedia; sustituida por Camponesa de Brocos.
+- Tetera/Plato/Gaiteiro Sargadelos: sustituidas por imágenes verificadas del museo.
+- Disparate Claro: sustituida por LDUT182(11).
+- San Sebastián: sustituida por Guadarrama de Ovidio Murguia.
+- Figura Femenina (Asorey): sustituida por Na Fragua de Carrero Fernández.
