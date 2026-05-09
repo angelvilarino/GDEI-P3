@@ -46,6 +46,7 @@ async function loadAlertsTab() {
     apiGet('/api/admin/alerts/stats'),
   ]);
 
+  // Update center filter
   const centerFilter = document.getElementById('alertFilterCenter');
   if (centerFilter) {
     const centers = [...new Map(alerts.map((a) => [a.centerCode || a.centerName, a.centerName])).entries()]
@@ -55,6 +56,39 @@ async function loadAlertsTab() {
       .map(([code, name]) => `<option value="${escapeHtml(code)}">${escapeHtml(name)}</option>`)
       .join('')}`;
     if (filters.center) centerFilter.value = filters.center;
+  }
+
+  // Update type filter dynamically from alerts
+  const typeFilter = document.getElementById('alertFilterType');
+  if (typeFilter) {
+    const types = [...new Set(alerts.map(a => a.subCategory || a.type).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+    typeFilter.innerHTML = `<option value="">${tr('allTypes')}</option>${types
+      .map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+      .join('')}`;
+    if (filters.type) typeFilter.value = filters.type;
+  }
+
+  // Update severity filter dynamically from alerts
+  const severityFilter = document.getElementById('alertFilterSeverity');
+  if (severityFilter) {
+    const severities = [...new Set(alerts.map(a => a.severity).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+    severityFilter.innerHTML = `<option value="">${tr('allSeverity')}</option>${severities
+      .map(sev => `<option value="${escapeHtml(sev)}">${escapeHtml(sev)}</option>`)
+      .join('')}`;
+    if (filters.severity) severityFilter.value = filters.severity;
+  }
+
+  // Update status filter dynamically from alerts
+  const statusFilter = document.getElementById('alertFilterStatus');
+  if (statusFilter) {
+    const statuses = [...new Set(alerts.map(a => a.status).filter(Boolean))]
+      .sort((a, b) => String(a).localeCompare(String(b)));
+    statusFilter.innerHTML = `<option value="">${tr('allState')}</option>${statuses
+      .map(st => `<option value="${escapeHtml(st)}">${escapeHtml(st)}</option>`)
+      .join('')}`;
+    if (filters.status) statusFilter.value = filters.status;
   }
 
   document.getElementById('alertsTableBody').innerHTML = alerts
@@ -84,47 +118,171 @@ async function loadAlertsTab() {
   });
 
   const labels = Object.keys(stats.byType || {});
-  const values = Object.values(stats.byType || {});
+  const unresolvedData = labels.map(type => (stats.byType[type]?.unresolved || 0));
+  const resolvedData = labels.map(type => (stats.byType[type]?.resolved || 0));
+  
   if (alertsChart) alertsChart.destroy();
   alertsChart = new Chart(document.getElementById('alertsStatsChart'), {
     type: 'bar',
     data: {
       labels,
-      datasets: [{
-        label: tr('alerts'),
-        data: values,
-        backgroundColor: '#d27d3f88',
-        borderColor: '#d27d3f',
-        borderWidth: 1,
-      }],
+      datasets: [
+        {
+          label: tr('unresolved') || 'Sin resolver',
+          data: unresolvedData,
+          backgroundColor: '#e74c3c',
+          borderColor: '#c0392b',
+          borderWidth: 1,
+          stack: 'stack-alerts',
+        },
+        {
+          label: tr('resolved') || 'Resueltas',
+          data: resolvedData,
+          backgroundColor: '#2ecc71',
+          borderColor: '#27ae60',
+          borderWidth: 1,
+          stack: 'stack-alerts',
+        }
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { position: 'bottom' } },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true },
+      },
     },
   });
 }
 
 async function loadDevicesTab() {
   const devices = await apiGet('/api/admin/devices');
+  
+  // Initialize device filters
+  const centerFilter = document.getElementById('deviceFilterCenter');
+  const roomFilter = document.getElementById('deviceFilterRoom');
+  const typeFilter = document.getElementById('deviceFilterType');
+  const stateFilter = document.getElementById('deviceFilterState');
+  const lowBatteryCheckbox = document.getElementById('deviceFilterLowBattery');
+  const groupToggleBtn = document.getElementById('deviceGroupToggle');
+  
+  // Populate center filter
+  if (centerFilter) {
+    const centers = [...new Set(devices.map(d => d.centerCode).filter(Boolean))]
+      .sort();
+    centerFilter.innerHTML = `<option value="">${tr('allCenters')}</option>${centers
+      .map(code => `<option value="${escapeHtml(code)}">${escapeHtml(code)}</option>`)
+      .join('')}`;
+    centerFilter.addEventListener('change', () => filterAndRenderDevices(devices));
+  }
+  
+  // Populate type filter
+  if (typeFilter) {
+    const types = [...new Set(devices.map(d => d.deviceCategory || d.category).filter(Boolean))]
+      .sort();
+    typeFilter.innerHTML = `<option value="">${tr('allTypes')}</option>${types
+      .map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
+      .join('')}`;
+    typeFilter.addEventListener('change', () => filterAndRenderDevices(devices));
+  }
+  
+  // Populate state filter
+  if (stateFilter) {
+    const states = [...new Set(devices.map(d => d.deviceState).filter(Boolean))]
+      .sort();
+    stateFilter.innerHTML = `<option value="">${tr('allState')}</option>${states
+      .map(st => `<option value="${escapeHtml(st)}">${escapeHtml(st)}</option>`)
+      .join('')}`;
+    stateFilter.addEventListener('change', () => filterAndRenderDevices(devices));
+  }
+  
+  // Low battery checkbox
+  if (lowBatteryCheckbox) {
+    lowBatteryCheckbox.addEventListener('change', () => filterAndRenderDevices(devices));
+  }
+  
+  // Store devices globally for filtering
+  window.devicesData = devices;
+  
+  // Group toggle button
+  if (groupToggleBtn) {
+    groupToggleBtn.addEventListener('click', () => {
+      groupToggleBtn.setAttribute('data-grouped', 
+        groupToggleBtn.getAttribute('data-grouped') === 'true' ? 'false' : 'true');
+      filterAndRenderDevices(devices);
+    });
+    groupToggleBtn.setAttribute('data-grouped', 'true');
+  }
+  
+  filterAndRenderDevices(devices);
+}
+
+function filterAndRenderDevices(allDevices) {
+  const centerFilter = document.getElementById('deviceFilterCenter')?.value || '';
+  const typeFilter = document.getElementById('deviceFilterType')?.value || '';
+  const stateFilter = document.getElementById('deviceFilterState')?.value || '';
+  const lowBatteryCheckbox = document.getElementById('deviceFilterLowBattery')?.checked || false;
+  const isGrouped = document.getElementById('deviceGroupToggle')?.getAttribute('data-grouped') === 'true';
+  
+  let filtered = allDevices
+    .filter(d => !centerFilter || d.centerCode === centerFilter)
+    .filter(d => !typeFilter || d.deviceCategory === typeFilter || d.category === typeFilter)
+    .filter(d => !stateFilter || d.deviceState === stateFilter)
+    .filter(d => !lowBatteryCheckbox || (d.batteryLevel && Number(d.batteryLevel) < 0.2));
+  
   const body = document.getElementById('devicesTableBody');
-  body.innerHTML = devices.length
-    ? devices
-        .map(
-          (d) => `
-      <tr>
-        <td>${escapeHtml(d.name || d.id)}</td>
-        <td>${escapeHtml(d.roomName || '—')}</td>
-        <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
-        <td>${badgeForState(d.deviceState)}</td>
-        <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
-        <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
-      </tr>
-    `,
-        )
-        .join('')
-    : `<tr><td colspan="6"><div class="small">${tr('noDevices')}</div></td></tr>`;
+  
+  if (isGrouped) {
+    // Grouped by center
+    const grouped = {};
+    filtered.forEach(d => {
+      const centerCode = d.centerCode || 'Unknown';
+      if (!grouped[centerCode]) grouped[centerCode] = [];
+      grouped[centerCode].push(d);
+    });
+    
+    body.innerHTML = Object.entries(grouped)
+      .map(([center, devices]) => {
+        const rowsHtml = devices
+          .map(d => `
+            <tr>
+              <td>${escapeHtml(d.name || d.id)}</td>
+              <td>${escapeHtml(d.roomName || '—')}</td>
+              <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
+              <td>${badgeForState(d.deviceState)}</td>
+              <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
+              <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
+            </tr>
+          `)
+          .join('');
+        
+        return `
+          <tr class="group-header" style="background: var(--glass-btn); cursor: pointer;" onclick="this.nextElementSibling?.style?.display === 'none' ? this.nextElementSibling.style.display = 'table-row-group' : (this.nextElementSibling.style.display = 'none')">
+            <td colspan="6"><strong>${escapeHtml(center)} (${devices.length})</strong></td>
+          </tr>
+          <tbody>${rowsHtml}</tbody>
+        `;
+      })
+      .join('');
+  } else {
+    // Flat list
+    body.innerHTML = filtered.length
+      ? filtered
+          .map(d => `
+            <tr>
+              <td>${escapeHtml(d.name || d.id)}</td>
+              <td>${escapeHtml(d.roomName || '—')}</td>
+              <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
+              <td>${badgeForState(d.deviceState)}</td>
+              <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
+              <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
+            </tr>
+          `)
+          .join('')
+      : `<tr><td colspan="6"><div class="small">${tr('noDevices')}</div></td></tr>`;
+  }
 }
 
 async function loadGrafanaTab() {

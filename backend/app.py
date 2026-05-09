@@ -1594,11 +1594,18 @@ def api_admin_alerts():
 def api_admin_alerts_stats():
     alerts = alert_entities()
 
-    by_type: Dict[str, int] = defaultdict(int)
+    by_type: Dict[str, Dict[str, int]] = defaultdict(lambda: {"resolved": 0, "unresolved": 0})
     by_center: Dict[str, int] = defaultdict(int)
 
     for alert in alerts:
-        by_type[str(alert.get("subCategory", "Unknown"))] += 1
+        alert_type = str(alert.get("subCategory", "Unknown"))
+        alert_status = str(alert.get("status", "active")).lower()
+        
+        if alert_status == "resolved" or alert_status == "true":
+            by_type[alert_type]["resolved"] += 1
+        else:
+            by_type[alert_type]["unresolved"] += 1
+        
         source = alert.get("alertSource")
         if source:
             room = next((r for r in ROOMS if r["id"] == source), None)
@@ -1606,7 +1613,7 @@ def api_admin_alerts_stats():
                 center = resolve_center(room["museumId"])
                 by_center[center["code"]] += 1
 
-    return jsonify({"byType": by_type, "byCenter": by_center})
+    return jsonify({"byType": dict(by_type), "byCenter": by_center})
 
 
 @app.route("/api/alerts/<alert_id>/resolve", methods=["PATCH"])

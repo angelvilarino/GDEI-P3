@@ -51,6 +51,16 @@
 
       <section data-tab="devices" class="card" style="margin-top:14px;display:none">
         <h3 data-i18n="devices">Dispositivos</h3>
+        <div class="controls-row" style="margin:8px 0 12px">
+          <select id="deviceFilterCenter" class="input"><option value="">Centro: todos</option></select>
+          <select id="deviceFilterType" class="input"><option value="">Tipo: todos</option></select>
+          <select id="deviceFilterState" class="input"><option value="">Estado: todos</option></select>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="deviceFilterLowBattery" />
+            <span>Batería baja (&lt;20%)</span>
+          </label>
+          <button class="btn" id="deviceGroupToggle" style="margin-left:auto">Agrupar por centro</button>
+        </div>
         <div class="table-wrap" style="max-height:460px">
           <table>
             <thead><tr><th data-i18n="device">Dispositivo</th><th data-i18n="room">Sala</th><th data-i18n="typeLabel">Tipo</th><th data-i18n="state">Estado</th><th data-i18n="battery">Batería</th><th data-i18n="lastReading">Última lectura</th></tr></thead>
