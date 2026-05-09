@@ -109,9 +109,11 @@ function buildSingleChart(id, label, data, rawLabels, color, unit, range) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
+          enabled: true,
           callbacks: {
             title(context) {
                 const ts = context[0].label;
@@ -183,25 +185,52 @@ async function loadActuators(code) {
   const wrap = document.getElementById('actuatorPanel');
   wrap.innerHTML = acts
     .map(
-      (a) => `
-      <div class="card" style="padding:10px; align-self: stretch;">
+      (a) => {
+        const status = a.status || 'off';
+        let statusText, statusColor, badgeColor, isChecked, isDisabled;
+        if (status === 'on') {
+          statusText = 'Activo';
+          statusColor = '#2ecc71';
+          badgeColor = '#2ecc71';
+          isChecked = true;
+          isDisabled = false;
+        } else if (status === 'off') {
+          statusText = 'Inactivo';
+          statusColor = '#e74c3c';
+          badgeColor = '#e74c3c';
+          isChecked = false;
+          isDisabled = false;
+        } else {
+          statusText = 'Error';
+          statusColor = '#e67e22';
+          badgeColor = '#e67e22';
+          isChecked = false;
+          isDisabled = true;
+        }
+        return `
+      <div class="card" style="padding:12px; align-self: start; flex: 1 1 160px; max-width: 220px; display: flex; flex-direction: column; gap: 10px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <strong>${a.name || a.id}</strong>
-          <span class="pill">${a.status || 'off'}</span>
+          <strong style="flex:1;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis">${a.name || a.id}</strong>
+          <span style="width:12px;height:12px;border-radius:50%;background:${badgeColor};flex-shrink:0;"></span>
         </div>
-        <div class="controls-row" style="margin-top:8px">
-          <button class="btn btn-primary" data-act="${a.id}" data-cmd="on" style="flex:1">ON</button>
-          <button class="btn" data-act="${a.id}" data-cmd="off" style="flex:1">OFF</button>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:0.82rem;color:var(--muted)">${statusText}</span>
+          <label class="device-toggle" data-act="${a.id}">
+            <input type="checkbox" class="device-toggle__input" ${isChecked ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+            <span class="device-toggle__slider"></span>
+          </label>
         </div>
       </div>
-    `
+    `;
+      }
     )
     .join('');
 
-  wrap.querySelectorAll('button[data-act]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const id = btn.getAttribute('data-act');
-      const cmd = btn.getAttribute('data-cmd');
+  wrap.querySelectorAll('label.device-toggle').forEach((label) => {
+    const input = label.querySelector('input');
+    const id = label.getAttribute('data-act');
+    input.addEventListener('change', async () => {
+      const cmd = input.checked ? 'on' : 'off';
       await apiSend(`/api/actuators/${encodeURIComponent(id)}/command`, 'POST', { command: cmd });
       await loadActuators(code);
     });

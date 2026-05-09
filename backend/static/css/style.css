@@ -342,6 +342,12 @@ th {
 .leaflet-map {
   min-height: 420px;
   height: 420px;
+  flex-shrink: 0;
+}
+
+.split .leaflet-map {
+  height: 420px;
+  flex: 1;
 }
 
 .chart-wrap {
@@ -369,10 +375,12 @@ iframe {
 }
 
 .alert-list {
-  max-height: 360px;
-  overflow: auto;
+  flex: 1;
+  height: 100%;
+  overflow-y: auto;
   display: grid;
   gap: 8px;
+  padding: 0;
 }
 
 .alert-item {
@@ -499,9 +507,37 @@ select option {
 }
 
 .split {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  display: flex;
+  align-items: stretch;
   gap: 14px;
+}
+
+.dashboard-map-alerts-row {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.dashboard-map-alerts-row .map-container,
+.dashboard-map-alerts-row .alerts-card {
+  flex: 1;
+  height: 420px;
+  overflow-y: auto;
+}
+
+.split > * {
+  flex: 1;
+}
+
+.split > :first-child {
+  min-width: 60%;
+}
+
+.split > :last-child {
+  min-width: 40%;
+  height: 420px;
+  display: flex;
+  flex-direction: column;
 }
 
 .fixed-panel {
@@ -539,7 +575,7 @@ select option {
 }
 
 .gauge-card {
-  flex: 1 1 140px;
+  flex: 1 1 180px;
   max-width: 200px;
   min-width: 130px;
   height: 180px;
@@ -587,6 +623,47 @@ select option {
   text-align: center;
   display: block;
   box-sizing: border-box;
+}
+
+/* Contenedor principal de tarjetas en detalle de centro */
+#roomsList,
+#actuatorPanel,
+#riskList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
+}
+
+#roomsList .card,
+#actuatorPanel .card {
+  flex: 1 1 160px;
+  max-width: 220px;
+  min-width: 160px;
+}
+
+main.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+main.grid > .card {
+  width: 100%;
+}
+
+main.grid > .card:nth-child(1),
+main.grid > .card:nth-child(2),
+main.grid > .card:nth-child(3) {
+  width: 100%;
+}
+
+/* Ensure stagger main's cards also fill full width */
+main.stagger > .card {
+  width: 100%;
+  box-sizing: border-box;
+  align-self: stretch;
 }
 
 .pill {
@@ -673,7 +750,12 @@ select option {
   }
 
   .split {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .split > :last-child {
+    height: auto;
+    min-height: 320px;
   }
 }
 
@@ -887,6 +969,64 @@ select option {
   gap: 6px;
   font-size: 0.78rem;
   color: var(--muted);
+}
+
+/* ── Device Toggle Styles (CSS-only) ── */
+.device-toggle {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.device-toggle__input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.device-toggle__slider {
+  position: absolute;
+  inset: 0;
+  background: #e74c3c;
+  border-radius: 26px;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+}
+
+.device-toggle__slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.device-toggle__input:checked + .device-toggle__slider {
+  background: #2ecc71;
+}
+
+.device-toggle__input:checked + .device-toggle__slider::before {
+  transform: translateX(22px);
+}
+
+.device-toggle__input:disabled + .device-toggle__slider {
+  background: #e67e22;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.device-toggle__input:disabled + .device-toggle__slider::before {
+  cursor: not-allowed;
 }
 
 /* Section header */

@@ -60,8 +60,8 @@
         </article>
       </section>
 
-      <main class="grid stagger" style="margin-top:14px">
-        <article class="card">
+      <main class="stagger" style="margin-top:14px;display:grid;grid-template-columns:1fr;gap:14px;width:100%">
+        <article class="card" style="width:100%;box-sizing:border-box">
             <div class="controls-row" style="margin-bottom:8px">
               <h3 style="margin:0" data-i18n="history">Histórico ambiental</h3>
               <select id="rangeSelect" class="input">
@@ -82,18 +82,18 @@
             <div class="chart-wrap" style="height:200px;margin-top:4px"><canvas id="chartCrowd"></canvas></div>
         </article>
 
-        <article class="card">
-            <h3 data-i18n="room">Salas</h3>
-            <div id="roomsList" class="grid grid-3"></div>
+        <article class="card" style="width:100%;box-sizing:border-box;overflow:visible">
+            <h3 style="margin-top:0;margin-bottom:12px" data-i18n="room">Salas</h3>
+            <div id="roomsList" style="display:flex;flex-wrap:wrap;gap:14px;width:100%;box-sizing:border-box"></div>
         </article>
 
-        <article class="card">
-            <h3 data-i18n="devices">Actuadores</h3>
-            <div id="actuatorPanel" class="grid grid-3"></div>
+        <article class="card" style="width:100%;box-sizing:border-box;overflow:visible">
+            <h3 style="margin-top:0;margin-bottom:12px" data-i18n="devices">Actuadores</h3>
+            <div id="actuatorPanel" style="display:flex;flex-wrap:wrap;gap:14px;width:100%;box-sizing:border-box"></div>
         </article>
 
-        <article class="card">
-            <h3 data-i18n="riskWorks">Obras en riesgo</h3>
+        <article class="card" style="width:100%;box-sizing:border-box">
+            <h3 style="margin-top:0;margin-bottom:12px" data-i18n="riskWorks">Obras en riesgo</h3>
             <div id="riskList" class="alert-list"></div>
         </article>
 
