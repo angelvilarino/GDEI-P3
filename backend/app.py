@@ -1594,24 +1594,46 @@ def api_admin_alerts():
 def api_admin_alerts_stats():
     alerts = alert_entities()
 
+    # Apply same filters as /api/admin/alerts so chart stays in sync with active filters
+    req_center   = request.args.get("center")
+    req_subtype  = request.args.get("type")
+    req_severity = request.args.get("severity")
+    req_status   = request.args.get("status")
+
+    def _match_stats(alert: Dict) -> bool:
+        if req_subtype  and alert.get("subCategory") != req_subtype:  return False
+        if req_severity and alert.get("severity")    != req_severity: return False
+        if req_status   and alert.get("status")      != req_status:   return False
+        if req_center:
+            try:
+                c = resolve_center(req_center)
+                room_ids = {r["id"] for r in center_rooms(c["id"])}
+                if alert.get("alertSource") not in room_ids:
+                    return False
+            except Exception:  # noqa: BLE001
+                return False
+        return True
+
     by_type: Dict[str, Dict[str, int]] = defaultdict(lambda: {"resolved": 0, "unresolved": 0})
     by_center: Dict[str, int] = defaultdict(int)
 
     for alert in alerts:
-        alert_type = str(alert.get("subCategory", "Unknown"))
+        if not _match_stats(alert):
+            continue
+        alert_type   = str(alert.get("subCategory", "Unknown"))
         alert_status = str(alert.get("status", "active")).lower()
-        
-        if alert_status == "resolved" or alert_status == "true":
+
+        if alert_status in {"resolved", "true"}:
             by_type[alert_type]["resolved"] += 1
         else:
             by_type[alert_type]["unresolved"] += 1
-        
+
         source = alert.get("alertSource")
         if source:
             room = next((r for r in ROOMS if r["id"] == source), None)
             if room:
-                center = resolve_center(room["museumId"])
-                by_center[center["code"]] += 1
+                center_obj = resolve_center(room["museumId"])
+                by_center[center_obj["code"]] += 1
 
     return jsonify({"byType": dict(by_type), "byCenter": by_center})
 

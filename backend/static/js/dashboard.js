@@ -232,26 +232,34 @@ function renderAlerts(alerts) {
     .slice(0, 30)
     .map(
       (a) => `
-      <div class="alert-item ${a.severity === 'critical' ? 'critical' : ''}">
+      <div class="alert-item ${a.severity === 'critical' ? 'critical' : ''}" data-alert-id="${escapeHtml(a.id)}">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
           <div>
-            <strong>${a.subCategory || 'Alert'}</strong><br/>
-            <span class="small">${a.description || ''}</span>
+            <strong>${escapeHtml(a.subCategory || 'Alert')}</strong><br/>
+            <span class="small" style="color:var(--muted)">${escapeHtml(a.centerName || a.centerCode || '')}</span><br/>
+            <span class="small">${escapeHtml(a.description || '')}</span>
           </div>
-          <button class="btn" data-alert-id="${a.id}">${tr('resolve')}</button>
+          <button class="btn" data-resolve-id="${escapeHtml(a.id)}">${tr('resolve')}</button>
         </div>
       </div>
     `
     )
     .join('');
 
-  panel.querySelectorAll('button[data-alert-id]').forEach((btn) => {
+  panel.querySelectorAll('button[data-resolve-id]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      const id = btn.getAttribute('data-alert-id');
+      const id = btn.getAttribute('data-resolve-id');
       await apiSend(`/api/alerts/${encodeURIComponent(id)}/resolve`, 'PATCH');
-      await loadAlerts();
+      removeDashboardAlertItem(id);
     });
   });
+}
+
+function removeDashboardAlertItem(alertId) {
+  const item = document.querySelector(`[data-alert-id="${CSS.escape(alertId)}"]`);
+  if (!item) return;
+  item.classList.add('resolving');
+  item.addEventListener('animationend', () => item.remove(), { once: true });
 }
 
 async function loadAlerts() {
@@ -281,7 +289,13 @@ async function bootDashboard() {
   loadMermaid();
 
   const socket = ensureSocket();
-  socket.on('alerts', () => loadAlerts());
+  socket.on('alerts', (data) => {
+    if (data && data.action === 'resolved' && data.alertId) {
+      removeDashboardAlertItem(data.alertId);
+    } else {
+      loadAlerts();
+    }
+  });
   socket.on('summary', (data) => updateKPIs(data.kpis));
 }
 
