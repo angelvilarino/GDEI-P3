@@ -69,7 +69,6 @@ async function loadRooms(code) {
           <div class="small">${tr('occupancy')}: ${formatMetric(Number(r.current.occupancy || 0) * 100, { digits: 0, unit: '%', zeroAsMissing: false })}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
             <a class="btn room-btn" href="/room/${encodeURIComponent(r.id)}">${tr('viewDetail')}</a>
-            <a class="btn" href="/room3d/${encodeURIComponent(r.id)}" style="display:inline-block"><i class="fa-solid fa-cube"></i> 3D</a>
           </div>
         </div>
       </div>
