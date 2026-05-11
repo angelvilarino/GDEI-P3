@@ -406,3 +406,23 @@ Cambios relevantes:
 - Eliminación del iframe de Grafana en `center_detail.html` y limpieza de la función `loadGrafana()`.
 - URLs de imágenes de sala y obras actualizadas en Orion; verificar caché tras deploy.
 
+
+## Issue #20 — Mejoras de UI en Alertas
+
+### Patrón de resolución optimista
+
+Al resolver una alerta desde Dashboard o Control, el flujo es:
+
+1. `PATCH /api/alerts/{id}/resolve` → Flask actualiza Orion + emite `socketio.emit("alerts", {action: "resolved", alertId: id})`
+2. El cliente que hizo el PATCH elimina el item/fila con animación CSS (optimistic removal)
+3. Todos los demás clientes reciben el evento WebSocket y eliminan también su fila (sin recarga)
+
+Esto garantiza consistencia sin forzar recarga de todos los clientes al resolver una alerta.
+
+### Endpoint `/api/admin/alerts/stats`
+
+Acepta ahora los mismos filtros query (`center`, `type`, `severity`, `status`) que `/api/admin/alerts`. El frontend pasa los mismos params a ambos endpoints en cada llamada, garantizando que la gráfica de distribución siempre refleja la misma vista filtrada que la tabla.
+
+### Selectores dinámicos de filtros
+
+Los selectores de Tipo, Severidad y Estado se construyen completamente en JS a partir de los valores únicos presentes en el dataset retornado por `/api/admin/alerts`. El valor seleccionado se persiste en `_alertFilterState` y se restaura tras cada re-render del `<select>`, evitando el estado intermedio de "Todos".

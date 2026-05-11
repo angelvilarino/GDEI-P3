@@ -626,3 +626,18 @@ El simulador debe generar valores coherentes con el tipo de centro y con la ocup
 ## 22. Cierre
 
 Este modelo NGSI-LD está pensado para alimentar directamente el importador de datos, el simulador MQTT, el backend Flask y las visualizaciones de AuraVault sin introducir decisiones de modelado adicionales durante la implementación.
+
+## 23. Flujo de resolución de alertas (Issue #20)
+
+La entidad `Alert` soporta resolución parcial mediante PATCH. El flujo completo es:
+
+```
+PATCH /api/alerts/{id}/resolve
+  → status: resolved
+  → dateModified: now()
+  → socketio.emit("alerts", {action: "resolved", alertId: id})
+```
+
+El endpoint `/api/admin/alerts` incluye siempre los campos `centerName`, `centerCode` y `roomName` derivados del join `alertSource → Room → museumId → Museum`. Estos campos permiten mostrar el nombre del centro directamente en los paneles de alertas sin peticiones adicionales.
+
+El endpoint `/api/admin/alerts/stats` acepta los mismos filtros que `/api/admin/alerts` (`center`, `type`, `severity`, `status`) para que la gráfica de distribución refleje siempre la misma vista filtrada que la tabla.

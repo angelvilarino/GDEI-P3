@@ -657,3 +657,37 @@ Notas de despliegue y verificación:
 - Disparate Claro: sustituida por LDUT182(11).
 - San Sebastián: sustituida por Guadarrama de Ovidio Murguia.
 - Figura Femenina (Asorey): sustituida por Na Fragua de Carrero Fernández.
+
+## Implementación — Issue #20
+
+- Branch: `feature/issue-20-alerts-ui-improvements`
+- Merged: `main` — 2026-05-11
+
+### 16.1 Tarjeta de alertas en Dashboard
+
+- Cada alerta muestra el **nombre del centro** (`centerName`) en texto secundario entre el tipo y la descripción.
+- El campo `centerName` ya estaba disponible en `/api/admin/alerts` (join con Museum por `alertSource → Room → museumId`); no requirió cambio de backend.
+- Al pulsar **Resolver**: se envía `PATCH /api/alerts/{id}/resolve` y se aplica la clase CSS `.resolving` al div correspondiente. La animación `alertFadeOut` encoge y desvanece el elemento; al terminar (`animationend`), el nodo se elimina del DOM sin recargar la página.
+- WebSocket: si el evento `alerts` recibe `{action: "resolved", alertId: "..."}`, se elimina solo ese item. Para eventos de creación (sin alertId), se recarga la lista completa.
+
+### 16.2 Vista Control — Tab Alertas
+
+**Selectores dinámicos sin estado intermedio:**
+- Los selectores de Tipo, Severidad y Estado se pueblan mediante `populateSelect()`, que construye el HTML completo: primera opción `"Todos"` + opciones únicas ordenadas extraídas del dataset actual. El valor seleccionado se restaura tras cada re-render.
+- El estado de filtros persiste en `_alertFilterState` para sobrevivir al re-renderizado del `<select>`.
+- `wireAlertFilters()` asigna listeners `change` que actualizan `_alertFilterState` y llaman a `loadAlertsTab()`.
+
+**Gráfica reactiva con filtros:**
+- `loadAlertsTab()` pasa los filtros activos como query params a **ambos** endpoints: `/api/admin/alerts` (tabla) y `/api/admin/alerts/stats` (gráfica).
+- La función `renderAlertsChart(stats)` se extrae de `loadAlertsTab()` y se llama tras cada carga, por lo que la gráfica siempre refleja la misma vista filtrada que la tabla.
+- El endpoint `/api/admin/alerts/stats` acepta ahora `center`, `type`, `severity`, `status` y aplica la misma lógica de filtrado que `/api/admin/alerts`.
+
+**Resolución con animación WebSocket:**
+- El botón Resolver aplica la clase `.resolving` al `<tr>` y elimina la fila en `animationend`.
+- El evento WebSocket `alerts` con `action=resolved` llama a `removeControlAlertRow(alertId)` en lugar de recargar toda la tabla.
+
+### 16.3 CSS — Animaciones de resolución
+
+- `@keyframes alertFadeOut`: colapso vertical (`scaleY`) + desvanecimiento. Para `.alert-item.resolving`.
+- `@keyframes rowFadeOut`: opacidad + destello verde. Para `tr.resolving`.
+- Ambas clases tienen `pointer-events: none` durante la animación.
