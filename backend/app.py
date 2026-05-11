@@ -1594,19 +1594,21 @@ def api_admin_alerts():
 def api_admin_alerts_stats():
     alerts = alert_entities()
 
-    # Apply same filters as /api/admin/alerts so chart stays in sync with active filters
-    req_center   = request.args.get("center")
-    req_subtype  = request.args.get("type")
-    req_severity = request.args.get("severity")
-    req_status   = request.args.get("status")
+    center = request.args.get("center")
+    subtype = request.args.get("type")
+    severity = request.args.get("severity")
+    status = request.args.get("status")
 
-    def _match_stats(alert: Dict) -> bool:
-        if req_subtype  and alert.get("subCategory") != req_subtype:  return False
-        if req_severity and alert.get("severity")    != req_severity: return False
-        if req_status   and alert.get("status")      != req_status:   return False
-        if req_center:
+    def match(alert: Dict) -> bool:
+        if subtype and alert.get("subCategory") != subtype:
+            return False
+        if severity and alert.get("severity") != severity:
+            return False
+        if status and alert.get("status") != status:
+            return False
+        if center:
             try:
-                c = resolve_center(req_center)
+                c = resolve_center(center)
                 room_ids = {r["id"] for r in center_rooms(c["id"])}
                 if alert.get("alertSource") not in room_ids:
                     return False
@@ -1618,12 +1620,12 @@ def api_admin_alerts_stats():
     by_center: Dict[str, int] = defaultdict(int)
 
     for alert in alerts:
-        if not _match_stats(alert):
+        if not match(alert):
             continue
-        alert_type   = str(alert.get("subCategory", "Unknown"))
-        alert_status = str(alert.get("status", "active")).lower()
 
-        if alert_status in {"resolved", "true"}:
+        alert_type = str(alert.get("subCategory", "Unknown"))
+        alert_status = str(alert.get("status", "active")).lower()
+        if alert_status == "resolved" or alert_status == "true":
             by_type[alert_type]["resolved"] += 1
         else:
             by_type[alert_type]["unresolved"] += 1
@@ -1632,8 +1634,8 @@ def api_admin_alerts_stats():
         if source:
             room = next((r for r in ROOMS if r["id"] == source), None)
             if room:
-                center_obj = resolve_center(room["museumId"])
-                by_center[center_obj["code"]] += 1
+                center = resolve_center(room["museumId"])
+                by_center[center["code"]] += 1
 
     return jsonify({"byType": dict(by_type), "byCenter": by_center})
 
