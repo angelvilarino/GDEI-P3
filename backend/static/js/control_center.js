@@ -124,6 +124,17 @@ function populateAlertOptions(alerts, filters) {
   }
 }
 
+function computeAlertStats(alerts) {
+  const byType = {};
+  alerts.forEach((a) => {
+    const type = a.subCategory || a.type || 'unknown';
+    if (!byType[type]) byType[type] = { unresolved: 0, resolved: 0 };
+    if (a.status === 'resolved') byType[type].resolved++;
+    else byType[type].unresolved++;
+  });
+  return { byType };
+}
+
 async function loadAlertsTab() {
   const filters = alertFilters();
   const params = new URLSearchParams();
@@ -132,9 +143,8 @@ async function loadAlertsTab() {
   });
   const queryString = params.toString() ? `?${params.toString()}` : '';
 
-  const [alerts, stats, allAlerts] = await Promise.all([
+  const [alerts, allAlerts] = await Promise.all([
     apiGet(`/api/admin/alerts${queryString}`),
-    apiGet(`/api/admin/alerts/stats${queryString}`),
     apiGet('/api/admin/alerts'),
   ]);
 
@@ -168,7 +178,7 @@ async function loadAlertsTab() {
     });
   });
 
-  renderAlertsChart(stats);
+  renderAlertsChart(computeAlertStats(alerts));
 }
 
 async function refreshAlertsStats() {
@@ -178,136 +188,172 @@ async function refreshAlertsStats() {
     if (value) params.set(key === 'center' ? 'center' : key, value);
   });
   const queryString = params.toString() ? `?${params.toString()}` : '';
-  const stats = await apiGet(`/api/admin/alerts/stats${queryString}`);
-  renderAlertsChart(stats);
+  const alerts = await apiGet(`/api/admin/alerts${queryString}`);
+  renderAlertsChart(computeAlertStats(alerts));
 }
+
+let _allDevices = null;
 
 async function loadDevicesTab() {
-  const devices = await apiGet('/api/admin/devices');
-  
-  // Initialize device filters
-  const centerFilter = document.getElementById('deviceFilterCenter');
-  const roomFilter = document.getElementById('deviceFilterRoom');
+  const centerSel = document.getElementById('deviceFilterCenter');
+  const roomSel = document.getElementById('deviceFilterRoom');
   const typeFilter = document.getElementById('deviceFilterType');
   const stateFilter = document.getElementById('deviceFilterState');
-  const lowBatteryCheckbox = document.getElementById('deviceFilterLowBattery');
-  const groupToggleBtn = document.getElementById('deviceGroupToggle');
-  
-  // Populate center filter
-  if (centerFilter) {
-    const centers = [...new Set(devices.map(d => d.centerCode).filter(Boolean))]
-      .sort();
-    centerFilter.innerHTML = `<option value="">${tr('allCenters')}</option>${centers
-      .map(code => `<option value="${escapeHtml(code)}">${escapeHtml(code)}</option>`)
-      .join('')}`;
-    centerFilter.addEventListener('change', () => filterAndRenderDevices(devices));
-  }
-  
+
+  _allDevices = await apiGet('/api/admin/devices');
+
+  // Build center map from device data
+  const centerMap = {};
+  _allDevices.forEach(d => {
+    if (d.centerCode) centerMap[d.centerCode] = d.centerName || d.centerCode;
+  });
+
+  const savedCenter = centerSel.value;
+  centerSel.innerHTML = `<option value="">Centro: todos</option>` +
+    Object.entries(centerMap)
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([code, name]) => `<option value="${escapeHtml(code)}">${escapeHtml(name)}</option>`)
+      .join('');
+  if (savedCenter) centerSel.value = savedCenter;
+
   // Populate type filter
-  if (typeFilter) {
-    const types = [...new Set(devices.map(d => d.deviceCategory || d.category).filter(Boolean))]
-      .sort();
-    typeFilter.innerHTML = `<option value="">${tr('allTypes')}</option>${types
-      .map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)
-      .join('')}`;
-    typeFilter.addEventListener('change', () => filterAndRenderDevices(devices));
+  const savedType = typeFilter.value;
+  const types = [...new Set(_allDevices.map(d => d.deviceCategory || d.category).filter(Boolean))].sort();
+  typeFilter.innerHTML = `<option value="">${tr('allTypes')}</option>` +
+    types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  if (savedType) typeFilter.value = savedType;
+
+  // Wire center change → populate room filter
+  centerSel.onchange = () => {
+    const code = centerSel.value;
+    roomSel.value = '';
+    if (code) {
+      const names = [...new Set(
+        _allDevices.filter(d => d.centerCode === code).map(d => d.roomName).filter(Boolean)
+      )].sort();
+      roomSel.innerHTML = `<option value="">Sala: todas</option>` +
+        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+      roomSel.style.display = '';
+    } else {
+      roomSel.innerHTML = '<option value="">Sala: todas</option>';
+      roomSel.style.display = 'none';
+    }
+    renderDevicesHierarchy();
+  };
+  roomSel.onchange = () => renderDevicesHierarchy();
+  typeFilter.onchange = () => renderDevicesHierarchy();
+  stateFilter.onchange = () => renderDevicesHierarchy();
+
+  // Restore room options if center was pre-selected
+  if (savedCenter) {
+    const names = [...new Set(
+      _allDevices.filter(d => d.centerCode === savedCenter).map(d => d.roomName).filter(Boolean)
+    )].sort();
+    if (names.length) {
+      roomSel.innerHTML = `<option value="">Sala: todas</option>` +
+        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+      roomSel.style.display = '';
+    }
   }
-  
-  // Populate state filter
-  if (stateFilter) {
-    const states = [...new Set(devices.map(d => d.deviceState).filter(Boolean))]
-      .sort();
-    stateFilter.innerHTML = `<option value="">${tr('allState')}</option>${states
-      .map(st => `<option value="${escapeHtml(st)}">${escapeHtml(st)}</option>`)
-      .join('')}`;
-    stateFilter.addEventListener('change', () => filterAndRenderDevices(devices));
-  }
-  
-  // Low battery checkbox
-  if (lowBatteryCheckbox) {
-    lowBatteryCheckbox.addEventListener('change', () => filterAndRenderDevices(devices));
-  }
-  
-  // Store devices globally for filtering
-  window.devicesData = devices;
-  
-  // Group toggle button
-  if (groupToggleBtn) {
-    groupToggleBtn.addEventListener('click', () => {
-      groupToggleBtn.setAttribute('data-grouped', 
-        groupToggleBtn.getAttribute('data-grouped') === 'true' ? 'false' : 'true');
-      filterAndRenderDevices(devices);
-    });
-    groupToggleBtn.setAttribute('data-grouped', 'true');
-  }
-  
-  filterAndRenderDevices(devices);
+
+  renderDevicesHierarchy();
 }
 
-function filterAndRenderDevices(allDevices) {
-  const centerFilter = document.getElementById('deviceFilterCenter')?.value || '';
-  const typeFilter = document.getElementById('deviceFilterType')?.value || '';
-  const stateFilter = document.getElementById('deviceFilterState')?.value || '';
-  const lowBatteryCheckbox = document.getElementById('deviceFilterLowBattery')?.checked || false;
-  const isGrouped = document.getElementById('deviceGroupToggle')?.getAttribute('data-grouped') === 'true';
-  
-  let filtered = allDevices
-    .filter(d => !centerFilter || d.centerCode === centerFilter)
-    .filter(d => !typeFilter || d.deviceCategory === typeFilter || d.category === typeFilter)
-    .filter(d => !stateFilter || d.deviceState === stateFilter)
-    .filter(d => !lowBatteryCheckbox || (d.batteryLevel && Number(d.batteryLevel) < 0.2));
-  
+function renderDevicesHierarchy() {
+  if (!_allDevices) return;
+  const centerVal = document.getElementById('deviceFilterCenter')?.value || '';
+  const roomVal = document.getElementById('deviceFilterRoom')?.value || '';
+  const typeVal = document.getElementById('deviceFilterType')?.value || '';
+  const stateVal = document.getElementById('deviceFilterState')?.value || '';
+
+  const filtered = _allDevices
+    .filter(d => !centerVal || d.centerCode === centerVal)
+    .filter(d => !roomVal || d.roomName === roomVal)
+    .filter(d => !typeVal || d.deviceCategory === typeVal || d.category === typeVal)
+    .filter(d => !stateVal || (d.deviceState || '').toLowerCase() === stateVal);
+
+  // Group: center → room → devices
+  const byCenter = new Map();
+  filtered.forEach(d => {
+    const ck = d.centerCode || 'other';
+    const cn = d.centerName || ck;
+    const rk = d.roomName || '—';
+    if (!byCenter.has(ck)) byCenter.set(ck, { name: cn, rooms: new Map() });
+    const rooms = byCenter.get(ck).rooms;
+    if (!rooms.has(rk)) rooms.set(rk, []);
+    rooms.get(rk).push(d);
+  });
+
   const body = document.getElementById('devicesTableBody');
-  
-  if (isGrouped) {
-    // Grouped by center
-    const grouped = {};
-    filtered.forEach(d => {
-      const centerCode = d.centerCode || 'Unknown';
-      if (!grouped[centerCode]) grouped[centerCode] = [];
-      grouped[centerCode].push(d);
-    });
-    
-    body.innerHTML = Object.entries(grouped)
-      .map(([center, devices]) => {
-        const rowsHtml = devices
-          .map(d => `
-            <tr>
-              <td>${escapeHtml(d.name || d.id)}</td>
-              <td>${escapeHtml(d.roomName || '—')}</td>
-              <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
-              <td>${badgeForState(d.deviceState)}</td>
-              <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
-              <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
-            </tr>
-          `)
-          .join('');
-        
-        return `
-          <tr class="group-header" style="background: var(--glass-btn); cursor: pointer;" onclick="this.nextElementSibling?.style?.display === 'none' ? this.nextElementSibling.style.display = 'table-row-group' : (this.nextElementSibling.style.display = 'none')">
-            <td colspan="6"><strong>${escapeHtml(center)} (${devices.length})</strong></td>
-          </tr>
-          <tbody>${rowsHtml}</tbody>
-        `;
-      })
-      .join('');
-  } else {
-    // Flat list
-    body.innerHTML = filtered.length
-      ? filtered
-          .map(d => `
-            <tr>
-              <td>${escapeHtml(d.name || d.id)}</td>
-              <td>${escapeHtml(d.roomName || '—')}</td>
-              <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
-              <td>${badgeForState(d.deviceState)}</td>
-              <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
-              <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
-            </tr>
-          `)
-          .join('')
-      : `<tr><td colspan="6"><div class="small">${tr('noDevices')}</div></td></tr>`;
+  if (!byCenter.size) {
+    body.innerHTML = `<tr><td colspan="6"><div class="small">${tr('noDevices')}</div></td></tr>`;
+    return;
   }
+
+  let html = '';
+  for (const [ck, centerData] of byCenter) {
+    const totalCount = [...centerData.rooms.values()].reduce((s, devs) => s + devs.length, 0);
+    html += `<tr class="group-center" data-center-id="${escapeHtml(ck)}">
+      <td colspan="6">
+        <span class="group-arrow">▼</span>
+        <strong>${escapeHtml(centerData.name)}</strong>
+        <span class="group-count">(${totalCount})</span>
+      </td>
+    </tr>`;
+
+    for (const [rk, devs] of centerData.rooms) {
+      html += `<tr class="group-room" data-center-id="${escapeHtml(ck)}" data-room-name="${escapeHtml(rk)}">
+        <td colspan="6" style="padding-left:22px">
+          <span class="group-arrow">▼</span>
+          ${escapeHtml(rk)}
+          <span class="group-count">(${devs.length})</span>
+        </td>
+      </tr>`;
+
+      devs.forEach(d => {
+        html += `<tr class="device-row" data-center-id="${escapeHtml(ck)}" data-room-name="${escapeHtml(rk)}">
+          <td style="padding-left:36px">${escapeHtml(d.name || d.id)}</td>
+          <td>${escapeHtml(d.roomName || '—')}</td>
+          <td>${escapeHtml(d.deviceCategory || d.category || '—')}</td>
+          <td>${badgeForState(d.deviceState)}</td>
+          <td>${deviceBatteryBar(Math.round(Number(d.batteryLevel || 0) * 100))}</td>
+          <td>${escapeHtml(d.lastReading || d.dateModified || '—')}</td>
+        </tr>`;
+      });
+    }
+  }
+  body.innerHTML = html;
+
+  // Wire collapse/expand on center headers
+  body.querySelectorAll('tr.group-center').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      const cid = hdr.dataset.centerId;
+      const isCollapsed = hdr.classList.toggle('collapsed');
+      body.querySelectorAll('tr').forEach(row => {
+        if (row !== hdr && row.dataset.centerId === cid) {
+          row.hidden = isCollapsed;
+          if (!isCollapsed && row.classList.contains('group-room')) {
+            row.classList.remove('collapsed');
+          }
+        }
+      });
+    });
+  });
+
+  // Wire collapse/expand on room headers
+  body.querySelectorAll('tr.group-room').forEach(hdr => {
+    hdr.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cid = hdr.dataset.centerId;
+      const rName = hdr.dataset.roomName;
+      const isCollapsed = hdr.classList.toggle('collapsed');
+      body.querySelectorAll('tr.device-row').forEach(row => {
+        if (row.dataset.centerId === cid && row.dataset.roomName === rName) {
+          row.hidden = isCollapsed;
+        }
+      });
+    });
+  });
 }
 
 async function loadGrafanaTab() {

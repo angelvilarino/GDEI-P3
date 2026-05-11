@@ -972,12 +972,16 @@ def ui_centers():
 
 @app.route("/center/<center_id>")
 def ui_center_detail(center_id: str):
-    return render_template("center_detail.html", center_id=center_id)
+    museum = next((m for m in MUSEUMS if m["code"] == center_id or m["id"] == center_id), None)
+    has_artworks = museum is not None and "museum" in museum.get("museumType", [])
+    return render_template("center_detail.html", center_id=center_id, artworks_at_risk=has_artworks)
 
 
 @app.route("/centers/<center_id>")
 def ui_center_detail_alias(center_id: str):
-    return render_template("center_detail.html", center_id=center_id)
+    museum = next((m for m in MUSEUMS if m["code"] == center_id or m["id"] == center_id), None)
+    has_artworks = museum is not None and "museum" in museum.get("museumType", [])
+    return render_template("center_detail.html", center_id=center_id, artworks_at_risk=has_artworks)
 
 
 @app.route("/twin/<center_id>")
@@ -988,6 +992,11 @@ def ui_twin(center_id: str):
 @app.route("/room/<room_id>")
 def ui_room(room_id: str):
     return render_template("room_artwork.html", room_id=room_id)
+
+
+@app.route("/room3d/<room_id>")
+def ui_room_3d(room_id: str):
+    return render_template("room_3d.html", room_id=room_id)
 
 
 @app.route("/control")
@@ -1396,6 +1405,13 @@ def api_room_artworks(room_id: str):
     return jsonify(arts)
 
 
+@app.route("/api/rooms/<room_id>/devices")
+def api_room_devices(room_id: str):
+    room = resolve_room(room_id)
+    devices = [d for d in device_entities() if d.get("controlledAsset") == room["id"]]
+    return jsonify(devices)
+
+
 @app.route("/api/rooms/<room_id>/connections")
 def api_room_connections(room_id: str):
     room = resolve_room(room_id)
@@ -1747,7 +1763,7 @@ def api_actuator_command(actuator_id: str):
 
     payload = request.get_json(force=True, silent=True) or {}
     command = payload.get("command", "on")
-    status = "running" if command in {"on", "start", "enable", "activate"} else "off"
+    status = "on" if command in {"on", "start", "enable", "activate"} else "off"
 
     attrs = {
         "status": ngsi_property(status),

@@ -1422,3 +1422,38 @@ main.grid > .card:nth-child(3) {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ── Hierarchical device table (Vista Control / Tab Dispositivos) ── */
+tr.group-center,
+tr.group-room {
+  cursor: pointer;
+  user-select: none;
+}
+tr.group-center > td {
+  background: var(--glass-btn);
+  font-size: 0.9rem;
+}
+tr.group-room > td {
+  background: var(--glass-sm);
+  font-size: 0.87rem;
+}
+tr.group-center:hover > td,
+tr.group-room:hover > td {
+  background: var(--glass-btn-h);
+}
+.group-arrow {
+  display: inline-block;
+  transition: transform 0.22s ease;
+  margin-right: 7px;
+  font-size: 0.75em;
+  vertical-align: middle;
+}
+tr.group-center.collapsed .group-arrow,
+tr.group-room.collapsed .group-arrow {
+  transform: rotate(-90deg);
+}
+.group-count {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-left: 5px;
+}

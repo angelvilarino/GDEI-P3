@@ -76,16 +76,21 @@ async function loadRooms(code) {
 }
 
 async function loadRiskArtworks(code) {
-  const arts = await apiGet(`/api/centers/${code}/artworks/at-risk`);
   const list = document.getElementById('riskList');
-  list.innerHTML = arts.length
-    ? arts
-        .slice(0, 12)
-        .map(
-          (a) => `<div class="alert-item ${Number(a.degradationRisk) > 0.8 ? 'critical' : ''}"><strong>${escapeHtml(a.name)}</strong><br/><span class="small">${escapeHtml(a.artist || '')} · ${tr('severity')} ${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</span></div>`
-        )
-        .join('')
-    : `<div class="small">${tr('noDataAvailable')}</div>`;
+  if (!list) return;
+  const arts = await apiGet(`/api/centers/${code}/artworks/at-risk`);
+  const card = document.getElementById('riskWorksCard');
+  if (!arts.length) {
+    if (card) card.style.display = 'none';
+    return;
+  }
+  if (card) card.style.display = '';
+  list.innerHTML = arts
+    .slice(0, 12)
+    .map(
+      (a) => `<div class="alert-item ${Number(a.degradationRisk) > 0.8 ? 'critical' : ''}"><strong>${escapeHtml(a.name)}</strong><br/><span class="small">${escapeHtml(a.artist || '')} · ${tr('severity')} ${formatMetric(a.degradationRisk, { digits: 3, zeroAsMissing: false })}</span></div>`
+    )
+    .join('');
 }
 
 function buildSingleChart(id, label, data, rawLabels, color, unit, range) {

@@ -545,6 +545,9 @@ async function loadRoomView() {
   const descEl = document.getElementById('roomDescription');
   if (descEl) descEl.textContent = room.description || '';
 
+  const view3dBtn = document.getElementById('view3dBtn');
+  if (view3dBtn) view3dBtn.href = `/room3d/${encodeURIComponent(roomId)}`;
+
   document.getElementById('roomArea').textContent = room.area ? `${room.area} m²` : '-- m²';
   document.getElementById('roomCapacity').textContent = room.capacity ? `${room.capacity} personas` : '-- personas';
   document.getElementById('roomFloor').textContent = room.floor != null ? formatFloor(room.floor) : '--';
