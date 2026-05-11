@@ -287,10 +287,11 @@ def normalize_entities(entities: List[Dict]) -> List[Dict]:
 
 
 def resolve_center(center_id: str) -> Dict:
+    normalized = center_id.lower().strip()
     for museum in MUSEUMS:
-        if center_id in {museum["id"], museum["code"]}:
+        if normalized in {museum["id"].lower(), museum["code"].lower(), museum.get("name", "").lower()}:
             return museum
-        if museum["id"].endswith(center_id):
+        if museum["id"].lower().endswith(normalized):
             return museum
     raise KeyError(center_id)
 
@@ -1548,8 +1549,11 @@ def api_admin_alerts():
     status = request.args.get("status")
     LOGGER.debug("api_admin_alerts: filters center=%s subtype=%s severity=%s status=%s", center, subtype, severity, status)
 
+    def get_alert_type(alert: Dict) -> str:
+        return str(alert.get("subCategory") or alert.get("type") or "Unknown")
+
     def match(alert: Dict) -> bool:
-        if subtype and alert.get("subCategory") != subtype:
+        if subtype and get_alert_type(alert) != subtype:
             return False
         if severity and alert.get("severity") != severity:
             return False
@@ -1599,8 +1603,11 @@ def api_admin_alerts_stats():
     severity = request.args.get("severity")
     status = request.args.get("status")
 
+    def get_alert_type(alert: Dict) -> str:
+        return str(alert.get("subCategory") or alert.get("type") or "Unknown")
+
     def match(alert: Dict) -> bool:
-        if subtype and alert.get("subCategory") != subtype:
+        if subtype and get_alert_type(alert) != subtype:
             return False
         if severity and alert.get("severity") != severity:
             return False
@@ -1623,7 +1630,7 @@ def api_admin_alerts_stats():
         if not match(alert):
             continue
 
-        alert_type = str(alert.get("subCategory", "Unknown"))
+        alert_type = get_alert_type(alert)
         alert_status = str(alert.get("status", "active")).lower()
         if alert_status == "resolved" or alert_status == "true":
             by_type[alert_type]["resolved"] += 1

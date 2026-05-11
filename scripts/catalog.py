@@ -78,7 +78,7 @@ MUSEUMS: List[Dict] = [
 ]
 
 ROOMS: List[Dict] = [
-    # MUNCYT — interiores reales del museo (Wikimedia Commons, verificados)
+    # MUNCYT — interiores de museo de ciencia y tecnología (Unsplash)
     {
         "id": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
         "code": "piezas_con_memoria",
@@ -89,7 +89,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "exhibition",
         "description": "Sala tematica de piezas historicas de ciencia y tecnologia.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/6/6a/2760-Boeing_747_%28MUNCYT%29_Coru%C3%B1a.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-ex-catedra",
@@ -101,7 +101,7 @@ ROOMS: List[Dict] = [
         "capacity": 110,
         "roomType": "exhibition",
         "description": "Espacio expositivo sobre conocimiento cientifico y educacion.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5f/2761-Boeing_747_%28MUNCYT%29_Coru%C3%B1a.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-creadores",
@@ -113,7 +113,7 @@ ROOMS: List[Dict] = [
         "capacity": 95,
         "roomType": "exhibition",
         "description": "Sala dedicada a innovacion, inventores y procesos tecnicos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/52/2762-Boing_747_%28MUNCYT%29_Coru%C3%B1a..jpg",
+        "image": "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-miscelanea",
@@ -125,7 +125,7 @@ ROOMS: List[Dict] = [
         "capacity": 85,
         "roomType": "exhibition",
         "description": "Sala con objetos tecnicos de colecciones mixtas.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/7/70/Lente_de_Fresnel_de_la_Torre_de_H%C3%A9rcules.101_-_MUNCYT.jpg",
+        "image": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-temporales",
@@ -137,7 +137,7 @@ ROOMS: List[Dict] = [
         "capacity": 100,
         "roomType": "exhibition",
         "description": "Area para muestras temporales y rotacion de coleccion.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/b/be/Lente_de_Fresnel_de_la_Torre_de_H%C3%A9rcules.002_-_MUNCYT.jpg",
+        "image": "https://images.unsplash.com/photo-1551076805-4c2f3cc6e02c?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-salon-de-actos",
@@ -149,7 +149,7 @@ ROOMS: List[Dict] = [
         "capacity": 120,
         "roomType": "performance",
         "description": "Salon para actividades divulgativas y eventos educativos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Interior_Pazo_da_%C3%93pera_da_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1497366754035-f200968a6ec7?w=400&h=200&fit=crop",
     },
     # Bellas Artes — interiores de pinacoteca (Unsplash)
     {
@@ -162,7 +162,7 @@ ROOMS: List[Dict] = [
         "capacity": 70,
         "roomType": "exhibition",
         "description": "Pintura espanola y europea de los siglos XVI y XVII.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Museo_de_Belas_Artes_da_Coru%C3%B1a_-_Sala_6.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/CORU%C3%91A_-_MUSEO_BELLAS_ARTES_-_3_galer%C3%ADas.jpg",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
@@ -174,7 +174,7 @@ ROOMS: List[Dict] = [
         "capacity": 68,
         "roomType": "exhibition",
         "description": "Colecciones neoclasicas y romanticas.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/1/18/Desnudo_de_ni%C3%B1a_con_los_brazos_cruzados_1913_Mar%C3%ADa_Roesset._Museo_de_Belas_Artes_da_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1574016316382-4b2c9d7a1a2c?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
@@ -186,7 +186,7 @@ ROOMS: List[Dict] = [
         "capacity": 64,
         "roomType": "exhibition",
         "description": "Sala de arte moderno y contemporaneo del museo.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Carrero_Fern%C3%A1ndez%2C_Na_fragua%2C_1890-1902.jpg",
+        "image": "https://images.unsplash.com/photo-1536924430914-91f9e2041b83?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-goya",
@@ -198,7 +198,7 @@ ROOMS: List[Dict] = [
         "capacity": 40,
         "roomType": "exhibition",
         "description": "Espacio para obra grafica y grabado historico.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/Los_Caprichos%2C_LDUT182%2810%29.jpg",
+        "image": "https://images.unsplash.com/photo-1571068316344-75bc8e10ea06?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-sargadelos",
@@ -210,7 +210,7 @@ ROOMS: List[Dict] = [
         "capacity": 35,
         "roomType": "exhibition",
         "description": "Coleccion de loza y ceramica de Sargadelos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/56/Coru%C3%B1a_-_Panorama_-_Museo_Belas_Artes_01.jpg",
+        "image": "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-temporales",
@@ -222,7 +222,7 @@ ROOMS: List[Dict] = [
         "capacity": 48,
         "roomType": "exhibition",
         "description": "Espacio para muestras temporales y proyectos curatoriales.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/9/98/Ovidio_Murguia_de_Castro_Guadarrama_1898.jpg",
+        "image": "https://images.unsplash.com/photo-1614094082869-cd4e4b2905c7?w=400&h=200&fit=crop",
     },
     # Teatro Rosalia — interiores de teatro (Unsplash)
     {
@@ -235,7 +235,7 @@ ROOMS: List[Dict] = [
         "capacity": 360,
         "roomType": "performance",
         "description": "Area principal de publico durante representaciones.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Teatro_Rosal%C3%ADa_de_Castro_A_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-anfiteatro",
@@ -247,7 +247,7 @@ ROOMS: List[Dict] = [
         "capacity": 150,
         "roomType": "performance",
         "description": "Nivel elevado para vision global del escenario.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/53/Porta_Rosalia_de_Castro_da_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-palcos",
@@ -259,7 +259,7 @@ ROOMS: List[Dict] = [
         "capacity": 90,
         "roomType": "performance",
         "description": "Zona lateral superior de palcos historicos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Teatro_Rosal%C3%ADa_de_Castro_A_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-escenario",
@@ -271,7 +271,7 @@ ROOMS: List[Dict] = [
         "capacity": 80,
         "roomType": "performance",
         "description": "Escenario tecnico para funciones teatrales y conciertos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/9/96/P1330065_Placa_Teatro_Rosal%C3%ADa_de_Castro_na_Coru%C3%B1a.JPG",
+        "image": "https://images.unsplash.com/photo-1548013146-72479768bada?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-foyer",
@@ -283,7 +283,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "lobby",
         "description": "Vestibulo principal y zona de recepcion de publico.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/P1330066_Placa_Teatro_Rosal%C3%ADa_de_Castro_A_Coru%C3%B1a.JPG",
+        "image": "https://images.unsplash.com/photo-1559305616-3f35e2b1f40a?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-camerinos",
@@ -295,7 +295,7 @@ ROOMS: List[Dict] = [
         "capacity": 45,
         "roomType": "storage",
         "description": "Zona de preparacion de elenco y equipos tecnicos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/6/6a/P1330067_Placa_Teatro_Rosal%C3%ADa_de_Castro_A_Coru%C3%B1a.JPG",
+        "image": "https://images.unsplash.com/photo-1540575467537-a5c44f1f4d24?w=400&h=200&fit=crop",
     },
     # Palacio de la Opera — interiores de auditorio y sala de conciertos (Unsplash)
     {
@@ -308,7 +308,7 @@ ROOMS: List[Dict] = [
         "capacity": 1805,
         "roomType": "performance",
         "description": "Sala principal con capacidad para 1805 personas sentadas.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Interior_Pazo_da_%C3%93pera_da_Coru%C3%B1a.jpg",
+        "image": "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-sonata",
@@ -320,7 +320,7 @@ ROOMS: List[Dict] = [
         "capacity": 425,
         "roomType": "performance",
         "description": "Sala de conferencias con escenario para eventos y congresos.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/e/e5/A_Coru%C3%B1a_-_Palacio_de_la_%C3%93pera_1.JPG",
+        "image": "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-vivace",
@@ -332,7 +332,7 @@ ROOMS: List[Dict] = [
         "capacity": 80,
         "roomType": "performance",
         "description": "Sala auxiliar para reuniones y actos de pequeno formato.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/1/12/A_Coru%C3%B1a_-_Palacio_de_la_%C3%93pera_2.JPG",
+        "image": "https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-sala-crescendo",
@@ -344,7 +344,7 @@ ROOMS: List[Dict] = [
         "capacity": 60,
         "roomType": "performance",
         "description": "Sala multiuso para seminarios y formacion.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/8/80/A_Coru%C3%B1a_-_Palacio_de_la_%C3%93pera_3.JPG",
+        "image": "https://images.unsplash.com/photo-1504975927706-7a9e9bc84d19?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-salon-wengue",
@@ -356,7 +356,7 @@ ROOMS: List[Dict] = [
         "capacity": 220,
         "roomType": "lobby",
         "description": "Salon de recepciones de doble altura para eventos institucionales.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/58/Palacio_da_%C3%93pera_%28A_Coru%C3%B1a%29.jpg",
+        "image": "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&h=200&fit=crop",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-hall-camara",
@@ -368,7 +368,7 @@ ROOMS: List[Dict] = [
         "capacity": 200,
         "roomType": "lobby",
         "description": "Hall asociado a salas de camara y circulacion de publico.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Palacio_da_%C3%B3pera%2C_A_Coru%C3%B1a.JPG",
+        "image": "https://images.unsplash.com/photo-1590794762512-6af40c0f50b4?w=400&h=200&fit=crop",
     },
 ]
 
@@ -956,8 +956,8 @@ ARTWORKS: List[Dict] = [
         "technique": "optica",
         "origin": "Paris, Francia",
         "roomId": "urn:ngsi-ld:Room:muncyt-miscelanea",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/b/be/Lente_de_Fresnel_de_la_Torre_de_H%C3%A9rcules.002_-_MUNCYT.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lente_de_Fresnel_de_la_Torre_de_H%C3%A9rcules.002_-_MUNCYT.jpg",
+        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Lente_Fresnel_museo.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lente_de_Fresnel_MUNCYT.jpg",
         "conservationRequirements": {
             "temperatureMin": 15,
             "temperatureMax": 25,
@@ -977,8 +977,8 @@ ARTWORKS: List[Dict] = [
         "technique": "aguafuerte",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-goya",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/Los_Caprichos%2C_LDUT182%2810%29.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Los_Caprichos,_LDUT182(10).jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Capricho_43.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Capricho_43.jpg",
         "conservationRequirements": {
             "temperatureMin": 18,
             "temperatureMax": 21,
@@ -998,8 +998,8 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/2/20/Modesto_Brocos_y_Gomes_-_Camponesa.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Modesto_Brocos",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/3/3d/El_mu%C3%B1eco%2C_de_Modesto_Brocos_%28Museo_de_Belas_Artes_da_Coru%C3%B1a%29.jpg",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:El_mu%C3%B1eco,_de_Modesto_Brocos_(Museo_de_Belas_Artes_da_Coru%C3%B1a).jpg",
         "conservationRequirements": {
             "temperatureMin": 18,
             "temperatureMax": 22,
@@ -1020,8 +1020,8 @@ ARTWORKS: List[Dict] = [
         "technique": "ceramica vidriada con decoracion transferida",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/56/Coru%C3%B1a_-_Panorama_-_Museo_Belas_Artes_01.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Sargadelos",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Sargadelos_teapot.jpg",
+        "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 17, "temperatureMax": 23,
             "humidityMin": 40, "humidityMax": 58,
@@ -1037,8 +1037,8 @@ ARTWORKS: List[Dict] = [
         "technique": "ceramica estampada en azul cobalto",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Museo_de_Belas_Artes_da_Coru%C3%B1a_-_Sala_6.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Sargadelos",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Sargadelos_ceramics.jpg",
+        "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 17, "temperatureMax": 23,
             "humidityMin": 40, "humidityMax": 58,
@@ -1054,8 +1054,8 @@ ARTWORKS: List[Dict] = [
         "technique": "moldeo y esmaltado artesanal",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/2/20/Modesto_Brocos_y_Gomes_-_Camponesa.jpg",
-        "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Sargadelos",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Sargadelos_pieces.jpg",
+        "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 16, "temperatureMax": 22,
             "humidityMin": 42, "humidityMax": 58,
@@ -1072,7 +1072,7 @@ ARTWORKS: List[Dict] = [
         "technique": "aguatinta y aguafuerte",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Los_Caprichos%2C_LDUT182%2811%29.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Francisco_de_Goya_y_Lucientes_-_Disparate_claro._No._18_-_Google_Art_Project.jpg",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Prints_by_Francisco_Goya",
         "conservationRequirements": {
             "temperatureMin": 18, "temperatureMax": 21,
@@ -1089,7 +1089,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura barroca flamenca",
         "origin": "Amberes, Flandes",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/9/98/Ovidio_Murguia_de_Castro_Guadarrama_1898.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/51/Cornelis_de_Vos_-_Saint_Sebastian.jpg",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Cornelis_de_Vos",
         "conservationRequirements": {
             "temperatureMin": 18, "temperatureMax": 22,
@@ -1106,7 +1106,7 @@ ARTWORKS: List[Dict] = [
         "technique": "fundicion a la cera perdida",
         "origin": "Cambados, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Carrero_Fern%C3%A1ndez%2C_Na_fragua%2C_1890-1902.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Francisco_Asorey_Santiago.jpg",
         "sourceUrl": "https://es.wikipedia.org/wiki/Francisco_Asorey",
         "conservationRequirements": {
             "temperatureMin": 16, "temperatureMax": 24,

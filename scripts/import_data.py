@@ -113,7 +113,7 @@ def artwork_entity(artwork: Dict, risk: float = 0.12) -> Dict:
     }
 
 
-def alert_entity(room: Dict, alert_type: str, severity: str, description: str, idx: int) -> Dict:
+def alert_entity(room: Dict, alert_type: str, severity: str, description: str, status: str, idx: int) -> Dict:
     ts = now_iso()
     room_code = room["id"].split(":")[-1]
     return {
@@ -123,7 +123,7 @@ def alert_entity(room: Dict, alert_type: str, severity: str, description: str, i
         "subCategory": ngsi_property(alert_type),
         "description": ngsi_property(description),
         "severity": ngsi_property(severity),
-        "status": ngsi_property("open"),
+        "status": ngsi_property(status),
         "alertSource": ngsi_relationship(room["id"]),
         "dateCreated": ngsi_property(ts),
         "dateModified": ngsi_property(ts),
@@ -145,9 +145,12 @@ def create_alert_entities() -> List[Dict]:
         ("ArtworkAtRisk", "critical", "Artwork condition requires immediate attention"),
     ]
     entities: List[Dict] = []
+    resolved_count = max(1, round(len(kinds) * 0.25))
+    total_count = len(kinds)
     for idx, (alert_type, severity, description) in enumerate(kinds, start=1):
         room = ROOMS[(idx - 1) % len(ROOMS)]
-        entities.append(alert_entity(room, alert_type, severity, description, idx))
+        status = "resolved" if idx > total_count - resolved_count else "open"
+        entities.append(alert_entity(room, alert_type, severity, description, status, idx))
     return entities
 
 

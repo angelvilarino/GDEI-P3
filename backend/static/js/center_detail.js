@@ -208,7 +208,7 @@ async function loadActuators(code) {
           isDisabled = true;
         }
         return `
-      <div class="card" style="padding:12px; align-self: start; flex: 1 1 160px; max-width: 220px; display: flex; flex-direction: column; gap: 10px;">
+      <div class="card" style="padding:12px; align-self: start; display: flex; flex-direction: column; gap: 10px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
           <strong style="flex:1;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis">${a.name || a.id}</strong>
           <span style="width:12px;height:12px;border-radius:50%;background:${badgeColor};flex-shrink:0;"></span>
@@ -230,9 +230,17 @@ async function loadActuators(code) {
     const input = label.querySelector('input');
     const id = label.getAttribute('data-act');
     input.addEventListener('change', async () => {
-      const cmd = input.checked ? 'on' : 'off';
-      await apiSend(`/api/actuators/${encodeURIComponent(id)}/command`, 'POST', { command: cmd });
-      await loadActuators(code);
+      try {
+        const cmd = input.checked ? 'on' : 'off';
+        await apiSend(`/api/actuators/${encodeURIComponent(id)}/command`, 'POST', { command: cmd });
+        await loadActuators(code);
+      } catch (err) {
+        console.error('Toggle error:', err);
+        // Revert toggle state on error
+        input.checked = !input.checked;
+        // Reload to show actual state
+        await loadActuators(code);
+      }
     });
   });
 }

@@ -249,8 +249,14 @@ function renderAlerts(alerts) {
   panel.querySelectorAll('button[data-resolve-id]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-resolve-id');
-      await apiSend(`/api/alerts/${encodeURIComponent(id)}/resolve`, 'PATCH');
-      removeDashboardAlertItem(id);
+      try {
+        await apiSend(`/api/alerts/${encodeURIComponent(id)}/resolve`, 'PATCH');
+        removeDashboardAlertItem(id);
+      } catch (err) {
+        console.error('Failed to resolve alert', err);
+      } finally {
+        await loadAlerts();
+      }
     });
   });
 }

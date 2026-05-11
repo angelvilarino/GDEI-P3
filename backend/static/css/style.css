@@ -588,12 +588,11 @@ select option {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
+  width: 100%;
 }
 
 .gauge-card {
-  flex: 1 1 180px;
-  max-width: 200px;
-  min-width: 130px;
+  flex: 1 1 auto;
   height: 180px;
   min-height: 180px;
   max-height: 180px;
@@ -653,8 +652,7 @@ select option {
 
 #roomsList .card,
 #actuatorPanel .card {
-  flex: 1 1 160px;
-  max-width: 220px;
+  flex: 1 1 auto;
   min-width: 160px;
 }
 
@@ -667,12 +665,14 @@ main.grid {
 
 main.grid > .card {
   width: 100%;
+  box-sizing: border-box;
 }
 
 main.grid > .card:nth-child(1),
 main.grid > .card:nth-child(2),
 main.grid > .card:nth-child(3) {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .pill {

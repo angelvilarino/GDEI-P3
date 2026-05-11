@@ -1,2 +1,245 @@
 /Users/mangelvilarino/Desktop/2-CUAT-4/GDEI/PRACTICAS/GDEI-P3/simulator/mqtt_simulator.py:284: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
   client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-07T15:35:32 [simulator] Ciclo 1 — 2026-05-07T15:35:31+00:00 — 24 salas publicadas
+2026-05-07T15:36:02 [simulator] Ciclo 2 — 2026-05-07T15:36:02+00:00 — 24 salas publicadas
+2026-05-07T15:36:33 [simulator] Ciclo 3 — 2026-05-07T15:36:32+00:00 — 24 salas publicadas
+2026-05-07T15:37:03 [simulator] Ciclo 4 — 2026-05-07T15:37:03+00:00 — 24 salas publicadas
+2026-05-07T15:37:33 [simulator] Ciclo 5 — 2026-05-07T15:37:33+00:00 — 24 salas publicadas
+2026-05-07T15:38:04 [simulator] Ciclo 6 — 2026-05-07T15:38:03+00:00 — 24 salas publicadas
+2026-05-07T15:38:34 [simulator] Ciclo 7 — 2026-05-07T15:38:34+00:00 — 24 salas publicadas
+2026-05-07T15:39:04 [simulator] Ciclo 8 — 2026-05-07T15:39:04+00:00 — 24 salas publicadas
+2026-05-07T15:39:34 [simulator] Ciclo 9 — 2026-05-07T15:39:34+00:00 — 24 salas publicadas
+2026-05-07T15:40:04 [simulator] Ciclo 10 — 2026-05-07T15:40:04+00:00 — 24 salas publicadas
+2026-05-07T15:40:34 [simulator] Ciclo 11 — 2026-05-07T15:40:34+00:00 — 24 salas publicadas
+2026-05-07T15:41:04 [simulator] Ciclo 12 — 2026-05-07T15:41:04+00:00 — 24 salas publicadas
+2026-05-07T15:41:34 [simulator] Ciclo 13 — 2026-05-07T15:41:34+00:00 — 24 salas publicadas
+2026-05-07T15:42:04 [simulator] Ciclo 14 — 2026-05-07T15:42:04+00:00 — 24 salas publicadas
+2026-05-07T15:42:34 [simulator] Ciclo 15 — 2026-05-07T15:42:34+00:00 — 24 salas publicadas
+2026-05-07T15:43:04 [simulator] Ciclo 16 — 2026-05-07T15:43:04+00:00 — 24 salas publicadas
+2026-05-07T15:43:34 [simulator] Ciclo 17 — 2026-05-07T15:43:34+00:00 — 24 salas publicadas
+2026-05-07T15:44:04 [simulator] Ciclo 18 — 2026-05-07T15:44:04+00:00 — 24 salas publicadas
+2026-05-07T15:44:35 [simulator] Ciclo 19 — 2026-05-07T15:44:34+00:00 — 24 salas publicadas
+2026-05-07T15:45:05 [simulator] Ciclo 20 — 2026-05-07T15:45:05+00:00 — 24 salas publicadas
+2026-05-07T15:45:35 [simulator] Ciclo 21 — 2026-05-07T15:45:35+00:00 — 24 salas publicadas
+2026-05-07T15:46:05 [simulator] Ciclo 22 — 2026-05-07T15:46:05+00:00 — 24 salas publicadas
+2026-05-07T15:46:35 [simulator] Ciclo 23 — 2026-05-07T15:46:35+00:00 — 24 salas publicadas
+2026-05-07T15:47:05 [simulator] Ciclo 24 — 2026-05-07T15:47:05+00:00 — 24 salas publicadas
+2026-05-07T15:47:35 [simulator] Ciclo 25 — 2026-05-07T15:47:35+00:00 — 24 salas publicadas
+2026-05-07T15:48:05 [simulator] Ciclo 26 — 2026-05-07T15:48:05+00:00 — 24 salas publicadas
+2026-05-07T15:48:35 [simulator] Ciclo 27 — 2026-05-07T15:48:35+00:00 — 24 salas publicadas
+2026-05-07T15:49:05 [simulator] Ciclo 28 — 2026-05-07T15:49:05+00:00 — 24 salas publicadas
+2026-05-07T15:49:37 [simulator] Ciclo 29 — 2026-05-07T15:49:35+00:00 — 24 salas publicadas
+2026-05-07T15:50:07 [simulator] Ciclo 30 — 2026-05-07T15:50:07+00:00 — 24 salas publicadas
+2026-05-07T15:50:37 [simulator] Ciclo 31 — 2026-05-07T15:50:37+00:00 — 24 salas publicadas
+2026-05-07T15:51:07 [simulator] Ciclo 32 — 2026-05-07T15:51:07+00:00 — 24 salas publicadas
+2026-05-07T15:51:37 [simulator] Ciclo 33 — 2026-05-07T15:51:37+00:00 — 24 salas publicadas
+2026-05-07T15:52:07 [simulator] Ciclo 34 — 2026-05-07T15:52:07+00:00 — 24 salas publicadas
+2026-05-07T15:52:37 [simulator] Ciclo 35 — 2026-05-07T15:52:37+00:00 — 24 salas publicadas
+2026-05-07T15:53:07 [simulator] Ciclo 36 — 2026-05-07T15:53:07+00:00 — 24 salas publicadas
+2026-05-07T15:53:37 [simulator] Ciclo 37 — 2026-05-07T15:53:37+00:00 — 24 salas publicadas
+2026-05-07T15:54:07 [simulator] Ciclo 38 — 2026-05-07T15:54:07+00:00 — 24 salas publicadas
+2026-05-07T15:54:37 [simulator] Ciclo 39 — 2026-05-07T15:54:37+00:00 — 24 salas publicadas
+2026-05-07T15:55:07 [simulator] Ciclo 40 — 2026-05-07T15:55:07+00:00 — 24 salas publicadas
+2026-05-07T15:55:37 [simulator] Ciclo 41 — 2026-05-07T15:55:37+00:00 — 24 salas publicadas
+2026-05-07T15:56:08 [simulator] Ciclo 42 — 2026-05-07T15:56:07+00:00 — 24 salas publicadas
+2026-05-07T15:56:38 [simulator] Ciclo 43 — 2026-05-07T15:56:38+00:00 — 24 salas publicadas
+2026-05-07T15:57:08 [simulator] Ciclo 44 — 2026-05-07T15:57:08+00:00 — 24 salas publicadas
+2026-05-07T15:57:38 [simulator] Ciclo 45 — 2026-05-07T15:57:38+00:00 — 24 salas publicadas
+2026-05-07T15:58:08 [simulator] Ciclo 46 — 2026-05-07T15:58:08+00:00 — 24 salas publicadas
+2026-05-07T15:58:38 [simulator] Ciclo 47 — 2026-05-07T15:58:38+00:00 — 24 salas publicadas
+2026-05-07T15:59:08 [simulator] Ciclo 48 — 2026-05-07T15:59:08+00:00 — 24 salas publicadas
+2026-05-07T15:59:38 [simulator] Ciclo 49 — 2026-05-07T15:59:38+00:00 — 24 salas publicadas
+2026-05-07T16:00:09 [simulator] Ciclo 50 — 2026-05-07T16:00:08+00:00 — 24 salas publicadas
+2026-05-07T16:00:40 [simulator] Ciclo 51 — 2026-05-07T16:00:39+00:00 — 24 salas publicadas
+2026-05-07T16:01:10 [simulator] Ciclo 52 — 2026-05-07T16:01:10+00:00 — 24 salas publicadas
+2026-05-07T16:01:40 [simulator] Ciclo 53 — 2026-05-07T16:01:40+00:00 — 24 salas publicadas
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-07T16:07:44 [simulator] Ciclo 1 — 2026-05-07T16:07:43+00:00 — 24 salas publicadas
+2026-05-07T16:08:14 [simulator] Ciclo 2 — 2026-05-07T16:08:14+00:00 — 24 salas publicadas
+2026-05-07T16:08:44 [simulator] Ciclo 3 — 2026-05-07T16:08:44+00:00 — 24 salas publicadas
+2026-05-07T16:09:14 [simulator] Ciclo 4 — 2026-05-07T16:09:14+00:00 — 24 salas publicadas
+2026-05-07T16:09:45 [simulator] Ciclo 5 — 2026-05-07T16:09:44+00:00 — 24 salas publicadas
+2026-05-07T16:10:17 [simulator] Ciclo 6 — 2026-05-07T16:10:15+00:00 — 24 salas publicadas
+2026-05-07T16:10:47 [simulator] Ciclo 7 — 2026-05-07T16:10:47+00:00 — 24 salas publicadas
+2026-05-07T16:11:17 [simulator] Ciclo 8 — 2026-05-07T16:11:17+00:00 — 24 salas publicadas
+2026-05-07T16:11:47 [simulator] Ciclo 9 — 2026-05-07T16:11:47+00:00 — 24 salas publicadas
+2026-05-07T16:12:17 [simulator] Ciclo 10 — 2026-05-07T16:12:17+00:00 — 24 salas publicadas
+2026-05-07T16:12:47 [simulator] Ciclo 11 — 2026-05-07T16:12:47+00:00 — 24 salas publicadas
+2026-05-07T16:13:18 [simulator] Ciclo 12 — 2026-05-07T16:13:17+00:00 — 24 salas publicadas
+2026-05-07T16:13:48 [simulator] Ciclo 13 — 2026-05-07T16:13:48+00:00 — 24 salas publicadas
+2026-05-07T16:14:18 [simulator] Ciclo 14 — 2026-05-07T16:14:18+00:00 — 24 salas publicadas
+2026-05-07T16:14:48 [simulator] Ciclo 15 — 2026-05-07T16:14:48+00:00 — 24 salas publicadas
+2026-05-07T16:15:18 [simulator] Ciclo 16 — 2026-05-07T16:15:18+00:00 — 24 salas publicadas
+2026-05-07T16:15:48 [simulator] Ciclo 17 — 2026-05-07T16:15:48+00:00 — 24 salas publicadas
+2026-05-07T16:16:18 [simulator] Ciclo 18 — 2026-05-07T16:16:18+00:00 — 24 salas publicadas
+2026-05-07T16:16:48 [simulator] Ciclo 19 — 2026-05-07T16:16:48+00:00 — 24 salas publicadas
+2026-05-07T16:17:18 [simulator] Ciclo 20 — 2026-05-07T16:17:18+00:00 — 24 salas publicadas
+2026-05-07T16:17:49 [simulator] Ciclo 21 — 2026-05-07T16:17:48+00:00 — 24 salas publicadas
+2026-05-07T16:18:19 [simulator] Ciclo 22 — 2026-05-07T16:18:19+00:00 — 24 salas publicadas
+2026-05-07T16:18:49 [simulator] Ciclo 23 — 2026-05-07T16:18:49+00:00 — 24 salas publicadas
+2026-05-07T16:19:19 [simulator] Ciclo 24 — 2026-05-07T16:19:19+00:00 — 24 salas publicadas
+2026-05-07T16:19:49 [simulator] Ciclo 25 — 2026-05-07T16:19:49+00:00 — 24 salas publicadas
+2026-05-07T16:20:19 [simulator] Ciclo 26 — 2026-05-07T16:20:19+00:00 — 24 salas publicadas
+2026-05-07T16:20:49 [simulator] Ciclo 27 — 2026-05-07T16:20:49+00:00 — 24 salas publicadas
+2026-05-07T16:21:19 [simulator] Ciclo 28 — 2026-05-07T16:21:19+00:00 — 24 salas publicadas
+2026-05-07T16:21:50 [simulator] Ciclo 29 — 2026-05-07T16:21:49+00:00 — 24 salas publicadas
+2026-05-07T16:22:20 [simulator] Ciclo 30 — 2026-05-07T16:22:20+00:00 — 24 salas publicadas
+2026-05-07T16:22:52 [simulator] Ciclo 31 — 2026-05-07T16:22:50+00:00 — 24 salas publicadas
+2026-05-07T16:23:22 [simulator] Ciclo 32 — 2026-05-07T16:23:22+00:00 — 24 salas publicadas
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-08T14:30:28 [simulator] Ciclo 1 — 2026-05-08T14:30:28+00:00 — 24 salas publicadas
+2026-05-08T14:30:58 [simulator] Ciclo 2 — 2026-05-08T14:30:58+00:00 — 24 salas publicadas
+2026-05-08T14:31:29 [simulator] Ciclo 3 — 2026-05-08T14:31:28+00:00 — 24 salas publicadas
+2026-05-08T14:32:00 [simulator] Ciclo 4 — 2026-05-08T14:31:59+00:00 — 24 salas publicadas
+2026-05-08T14:32:31 [simulator] Ciclo 5 — 2026-05-08T14:32:30+00:00 — 24 salas publicadas
+2026-05-08T14:33:06 [simulator] Ciclo 6 — 2026-05-08T14:33:01+00:00 — 24 salas publicadas
+2026-05-08T14:33:36 [simulator] Ciclo 7 — 2026-05-08T14:33:36+00:00 — 24 salas publicadas
+2026-05-08T14:34:06 [simulator] Ciclo 8 — 2026-05-08T14:34:06+00:00 — 24 salas publicadas
+2026-05-08T14:34:37 [simulator] Ciclo 9 — 2026-05-08T14:34:36+00:00 — 24 salas publicadas
+2026-05-08T14:35:07 [simulator] Ciclo 10 — 2026-05-08T14:35:07+00:00 — 24 salas publicadas
+2026-05-08T14:35:42 [simulator] Ciclo 11 — 2026-05-08T14:35:37+00:00 — 24 salas publicadas
+2026-05-08T14:36:14 [simulator] Ciclo 12 — 2026-05-08T14:36:12+00:00 — 24 salas publicadas
+2026-05-08T14:36:44 [simulator] Ciclo 13 — 2026-05-08T14:36:44+00:00 — 24 salas publicadas
+2026-05-08T14:37:14 [simulator] Ciclo 14 — 2026-05-08T14:37:14+00:00 — 24 salas publicadas
+2026-05-08T14:37:44 [simulator] Ciclo 15 — 2026-05-08T14:37:44+00:00 — 24 salas publicadas
+2026-05-08T14:38:15 [simulator] Ciclo 16 — 2026-05-08T14:38:14+00:00 — 24 salas publicadas
+2026-05-08T14:38:46 [simulator] Ciclo 17 — 2026-05-08T14:38:45+00:00 — 24 salas publicadas
+2026-05-08T14:39:16 [simulator] Ciclo 18 — 2026-05-08T14:39:16+00:00 — 24 salas publicadas
+2026-05-08T14:39:46 [simulator] Ciclo 19 — 2026-05-08T14:39:46+00:00 — 24 salas publicadas
+2026-05-08T14:40:17 [simulator] Ciclo 20 — 2026-05-08T14:40:16+00:00 — 24 salas publicadas
+2026-05-08T14:40:47 [simulator] Ciclo 21 — 2026-05-08T14:40:47+00:00 — 24 salas publicadas
+2026-05-08T14:41:17 [simulator] Ciclo 22 — 2026-05-08T14:41:17+00:00 — 24 salas publicadas
+2026-05-08T14:41:47 [simulator] Ciclo 23 — 2026-05-08T14:41:47+00:00 — 24 salas publicadas
+2026-05-08T14:42:17 [simulator] Ciclo 24 — 2026-05-08T14:42:17+00:00 — 24 salas publicadas
+2026-05-08T14:42:47 [simulator] Ciclo 25 — 2026-05-08T14:42:47+00:00 — 24 salas publicadas
+2026-05-08T14:43:17 [simulator] Ciclo 26 — 2026-05-08T14:43:17+00:00 — 24 salas publicadas
+2026-05-08T14:43:47 [simulator] Ciclo 27 — 2026-05-08T14:43:47+00:00 — 24 salas publicadas
+2026-05-08T14:44:17 [simulator] Ciclo 28 — 2026-05-08T14:44:17+00:00 — 24 salas publicadas
+2026-05-08T14:44:48 [simulator] Ciclo 29 — 2026-05-08T14:44:47+00:00 — 24 salas publicadas
+2026-05-08T14:45:18 [simulator] Ciclo 30 — 2026-05-08T14:45:18+00:00 — 24 salas publicadas
+2026-05-08T14:45:48 [simulator] Ciclo 31 — 2026-05-08T14:45:48+00:00 — 24 salas publicadas
+2026-05-08T14:46:18 [simulator] Ciclo 32 — 2026-05-08T14:46:18+00:00 — 24 salas publicadas
+2026-05-08T14:46:48 [simulator] Ciclo 33 — 2026-05-08T14:46:48+00:00 — 24 salas publicadas
+2026-05-08T14:47:18 [simulator] Ciclo 34 — 2026-05-08T14:47:18+00:00 — 24 salas publicadas
+2026-05-08T14:47:48 [simulator] Ciclo 35 — 2026-05-08T14:47:48+00:00 — 24 salas publicadas
+2026-05-08T14:48:19 [simulator] Ciclo 36 — 2026-05-08T14:48:18+00:00 — 24 salas publicadas
+2026-05-08T14:48:49 [simulator] Ciclo 37 — 2026-05-08T14:48:49+00:00 — 24 salas publicadas
+2026-05-08T14:49:19 [simulator] Ciclo 38 — 2026-05-08T14:49:19+00:00 — 24 salas publicadas
+2026-05-08T14:49:49 [simulator] Ciclo 39 — 2026-05-08T14:49:49+00:00 — 24 salas publicadas
+2026-05-08T14:50:19 [simulator] Ciclo 40 — 2026-05-08T14:50:19+00:00 — 24 salas publicadas
+2026-05-08T14:50:49 [simulator] Ciclo 41 — 2026-05-08T14:50:49+00:00 — 24 salas publicadas
+2026-05-08T14:51:19 [simulator] Ciclo 42 — 2026-05-08T14:51:19+00:00 — 24 salas publicadas
+2026-05-08T14:51:49 [simulator] Ciclo 43 — 2026-05-08T14:51:49+00:00 — 24 salas publicadas
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-09T14:23:04 [simulator] Ciclo 1 — 2026-05-09T14:23:03+00:00 — 24 salas publicadas
+2026-05-09T14:23:34 [simulator] Ciclo 2 — 2026-05-09T14:23:34+00:00 — 24 salas publicadas
+2026-05-09T14:24:04 [simulator] Ciclo 3 — 2026-05-09T14:24:04+00:00 — 24 salas publicadas
+2026-05-09T14:24:34 [simulator] Ciclo 4 — 2026-05-09T14:24:34+00:00 — 24 salas publicadas
+2026-05-09T14:25:05 [simulator] Ciclo 5 — 2026-05-09T14:25:04+00:00 — 24 salas publicadas
+2026-05-09T14:25:37 [simulator] Ciclo 6 — 2026-05-09T14:25:35+00:00 — 24 salas publicadas
+2026-05-09T14:26:08 [simulator] Ciclo 7 — 2026-05-09T14:26:07+00:00 — 24 salas publicadas
+2026-05-09T14:26:38 [simulator] Ciclo 8 — 2026-05-09T14:26:38+00:00 — 24 salas publicadas
+2026-05-09T14:27:09 [simulator] Ciclo 9 — 2026-05-09T14:27:08+00:00 — 24 salas publicadas
+2026-05-09T14:27:39 [simulator] Ciclo 10 — 2026-05-09T14:27:39+00:00 — 24 salas publicadas
+2026-05-09T14:28:10 [simulator] Ciclo 11 — 2026-05-09T14:28:09+00:00 — 24 salas publicadas
+2026-05-09T14:28:40 [simulator] Ciclo 12 — 2026-05-09T14:28:40+00:00 — 24 salas publicadas
+2026-05-09T14:29:11 [simulator] Ciclo 13 — 2026-05-09T14:29:10+00:00 — 24 salas publicadas
+2026-05-09T14:29:41 [simulator] Ciclo 14 — 2026-05-09T14:29:41+00:00 — 24 salas publicadas
+2026-05-09T14:30:12 [simulator] Ciclo 15 — 2026-05-09T14:30:11+00:00 — 24 salas publicadas
+2026-05-09T14:30:43 [simulator] Ciclo 16 — 2026-05-09T14:30:42+00:00 — 24 salas publicadas
+2026-05-09T14:31:13 [simulator] Ciclo 17 — 2026-05-09T14:31:13+00:00 — 24 salas publicadas
+2026-05-09T14:31:43 [simulator] Ciclo 18 — 2026-05-09T14:31:43+00:00 — 24 salas publicadas
+2026-05-09T14:32:13 [simulator] Ciclo 19 — 2026-05-09T14:32:13+00:00 — 24 salas publicadas
+2026-05-09T14:32:43 [simulator] Ciclo 20 — 2026-05-09T14:32:43+00:00 — 24 salas publicadas
+2026-05-09T14:33:14 [simulator] Ciclo 21 — 2026-05-09T14:33:13+00:00 — 24 salas publicadas
+2026-05-09T14:33:44 [simulator] Ciclo 22 — 2026-05-09T14:33:44+00:00 — 24 salas publicadas
+2026-05-09T14:34:14 [simulator] Ciclo 23 — 2026-05-09T14:34:14+00:00 — 24 salas publicadas
+2026-05-09T14:34:44 [simulator] Ciclo 24 — 2026-05-09T14:34:44+00:00 — 24 salas publicadas
+2026-05-09T14:35:14 [simulator] Ciclo 25 — 2026-05-09T14:35:14+00:00 — 24 salas publicadas
+2026-05-09T14:35:44 [simulator] Ciclo 26 — 2026-05-09T14:35:44+00:00 — 24 salas publicadas
+2026-05-09T14:36:14 [simulator] Ciclo 27 — 2026-05-09T14:36:14+00:00 — 24 salas publicadas
+2026-05-09T14:36:44 [simulator] Ciclo 28 — 2026-05-09T14:36:44+00:00 — 24 salas publicadas
+2026-05-09T14:37:15 [simulator] Ciclo 29 — 2026-05-09T14:37:14+00:00 — 24 salas publicadas
+2026-05-09T14:37:45 [simulator] Ciclo 30 — 2026-05-09T14:37:45+00:00 — 24 salas publicadas
+2026-05-09T14:38:16 [simulator] Ciclo 31 — 2026-05-09T14:38:15+00:00 — 24 salas publicadas
+2026-05-09T14:38:46 [simulator] Ciclo 32 — 2026-05-09T14:38:46+00:00 — 24 salas publicadas
+2026-05-09T14:39:16 [simulator] Ciclo 33 — 2026-05-09T14:39:16+00:00 — 24 salas publicadas
+2026-05-09T14:39:46 [simulator] Ciclo 34 — 2026-05-09T14:39:46+00:00 — 24 salas publicadas
+2026-05-09T14:40:16 [simulator] Ciclo 35 — 2026-05-09T14:40:16+00:00 — 24 salas publicadas
+2026-05-09T14:40:46 [simulator] Ciclo 36 — 2026-05-09T14:40:46+00:00 — 24 salas publicadas
+2026-05-09T14:41:16 [simulator] Ciclo 37 — 2026-05-09T14:41:16+00:00 — 24 salas publicadas
+2026-05-09T14:41:46 [simulator] Ciclo 38 — 2026-05-09T14:41:46+00:00 — 24 salas publicadas
+2026-05-09T14:42:16 [simulator] Ciclo 39 — 2026-05-09T14:42:16+00:00 — 24 salas publicadas
+2026-05-09T14:42:46 [simulator] Ciclo 40 — 2026-05-09T14:42:46+00:00 — 24 salas publicadas
+2026-05-09T14:43:18 [simulator] Ciclo 41 — 2026-05-09T14:43:16+00:00 — 24 salas publicadas
+2026-05-09T14:43:48 [simulator] Ciclo 42 — 2026-05-09T14:43:48+00:00 — 24 salas publicadas
+2026-05-09T14:44:19 [simulator] Ciclo 43 — 2026-05-09T14:44:18+00:00 — 24 salas publicadas
+2026-05-09T14:44:49 [simulator] Ciclo 44 — 2026-05-09T14:44:49+00:00 — 24 salas publicadas
+2026-05-09T14:45:19 [simulator] Ciclo 45 — 2026-05-09T14:45:19+00:00 — 24 salas publicadas
+2026-05-09T14:45:50 [simulator] Ciclo 46 — 2026-05-09T14:45:49+00:00 — 24 salas publicadas
+2026-05-09T14:46:21 [simulator] Ciclo 47 — 2026-05-09T14:46:21+00:00 — 24 salas publicadas
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-09T19:51:48 [simulator] Ciclo 1 — 2026-05-09T19:51:46+00:00 — 24 salas publicadas
+2026-05-09T19:52:18 [simulator] Ciclo 2 — 2026-05-09T19:52:18+00:00 — 24 salas publicadas
+2026-05-09T19:52:48 [simulator] Ciclo 3 — 2026-05-09T19:52:48+00:00 — 24 salas publicadas
+2026-05-09T19:53:18 [simulator] Ciclo 4 — 2026-05-09T19:53:18+00:00 — 24 salas publicadas
+2026-05-09T19:53:49 [simulator] Ciclo 5 — 2026-05-09T19:53:49+00:00 — 24 salas publicadas
+2026-05-09T19:54:19 [simulator] Ciclo 6 — 2026-05-09T19:54:19+00:00 — 24 salas publicadas
+2026-05-09T19:54:49 [simulator] Ciclo 7 — 2026-05-09T19:54:49+00:00 — 24 salas publicadas
+2026-05-09T19:55:19 [simulator] Ciclo 8 — 2026-05-09T19:55:19+00:00 — 24 salas publicadas
+2026-05-09T19:55:49 [simulator] Ciclo 9 — 2026-05-09T19:55:49+00:00 — 24 salas publicadas
+2026-05-09T19:56:19 [simulator] Ciclo 10 — 2026-05-09T19:56:19+00:00 — 24 salas publicadas
+2026-05-09T19:56:50 [simulator] Ciclo 11 — 2026-05-09T19:56:49+00:00 — 24 salas publicadas
+2026-05-09T19:57:20 [simulator] Ciclo 12 — 2026-05-09T19:57:20+00:00 — 24 salas publicadas
+2026-05-09T19:57:50 [simulator] Ciclo 13 — 2026-05-09T19:57:50+00:00 — 24 salas publicadas
+2026-05-09T19:58:20 [simulator] Ciclo 14 — 2026-05-09T19:58:20+00:00 — 24 salas publicadas
+2026-05-09T19:58:50 [simulator] Ciclo 15 — 2026-05-09T19:58:50+00:00 — 24 salas publicadas
+2026-05-09T19:59:21 [simulator] Ciclo 16 — 2026-05-09T19:59:20+00:00 — 24 salas publicadas
+2026-05-09T19:59:51 [simulator] Ciclo 17 — 2026-05-09T19:59:51+00:00 — 24 salas publicadas
+2026-05-09T20:00:22 [simulator] Ciclo 18 — 2026-05-09T20:00:21+00:00 — 24 salas publicadas
+2026-05-09T20:00:52 [simulator] Ciclo 19 — 2026-05-09T20:00:52+00:00 — 24 salas publicadas
+2026-05-09T20:01:22 [simulator] Ciclo 20 — 2026-05-09T20:01:22+00:00 — 24 salas publicadas
+2026-05-09T20:01:52 [simulator] Ciclo 21 — 2026-05-09T20:01:52+00:00 — 24 salas publicadas
+2026-05-09T20:02:22 [simulator] Ciclo 22 — 2026-05-09T20:02:22+00:00 — 24 salas publicadas
+2026-05-09T20:02:54 [simulator] Ciclo 23 — 2026-05-09T20:02:52+00:00 — 24 salas publicadas
+2026-05-09T20:03:24 [simulator] Ciclo 24 — 2026-05-09T20:03:24+00:00 — 24 salas publicadas
+2026-05-09T20:03:54 [simulator] Ciclo 25 — 2026-05-09T20:03:54+00:00 — 24 salas publicadas
+2026-05-09T20:04:24 [simulator] Ciclo 26 — 2026-05-09T20:04:24+00:00 — 24 salas publicadas
+2026-05-09T20:04:54 [simulator] Ciclo 27 — 2026-05-09T20:04:54+00:00 — 24 salas publicadas
+2026-05-09T20:05:24 [simulator] Ciclo 28 — 2026-05-09T20:05:24+00:00 — 24 salas publicadas
+2026-05-09T20:05:54 [simulator] Ciclo 29 — 2026-05-09T20:05:54+00:00 — 24 salas publicadas
+2026-05-09T20:06:24 [simulator] Ciclo 30 — 2026-05-09T20:06:24+00:00 — 24 salas publicadas
+2026-05-09T20:06:55 [simulator] Ciclo 31 — 2026-05-09T20:06:54+00:00 — 24 salas publicadas
+2026-05-09T20:07:25 [simulator] Ciclo 32 — 2026-05-09T20:07:25+00:00 — 24 salas publicadas
+2026-05-09T20:07:55 [simulator] Ciclo 33 — 2026-05-09T20:07:55+00:00 — 24 salas publicadas
+/usr/local/lib/python3.11/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!
+  warnings.warn(
+/app/simulator/mqtt_simulator.py:297: DeprecationWarning: Callback API version 1 is deprecated, update to latest version
+  client = mqtt.Client(client_id="auravault-simulator", clean_session=True)
+2026-05-10T16:56:46 [simulator] Ciclo 1 — 2026-05-10T16:56:45+00:00 — 24 salas publicadas
+2026-05-10T16:57:16 [simulator] Ciclo 2 — 2026-05-10T16:57:16+00:00 — 24 salas publicadas
+2026-05-10T16:57:46 [simulator] Ciclo 3 — 2026-05-10T16:57:46+00:00 — 24 salas publicadas
+2026-05-10T16:58:16 [simulator] Ciclo 4 — 2026-05-10T16:58:16+00:00 — 24 salas publicadas
+2026-05-10T16:58:46 [simulator] Ciclo 5 — 2026-05-10T16:58:46+00:00 — 24 salas publicadas
+2026-05-10T16:59:17 [simulator] Ciclo 6 — 2026-05-10T16:59:16+00:00 — 24 salas publicadas
+2026-05-10T16:59:47 [simulator] Ciclo 7 — 2026-05-10T16:59:47+00:00 — 24 salas publicadas
+2026-05-10T17:00:17 [simulator] Ciclo 8 — 2026-05-10T17:00:17+00:00 — 24 salas publicadas
+2026-05-10T17:00:47 [simulator] Ciclo 9 — 2026-05-10T17:00:47+00:00 — 24 salas publicadas
+2026-05-10T17:01:17 [simulator] Ciclo 10 — 2026-05-10T17:01:17+00:00 — 24 salas publicadas
+2026-05-10T17:01:49 [simulator] Ciclo 11 — 2026-05-10T17:01:47+00:00 — 24 salas publicadas
