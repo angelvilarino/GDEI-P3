@@ -338,11 +338,35 @@ function wireToolbar() {
   }
 }
 
+function isVisitorMode() {
+  return new URLSearchParams(window.location.search).get('mode') === 'visitor';
+}
+
+function toggleVisitorMode() {
+  const url = new URL(window.location.href);
+  if (isVisitorMode()) {
+    url.searchParams.delete('mode');
+  } else {
+    url.searchParams.set('mode', 'visitor');
+  }
+  window.location.href = url.toString();
+}
+
+function applyVisitorMode() {
+  if (!isVisitorMode()) return;
+  document.documentElement.setAttribute('data-visitor', 'true');
+  const banner = document.getElementById('visitorBanner');
+  if (banner) banner.style.display = '';
+  const toggleBtn = document.getElementById('visitorModeToggle');
+  if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Modo Gestor';
+}
+
 function initCommon() {
   setTheme(AURA.theme);
   setLang(AURA.lang);
   wireToolbar();
   activeNav();
+  applyVisitorMode();
 }
 
 document.addEventListener('DOMContentLoaded', initCommon);

@@ -577,6 +577,37 @@ async function loadRoomView() {
 
   // ── Alertas (timeline)
   loadAlerts(roomId);
+
+  // ── Contexto para AuraBot
+  const env = envCurrent?.environment || {};
+  const noise = envCurrent?.noise || {};
+  const crowd = envCurrent?.crowd || {};
+  window.AURABOT_CONTEXT = {
+    tipo: 'sala',
+    sala: room.name || '',
+    centro: center?.name || '',
+    descripcion: room.description || '',
+    capacidad: room.capacity || null,
+    area: room.area || null,
+    planta: room.floor != null ? room.floor : null,
+    temperatura: env.temperature ?? null,
+    humedad: env.relativeHumidity ?? null,
+    co2: env.co2 ?? null,
+    iluminancia: env.illuminance ?? null,
+    aforo: crowd.occupancy ?? null,
+    personas: env.peopleCount ?? null,
+    ruido: noise.LAeq ?? null,
+    obras: (artworks || []).map(a => ({
+      nombre: a.name,
+      artista: a.artist || '',
+      año: a.year || '',
+      tecnica: a.technique || '',
+      material: a.material || '',
+      riesgo: Number(a.degradationRisk || 0),
+      estado: a.conditionStatus || '',
+      descripcion: a.description || '',
+    })),
+  };
 }
 
 async function loadAlerts(roomId) {
@@ -632,8 +663,93 @@ function wireActions() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && zoomOverlay?.style.display === 'flex') zoomOverlay.style.display = 'none'; });
 }
 
+async function loadVisitorRoomView() {
+  const roomId = roomIdFromPath();
+  let room, artworks, center;
+
+  try { room = await apiGet(`/api/rooms/${encodeURIComponent(roomId)}`); } catch { return; }
+  if (!room) return;
+
+  artworks = await apiGet(`/api/rooms/${encodeURIComponent(roomId)}/artworks`).catch(() => []);
+  try { center = await apiGet(`/api/centers/${encodeURIComponent(room.museumId)}`); } catch { /* optional */ }
+
+  // Hide all manager sections
+  document.getElementById('roomHeroCard')?.style.setProperty('display', 'none');
+  document.getElementById('artworksSection')?.style.setProperty('display', 'none');
+  document.getElementById('artworkZoomOverlay')?.style.setProperty('display', 'none');
+  document.querySelectorAll('.card.fade-up').forEach(el => {
+    if (el.id !== 'visitorContent' && !el.closest('#visitorContent')) {
+      el.style.display = 'none';
+    }
+  });
+
+  const descMap = (typeof VISITOR_CONTENT !== 'undefined' ? VISITOR_CONTENT.artworkDescriptions : null) || {};
+  const FALLBACK_ART = 'https://placehold.co/400x300/ede8e0/7a5c2e?text=Obra';
+  const FALLBACK_ROOM = 'https://picsum.photos/id/376/800/300';
+  const roomImg = escapeHtml(room.image || FALLBACK_ROOM);
+
+  const centerName = center?.name || '';
+  const centerLink = center?.code
+    ? `/centers/${encodeURIComponent(center.code)}?mode=visitor`
+    : '/centers?mode=visitor';
+
+  // Breadcrumb with FA chevron
+  const breadcrumb = centerName
+    ? `<div class="visitor-room-breadcrumb">
+        <a href="${centerLink}">${escapeHtml(centerName)}</a>
+        <i class="fas fa-chevron-right fa-xs"></i>
+        <span>${escapeHtml(room.name)}</span>
+       </div>`
+    : '';
+
+  // Artworks grid
+  const isMuseum = (center?.museumType || []).some(t => ['museum','science-museum','fine-arts-museum'].includes(t));
+  const showArtworks = isMuseum && artworks && artworks.length > 0;
+  const artworkCards = showArtworks ? artworks.map(a => {
+    const desc = escapeHtml(descMap[a.id] || '');
+    const imgSrc = escapeHtml(a.image || FALLBACK_ART);
+    return `
+      <div class="card visitor-artwork-card">
+        <img src="${imgSrc}" alt="${escapeHtml(a.name)}" onerror="this.src='${FALLBACK_ART}'" loading="lazy" />
+        <div class="visitor-artwork-card-body">
+          <div class="visitor-artwork-title">${escapeHtml(a.name)}</div>
+          <div class="visitor-artwork-meta">
+            <span class="visitor-artwork-artist">${escapeHtml(a.artist || '')}</span>
+            ${a.year ? `<span class="visitor-artwork-year">${escapeHtml(String(a.year))}</span>` : ''}
+          </div>
+          ${desc ? `<p class="visitor-artwork-desc">${desc}</p>` : ''}
+        </div>
+      </div>`;
+  }).join('') : '';
+
+  const container = document.getElementById('visitorContent');
+  container.innerHTML = `
+    <div class="visitor-content-wrap">
+      <div class="card visitor-room-header fade-up">
+        <img class="visitor-room-header-image" src="${roomImg}" alt="${escapeHtml(room.name || 'Sala')}" onerror="this.src='${FALLBACK_ROOM}'" loading="lazy" />
+        <div class="visitor-room-header-body">
+          ${breadcrumb}
+          <h2 style="margin:0 0 8px">${escapeHtml(room.name || 'Sala')}</h2>
+          <p class="visitor-room-cultural-desc">${escapeHtml(room.description || '')}</p>
+        </div>
+      </div>
+      ${showArtworks ? `
+      <div class="card visitor-artworks-wrap fade-up">
+        <h3><i class="fas fa-palette"></i> Obras expuestas en esta sala</h3>
+        <div class="visitor-artworks-grid">${artworkCards}</div>
+      </div>` : ''}
+    </div>`;
+  container.style.display = '';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body.getAttribute('data-page') !== 'room-artwork') return;
+
+  if (isVisitorMode()) {
+    loadVisitorRoomView().catch(err => console.error('[room_artwork visitor]', err));
+    return;
+  }
+
   wireActions();
   loadRoomView().catch(err => console.error('[room_artwork]', err));
 

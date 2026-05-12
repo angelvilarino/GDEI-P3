@@ -538,43 +538,68 @@ El simulador publica cada 30 segundos. Los topics sugeridos están diseñados pa
 | `auravault/<centro>/<sala>/device/<device_id>/state` | `deviceState`, `batteryLevel`, `rssi`, `value`, `dateLastValueReported` | `Device` | Estado operativo del dispositivo |
 | `auravault/<centro>/<sala>/actuator/<actuator_id>/state` | `status`, `commandSent`, `lastActivationDate` | `Actuator` | Estado del actuador y respuesta al comando |
 
-## 18. Modelo de contexto conversacional para Visitante
+## 18. Modelo de contexto conversacional para Visitante (CORRECCIÓN 2 — AuraBot)
 
-El chatbot del modo Visitante no crea una nueva entidad persistente en Orion. Construye un contexto efímero a partir de entidades NGSI-LD existentes y lo envía al LLM local.
+El chatbot AuraBot del modo Visitante no crea ninguna entidad persistente en Orion ni realiza consultas adicionales a Orion en tiempo de chat. El contexto se construye en el **frontend** a partir de los datos ya cargados en memoria por la página, y se envía con cada petición al backend.
 
-### 18.1 Entidades NGSI-LD usadas por el chatbot
+### 18.1 Origen del contexto
 
-- `IndoorEnvironmentObserved` (condiciones actuales).
-- `Room` (metadatos de sala y capacidad).
-- `Artwork` (obras expuestas y requisitos de conservación relevantes).
+El objeto `window.AURABOT_CONTEXT` es seteado por el JavaScript de cada vista después de completar la carga de datos REST:
 
-### 18.2 Objeto efímero de contexto (no persistente)
+- **`center_detail.js`** → tras `bootVisitorCenterDetail()`: agrega datos de centro, snapshot ambiental y lista de salas.
+- **`room_artwork.js`** → tras `loadRoomView()`: agrega datos de sala, métricas ambientales actuales y lista de obras.
 
-| Campo del contexto | Origen NGSI-LD | Descripción | Tipo |
+Este enfoque garantiza que el chatbot siempre trabaja con exactamente la misma información que el visitante ve en pantalla, sin desfases entre la vista y el contexto IA.
+
+### 18.2 Objeto efímero de contexto — Vista de sala
+
+| Campo | Origen en frontend | Descripción | Tipo |
 |---|---|---|---|
-| `poi_id` | `Museum.id` / `Room.isLocatedIn` | Centro solicitado por el visitante | string |
-| `room_id` | `Room.id` | Sala actual o recomendada | string |
-| `room_name` | `Room.name` | Nombre legible de sala | string |
-| `temperature` | `IndoorEnvironmentObserved.temperature` | Temperatura actual | number |
-| `relativeHumidity` | `IndoorEnvironmentObserved.relativeHumidity` | Humedad actual | number |
-| `co2` | `IndoorEnvironmentObserved.co2` | CO2 actual | number |
-| `peopleCount` | `IndoorEnvironmentObserved.peopleCount` | Ocupación actual | number |
-| `artworks` | `Artwork[*]` filtradas por `isExposedIn` | Lista de obras visibles | array |
-| `timestamp` | `IndoorEnvironmentObserved.dateObserved` | Marca temporal de contexto | date-time |
-| `language` | Request frontend | Idioma esperado de respuesta | enum (`es`, `en`) |
+| `tipo` | literal `"sala"` | Tipo de vista activa | string |
+| `sala` | `room.name` | Nombre de la sala | string |
+| `centro` | `center.name` | Nombre del centro | string |
+| `temperatura` | `env.temperature` | Temperatura actual (°C) | number \| null |
+| `humedad` | `env.relativeHumidity` | Humedad relativa (%) | number \| null |
+| `co2` | `env.co2` | CO2 (ppm) | number \| null |
+| `aforo` | `crowd.occupancy` | Ocupación relativa 0-1 | number \| null |
+| `personas` | `env.peopleCount` | Personas estimadas | number \| null |
+| `ruido` | `noise.LAeq` | Nivel sonoro equivalente (dB(A)) | number \| null |
+| `obras` | array de `Artwork` de la sala | Lista de obras con nombre, artista, año, técnica, material, riesgo y estado | array |
 
-### 18.3 Endpoints para chat visitante
+### 18.3 Objeto efímero de contexto — Vista de centro
 
-| Método | Ruta | Entrada | Salida | Entidades consultadas |
-|---|---|---|---|---|
-| POST | `/api/public/chat/context` | `poi_id`, `room_id` opcional | Contexto estructurado | Room, Artwork, IndoorEnvironmentObserved |
-| POST | `/api/public/chat/ask` | `poi_id`, `room_id` opcional, `question`, `language` | `answer`, `sources_used`, `timestamp` | Room, Artwork, IndoorEnvironmentObserved |
+| Campo | Origen en frontend | Descripción | Tipo |
+|---|---|---|---|
+| `tipo` | literal `"centro"` | Tipo de vista activa | string |
+| `centro` | `center.name` | Nombre del centro | string |
+| `descripcion` | `center.description` o `vc.history` | Descripción/historia del centro | string |
+| `temperatura` | `snap.avgTemperature` | Temperatura media del centro | number \| null |
+| `co2` | `snap.avgCo2` | CO2 medio del centro (ppm) | number \| null |
+| `personas` | `snap.peopleCount` | Total de personas en el centro | number \| null |
+| `estado` | `snap.status` | Estado general (`optimal`, `attention`, `critical`) | string |
+| `alertasActivas` | `snap.activeAlerts` | Número de alertas activas | number |
+| `salas` | array de `Room` del centro | Lista de salas con nombre y descripción | array |
 
-### 18.4 Reglas de consistencia del chat
+### 18.4 Endpoint de chat
 
-- El backend solo puede responder con datos presentes en el contexto construido desde Orion.
+| Método | Ruta | Entrada | Salida |
+|---|---|---|---|
+| POST | `/api/chat` | `{ messages: [...], context: AURABOT_CONTEXT }` | `{ reply: "..." }` o `{ error: "..." }` |
+
+El campo `messages` contiene el historial de la conversación con roles `user` / `model` (formato Gemini). El campo `context` es el objeto `window.AURABOT_CONTEXT` completo del frontend.
+
+### 18.5 Historial de conversación
+
+- Almacenado en `sessionStorage` bajo la clave `aurabot_history`.
+- Máximo 40 mensajes (20 turnos). Los más antiguos se descartan con `slice(-40)`.
+- Se elimina al cerrar o recargar la pestaña. No se persiste en ninguna entidad NGSI-LD ni en base de datos.
+
+### 18.6 Reglas de consistencia del chat
+
+- El backend solo puede responder con datos presentes en el `context` recibido del frontend.
 - Si falta información de sala u obra, la respuesta debe indicarlo explícitamente.
-- El contexto no se persiste como entidad NGSI-LD nueva; solo se registra traza técnica opcional en logs del backend.
+- La API key de Gemini reside únicamente en `backend/gemini.key` (excluido de git); nunca se expone al cliente.
+- Timeout de llamada a Gemini API: 30 segundos. En caso de error HTTP se retorna `{ error: "..." }` al frontend.
 
 ## 19. Atributos MQTT detallados por lectura
 
@@ -623,11 +648,55 @@ El simulador debe generar valores coherentes con el tipo de centro y con la ocup
 - El peopleCount debe correlacionar con `occupancy` y con el resto de variables.
 - Los estados de `Device` y `Actuator` deben reflejar fallos, mantenimiento y cambios de comando.
 
-## 22. Cierre
+## 22. Tablas CrateDB (QuantumLeap — capa analítica)
+
+QuantumLeap persiste automáticamente las observaciones NGSI-LD en CrateDB usando el esquema `doc`. Los nombres de tabla siguen la convención `et<EntityType>` en minúsculas. Las columnas relevantes para el dashboard analítico `auravault-control` son:
+
+### 22.1 `etindoorenvironmentobserved`
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `time_index` | `timestamp with time zone` | Momento de la observación (epoch ms) |
+| `entity_id` | `text` | ID NGSI-LD (`urn:ngsi-ld:IndoorEnvironmentObserved:CENTRO-SALA-...`) |
+| `co2` | `real` / `bigint` | Concentración CO2 en ppm (alerta crítica >1000, elevada 700-1000) |
+| `relativehumidity` | `real` / `bigint` | Humedad relativa en % (alerta >75) |
+| `temperature` | `real` / `bigint` | Temperatura en °C |
+| `illuminance` | `real` / `bigint` | Iluminancia en lux |
+| `peoplecount` | `real` / `bigint` | Personas presentes en la sala |
+
+### 22.2 `etdevice`
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `time_index` | `timestamp with time zone` | Momento del registro |
+| `entity_id` | `text` | ID NGSI-LD (`urn:ngsi-ld:Device:CENTRO-SALA-TIPO-NN`) |
+| `batterylevel` | `real` | Nivel de batería normalizado [0,1] |
+| `devicestate` | `text` | Estado: `on`, `off`, `fault`, `maintenance` |
+| `latencyms` | `real` / `bigint` | Latencia de red en ms (proxy de RSSI/señal) |
+
+### 22.3 `etcrowdflowobserved`
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `time_index` | `timestamp with time zone` | Momento de la observación |
+| `entity_id` | `text` | ID NGSI-LD de la entidad de flujo |
+| `peoplecount` | `real` / `bigint` | Aforo total en ese instante |
+| `occupancy` | `real` | Ocupación relativa [0,1] |
+| `congested` | `boolean` | Señal de congestión |
+
+### 22.4 `etnoiselevelobserved`
+| Columna | Tipo | Descripción |
+|---|---|---|
+| `time_index` | `timestamp with time zone` | Momento de la observación |
+| `entity_id` | `text` | ID NGSI-LD de la entidad de ruido |
+| `laeq` | `real` / `bigint` | Nivel de ruido equivalente en dB(A) (alerta >70) |
+| `lamax` | `real` / `bigint` | Nivel máximo en dB(A) |
+| `las` | `real` / `bigint` | Nivel lento en dB(A) |
+
+El centro se extrae del `entity_id` con `split_part(split_part(entity_id, ':', 4), '-', 1)`, que devuelve `muncyt`, `bellasartes`, `rosalia` u `opera`.
+
+## 23. Cierre
 
 Este modelo NGSI-LD está pensado para alimentar directamente el importador de datos, el simulador MQTT, el backend Flask y las visualizaciones de AuraVault sin introducir decisiones de modelado adicionales durante la implementación.
 
-## 23. Flujo de resolución de alertas (Issue #20)
+## 24. Flujo de resolución de alertas (Issue #20)
 
 La entidad `Alert` soporta resolución parcial mediante PATCH. El flujo completo es:
 

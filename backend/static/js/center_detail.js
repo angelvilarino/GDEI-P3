@@ -252,8 +252,118 @@ async function loadActuators(code) {
   });
 }
 
+function airQualityLabel(co2) {
+  if (!co2 || co2 < 600) return { cls: 'excellent', label: 'Excelente',  text: 'La calidad del aire es excelente. Perfecta para la visita.',   faIcon: 'fa-wind' };
+  if (co2 < 900)         return { cls: 'good',      label: 'Buena',      text: 'La calidad del aire es buena. Condiciones óptimas.',            faIcon: 'fa-wind' };
+  if (co2 < 1200)        return { cls: 'acceptable', label: 'Aceptable', text: 'La calidad del aire es aceptable.',                             faIcon: 'fa-wind' };
+  return                        { cls: 'improvable', label: 'Mejorable', text: 'La calidad del aire es mejorable en este momento.',              faIcon: 'fa-triangle-exclamation' };
+}
+
+async function bootVisitorCenterDetail(code) {
+  const [center, rooms] = await Promise.all([
+    apiGet(`/api/centers/${code}`),
+    apiGet(`/api/centers/${code}/rooms`).catch(() => []),
+  ]);
+  const snap = center.snapshot || {};
+
+  document.getElementById('centerTitle').textContent = center.name;
+  document.getElementById('centerStatus').innerHTML = '';
+
+  document.querySelector('.gauges-row')?.style.setProperty('display', 'none');
+  document.querySelector('main.stagger')?.style.setProperty('display', 'none');
+
+  const vc = (typeof VISITOR_CONTENT !== 'undefined' ? VISITOR_CONTENT.centers[code] : null) || {};
+  const aq = airQualityLabel(snap.avgCo2);
+  const FALLBACK = 'https://picsum.photos/id/376/800/400';
+  const imgSrc = escapeHtml(vc.image || center.image || FALLBACK);
+
+  const infoCards = `
+    <div class="visitor-info-cards">
+      <div class="card visitor-info-card">
+        <span class="visitor-info-card-label"><i class="fas fa-clock fa-fw"></i> Horarios de visita</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.schedule || 'Consulte horarios en recepción')}</span>
+      </div>
+      <div class="card visitor-info-card">
+        <span class="visitor-info-card-label"><i class="fas fa-ticket fa-fw"></i> Precio de entrada</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.price || 'Consulte precios en taquilla')}</span>
+      </div>
+      <div class="card visitor-info-card">
+        <span class="visitor-info-card-label"><i class="fas fa-wheelchair fa-fw"></i> Accesibilidad</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.accessibility || 'Centro accesible')}</span>
+      </div>
+    </div>`;
+
+  const FALLBACK_ROOM = 'https://picsum.photos/id/376/400/200';
+  const roomCards = rooms.map(r => {
+    const link = `/room/${encodeURIComponent(r.id)}?mode=visitor`;
+    return `
+      <a class="card visitor-room-card" href="${link}">
+        <img src="${escapeHtml(r.image || FALLBACK_ROOM)}" alt="${escapeHtml(r.name)}" onerror="this.src='${FALLBACK_ROOM}'" />
+        <div class="visitor-room-card-body">
+          <div class="visitor-room-name">${escapeHtml(r.name)}</div>
+          <div class="visitor-room-desc">${escapeHtml(r.description || '')}</div>
+        </div>
+      </a>`;
+  }).join('');
+
+  const container = document.getElementById('visitorContent');
+  container.innerHTML = `
+    <div class="visitor-content-wrap">
+      <div class="card fade-up" style="padding:18px 20px">
+        <div class="visitor-hero-grid">
+          <img class="visitor-center-image" src="${imgSrc}" alt="${escapeHtml(center.name)}" onerror="this.src='${FALLBACK}'" />
+          <div class="visitor-info-stack">
+            <div class="visitor-info-block">
+              <span class="visitor-info-label">Historia y patrimonio</span>
+              <p class="visitor-info-value">${escapeHtml(vc.history || center.description || '')}</p>
+            </div>
+            <div class="visitor-info-block">
+              <span class="visitor-info-label">Sobre el centro</span>
+              <p class="visitor-info-value">${escapeHtml(vc.culturalDescription || '')}</p>
+            </div>
+            <div class="visitor-air-summary ${aq.cls}">
+              <div class="visitor-air-icon-wrap"><i class="fas ${aq.faIcon}"></i></div>
+              <div class="visitor-air-content">
+                <div class="visitor-air-quality-label">${aq.label}</div>
+                <div class="visitor-air-detail">${escapeHtml(aq.text)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${infoCards}
+      ${rooms.length > 0 ? `
+      <div class="card visitor-rooms-section fade-up">
+        <h3><i class="fas fa-door-open"></i> Salas del centro</h3>
+        <div class="visitor-rooms-scroll">${roomCards}</div>
+      </div>` : ''}
+    </div>`;
+  container.style.display = '';
+
+  // ── Contexto para AuraBot
+  window.AURABOT_CONTEXT = {
+    tipo: 'centro',
+    centro: center.name || '',
+    descripcion: center.description || vc.history || '',
+    temperatura: snap.avgTemperature ?? null,
+    humedad: snap.avgHumidity ?? null,
+    co2: snap.avgCo2 ?? null,
+    personas: snap.peopleCount ?? null,
+    aforo: snap.avgOccupancy ?? null,
+    estado: snap.status || '',
+    alertasActivas: snap.activeAlerts ?? 0,
+    salas: rooms.map(r => ({ nombre: r.name, descripcion: r.description || '' })),
+  };
+}
+
 async function bootCenterDetail() {
   const code = centerCodeFromPath();
+
+  if (isVisitorMode()) {
+    await bootVisitorCenterDetail(code);
+    return;
+  }
+
   await Promise.all([
     loadCenterSnapshot(code),
     loadRooms(code),

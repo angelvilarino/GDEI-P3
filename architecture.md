@@ -13,7 +13,7 @@ Se usa exclusivamente NGSI-LD, con Orion como fuente de estado actual, QuantumLe
 - Flujo event-driven con suscripciones Orion hacia `/notify`.
 - Baja latencia de actualización visual mediante WebSocket.
 - Separación entre APIs privadas de operación y APIs públicas de Visitante.
-- Extensión de IA conversacional con LLM local vía API para el rol Visitante.
+- Extensión de IA conversacional con Gemini API (cloud) para el rol Visitante.
 
 ## 3. Diagrama Mermaid de componentes y flujos
 
@@ -44,8 +44,8 @@ graph LR
     CHAT[Widget Chat Visitante]
   end
 
-  subgraph LLM[Asistente Local]
-    GEMMA[LLM API local\nGemma/Ollama-compatible]
+  subgraph LLM[Asistente IA Cloud]
+    GEMINI[Gemini API\ngemini-2.5-flash]
   end
 
   SIM -->|publish MQTT each 30s| MOS
@@ -68,10 +68,9 @@ graph LR
   FLASK -->|WebSocket events| FRONT
   FLASK -->|WebSocket events| VIS
 
-  CHAT -->|question + poi_id| FLASK
-  FLASK -->|context build: Room/Artwork/IndoorEnvironmentObserved| ORION
-  FLASK -->|LLM API call| GEMMA
-  GEMMA -->|natural language answer| FLASK
+  CHAT -->|messages + window.AURABOT_CONTEXT| FLASK
+  FLASK -->|generateContent API call| GEMINI
+  GEMINI -->|natural language answer| FLASK
   FLASK -->|chat response| CHAT
 ```
 
@@ -121,10 +120,10 @@ graph LR
 
 ### 4.7 Flask Backend + Flask-SocketIO
 
-- Rol: API REST, suscripciones `/notify`, reglas de negocio, cálculo ML, emisión WebSocket y proxy de chat visitante.
+- Rol: API REST, suscripciones `/notify`, reglas de negocio, cálculo ML, emisión WebSocket y proxy de chat visitante hacia Gemini API.
 - Imagen Docker: `python:3.11-slim` (build local con Dockerfile).
 - Puerto: `5000`.
-- Dependencias: Orion, QuantumLeap, LLM local.
+- Dependencias: Orion, QuantumLeap, Gemini API (cloud, vía HTTPS).
 
 ### 4.8 Frontend Web
 
@@ -139,13 +138,19 @@ graph LR
 - Imagen Docker: `grafana/grafana:latest`.
 - Puerto: `3000`.
 - Dependencias: CrateDB como datasource.
+- Datasource provisionado: `AuraVault-CrateDB` (uid `auravault-crate`), tipo PostgreSQL sobre puerto 5432 de CrateDB.
+- Dashboards provisionados desde `./grafana/dashboards/`:
+  - `auravault_center_detail.json` (uid `auravault-center`) — series temporales por sala filtradas por variable `$center`.
+  - `auravault_control.json` (uid `auravault-control`) — analytics avanzado para Vista 6: stat panels (Dispositivos Activos, CO2 Promedio, Pico de Aforo, Lecturas en Alerta), Status History de alertas CO2 por centro, Piechart de distribución de incidentes por categoría/severidad, Bar Gauges de batería y latencia de flota IoT, State Timeline de disponibilidad de sensores. Refresco automático 30s.
+- Variables de entorno clave: `GF_SECURITY_ALLOW_EMBEDDING=true`, `GF_AUTH_ANONYMOUS_ENABLED=true`, `GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer`, `GF_SECURITY_COOKIE_SAMESITE=none`, `GF_FEATURE_TOGGLES_ENABLE=publicDashboards`.
 
-### 4.10 LLM local (Gemma)
+### 4.10 Gemini API (cloud)
 
-- Rol: responder preguntas del visitante con contexto actual de sala y obras.
-- Imagen Docker: `ollama/ollama:latest` o runtime equivalente local con modelo Gemma.
-- Puerto: `11434` (API local típica).
-- Dependencias: volumen de modelos; invocado por Flask.
+- Rol: responder preguntas del visitante con contexto actual de sala y obras aportado por el frontend.
+- Servicio externo: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
+- Autenticación: API key almacenada en `backend/gemini.key` (excluido de git), leída por Flask en cada petición.
+- No requiere contenedor Docker propio; invocado desde Flask mediante `requests.post` con `timeout=30`.
+- El contexto del prompt (sala, obras, métricas) no se extrae de Orion sino que llega en el body de `POST /api/chat` como `window.AURABOT_CONTEXT` del frontend.
 
 ### 4.11 Estado de implementación
 
@@ -173,7 +178,6 @@ graph LR
 | `quantumleap` | `orchestracities/quantumleap:latest` | `8668:8668` | - | `crate-db`, `orion` |
 | `backend` | `python:3.11-slim` (build local) | `5000:5000` | `./backend:/app` | `orion`, `quantumleap` |
 | `grafana` | `grafana/grafana:latest` | `3000:3000` | `grafana_data:/var/lib/grafana` | `crate-db` |
-| `llm-local` | `ollama/ollama:latest` | `11434:11434` | `ollama_data:/root/.ollama` | - |
 
 ## 6. Flujo completo del dato IoT
 
@@ -290,55 +294,79 @@ graph LR
 | GET | `/api/public/poi/{poi_id}/rooms` | Salas públicas del centro | Room |
 | GET | `/api/public/poi/{poi_id}/recommended-room` | Recomendación de sala | Room, IndoorEnvironmentObserved, CrowdFlowObserved |
 | POST | `/notify` | Receptor de suscripciones Orion | IndoorEnvironmentObserved, NoiseLevelObserved, CrowdFlowObserved, Device, Actuator, Alert |
-| POST | `/api/public/chat/context` | Construcción de contexto para chat visitante | Room, Artwork, IndoorEnvironmentObserved |
-| POST | `/api/public/chat/ask` | Pregunta del visitante al asistente | Room, Artwork, IndoorEnvironmentObserved |
+| POST | `/api/chat` | Proxy de chatbot AuraBot hacia Gemini API; recibe historial y `AURABOT_CONTEXT` del frontend | ninguna (contexto llega del cliente) |
 
-## 12. Chatbot Visitante (LLM local)
+## 12. Chatbot Visitante (AuraBot — Gemini API)
 
 ### 12.1 Objetivo
 
-El modo Visitante en `/visitor/<poi_id>` incorpora un widget de chat para responder preguntas sobre condiciones ambientales de la sala y obras expuestas, con lenguaje claro y no técnico.
+AuraBot es un widget de chat flotante que aparece exclusivamente en modo Visitante (`?mode=visitor`) en las páginas de detalle de centro (`center_detail.html`) y detalle de sala (`room_artwork.html`). Responde preguntas en lenguaje natural sobre condiciones ambientales, obras expuestas e historia del espacio.
 
-### 12.2 Flujo completo
+### 12.2 Componentes
 
-1. El visitante escribe una pregunta en el widget de chat.
-2. El frontend llama a `POST /api/public/chat/ask` con `poi_id`, `room_id` opcional, idioma y pregunta.
-3. Flask consulta Orion para construir contexto actual:
-   - `IndoorEnvironmentObserved` de la sala/centro.
-   - `Room` activa y metadatos de capacidad/tipo.
-   - `Artwork` expuestas en la sala.
-4. Flask construye prompt de sistema + contexto estructurado + pregunta del usuario.
-5. Flask invoca API local del LLM (Gemma preferente).
-6. LLM devuelve respuesta natural.
-7. Flask aplica filtros de seguridad y devuelve respuesta al frontend.
+| Componente | Ubicación | Rol |
+|---|---|---|
+| `chatbot.js` | `static/js/chatbot.js` | Widget FAB + panel de chat; gestiona historial en `sessionStorage` |
+| `window.AURABOT_CONTEXT` | Seteado por `center_detail.js` y `room_artwork.js` | Objeto con todos los datos ya mostrados en pantalla |
+| `POST /api/chat` | `app.py` | Proxy Flask hacia Gemini API; construye system prompt |
+| `gemini.key` | `backend/gemini.key` (excluido de git) | Clave API para `gemini-2.5-flash` |
 
-### 12.3 Prompt de sistema del backend
+### 12.3 Flujo completo
 
-```text
-Eres AuraVault Assistant para visitantes de museos y teatros.
-Responde de forma breve, clara y amable en el idioma del visitante (es o en).
-Usa solo la información de contexto proporcionada por el backend.
-No inventes obras, valores ambientales ni recomendaciones no justificadas.
-Si faltan datos, dilo explícitamente y ofrece la mejor orientación posible con lo disponible.
-Prioriza seguridad y confort del visitante.
-No des consejos médicos ni afirmaciones técnicas no verificables.
+1. El visitante activa modo visitante (`?mode=visitor`) en la página de detalle de centro o sala.
+2. `chatbot.js` detecta `isVisitorMode()` y monta el botón FAB circular (fixed, z-index 99999).
+3. Al escribir una pregunta, el frontend lee `window.AURABOT_CONTEXT` (ya en memoria) y envía a Flask:
+   ```json
+   { "messages": [...historial sessionStorage], "context": { ...AURABOT_CONTEXT } }
+   ```
+4. Flask lee la clave desde `backend/gemini.key`, construye el system prompt inyectando el contexto y llama a Gemini API:
+   ```
+   POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=...
+   ```
+5. Gemini devuelve respuesta natural; Flask la retransmite al frontend como `{"reply": "..."}`.
+6. El historial de la conversación se persiste en `sessionStorage` (máx. 40 mensajes, clave `aurabot_history`).
+
+### 12.4 Estructura de `window.AURABOT_CONTEXT`
+
+**Para sala (`room_artwork.js`):**
+```json
+{
+  "tipo": "sala", "sala": "...", "centro": "...",
+  "temperatura": 21.4, "humedad": 54.2, "co2": 825,
+  "aforo": 0.45, "personas": 18, "ruido": 42.1,
+  "obras": [{"nombre": "...", "artista": "...", "año": 1888, "tecnica": "...", "material": "...", "riesgo": 0.32, "estado": "watch"}]
+}
 ```
 
-### 12.4 Endpoints del chat
+**Para centro (`center_detail.js`):**
+```json
+{
+  "tipo": "centro", "centro": "...", "descripcion": "...",
+  "temperatura": 20.1, "co2": 710, "personas": 94,
+  "estado": "attention", "alertasActivas": 2,
+  "salas": [{"nombre": "...", "descripcion": "..."}]
+}
+```
 
-- `POST /api/public/chat/context`
-  - Entrada: `poi_id`, `room_id` opcional.
-  - Salida: contexto estructurado para depuración/telemetría.
-- `POST /api/public/chat/ask`
-  - Entrada: `poi_id`, `room_id` opcional, `question`, `language`.
-  - Salida: `answer`, `sources_used`, `timestamp`.
+### 12.5 System prompt de Flask
 
-### 12.5 Requisitos operativos de seguridad
+```text
+Eres AuraBot, el asistente virtual de AuraVault para visitantes de museos y teatros.
+Responde de forma breve, clara y amable en español.
+Tienes acceso al contexto actual de la sala o centro que está visitando el usuario.
+No inventes obras, valores ambientales ni recomendaciones no justificadas.
+Si faltan datos en el contexto, dilo y ofrece la mejor orientación posible.
+Prioriza seguridad y confort del visitante. No des consejos médicos.
+```
 
-- Rate limiting por IP/sesión en endpoints de chat.
-- Timeout de llamada LLM con fallback de respuesta.
-- Sanitización de entrada y protección básica frente a prompt injection.
-- No almacenamiento de datos personales del visitante.
+### 12.6 Widget — comportamiento
+
+- Botón FAB circular fijo (bottom-right, `position:fixed`, `z-index:99999`) siempre visible durante el scroll.
+- Panel 350×500 px con animación de apertura (`chatPanelIn`).
+- Botón de cierre (X) y botón de limpiar conversación (papelera).
+- Indicador "AuraBot está pensando…" durante la llamada a Gemini.
+- Tecla `Enter` envía; `Shift+Enter` no envía.
+- No aparece en ninguna otra página (dashboard, control center, centros, etc.).
 
 ## 13. Decisiones de diseño relevantes
 
@@ -354,16 +382,16 @@ Se elige Flask-SocketIO para emitir cambios en tiempo real desde un backend Pyth
 
 Se elige CrateDB por su rendimiento en series temporales y consultas analíticas agregadas, útil para dashboards, comparativas de centros y cálculo de features para modelos ML.
 
-### 13.4 LLM local para Visitante
+### 13.4 Gemini API para Visitante (CORRECCIÓN 2)
 
-Se prioriza LLM local (Gemma) por privacidad, control operativo y reducción de dependencia de servicios externos. El backend conserva control completo del contexto enviado al modelo.
+Se adopta Gemini API (`gemini-2.5-flash`) en sustitución del LLM local (Gemma/Ollama). La API key se almacena únicamente en el servidor (`backend/gemini.key`, excluido de git). El frontend envía el contexto ya renderizado (`window.AURABOT_CONTEXT`) en lugar de forzar al backend a consultar Orion, lo que elimina latencia adicional y garantiza coherencia con lo que el visitante ve en pantalla.
 
 ## 14. Dependencias entre servicios
 
 - `orion` depende de `mongo-db`.
 - `iot-agent` depende de `orion` y `mosquitto`.
 - `quantumleap` depende de `orion` y `crate-db`.
-- `backend` depende de `orion`, `quantumleap` y `llm-local` (si chat activo).
+- `backend` depende de `orion` y `quantumleap`. El chatbot llama a Gemini API (cloud) sin contenedor local adicional.
 - `grafana` depende de `crate-db`.
 
 ## 15. Checklist de implementación (MVP)
@@ -373,7 +401,7 @@ Se prioriza LLM local (Gemma) por privacidad, control operativo y reducción de 
 - Backend exponiendo endpoints REST y WebSocket.
 - Frontend consumiendo WebSocket para KPI, alertas y estado de actuadores.
 - Flujo de riesgo de degradación operativo con PATCH a Orion.
-- Modo Visitante con chat contextual operativo sobre LLM local.
+- Modo Visitante con chatbot AuraBot operativo mediante Gemini API (`gemini-2.5-flash`), visible solo con `?mode=visitor` en center_detail y room_artwork.
 
 ## 16. Cambios de arquitectura CSS/UI — Sesión 2 (2026-05-06)
 
@@ -426,3 +454,36 @@ Acepta ahora los mismos filtros query (`center`, `type`, `severity`, `status`) q
 ### Selectores dinámicos de filtros
 
 Los selectores de Tipo, Severidad y Estado se construyen completamente en JS a partir de los valores únicos presentes en el dataset retornado por `/api/admin/alerts`. El valor seleccionado se persiste en `_alertFilterState` y se restaura tras cada re-render del `<select>`, evitando el estado intermedio de "Todos".
+
+## CORRECCIÓN 2 — Chatbot AuraBot con Gemini API
+
+### Alcance
+
+Implementación del widget chatbot AuraBot visible únicamente en modo Visitante (`?mode=visitor`) en las vistas de detalle de centro y sala. Sustituye el LLM local (Gemma/Ollama) por Gemini API cloud.
+
+### Archivos nuevos
+
+| Archivo | Descripción |
+|---|---|
+| `backend/static/js/chatbot.js` | Widget FAB + panel de chat, historial sessionStorage, fetch a `/api/chat` |
+| `backend/gemini.key` | API key de Gemini (excluido de git mediante `.gitignore`) |
+| `.gitignore` | Excluye `backend/gemini.key` |
+
+### Archivos modificados
+
+| Archivo | Cambios |
+|---|---|
+| `backend/app.py` | Nuevo endpoint `POST /api/chat` con proxy hacia Gemini API |
+| `backend/static/css/style.css` | Estilos del widget: FAB, panel, burbujas, animación de apertura |
+| `backend/static/js/center_detail.js` | Setea `window.AURABOT_CONTEXT` tras cargar datos del centro |
+| `backend/static/js/room_artwork.js` | Setea `window.AURABOT_CONTEXT` tras cargar sala y obras |
+| `backend/templates/center_detail.html` | Añade `<script src="chatbot.js">` antes de `</body>` |
+| `backend/templates/room_artwork.html` | Añade `<script src="chatbot.js">` antes de `</body>` |
+
+### Decisiones de implementación
+
+- **Contexto desde frontend**: `window.AURABOT_CONTEXT` evita una consulta extra a Orion por cada mensaje; el contexto refleja exactamente lo que el visitante ve en pantalla.
+- **API key solo en servidor**: el frontend nunca recibe ni puede inferir la clave; Flask la lee de `gemini.key` en disco.
+- **Modelo seleccionado**: `gemini-2.5-flash` (verificado disponible con la clave del proyecto; `gemini-1.5-flash` devuelve 404).
+- **Historial con sessionStorage**: máx. 40 mensajes, se pierde al cerrar la pestaña (no hay datos personales persistidos).
+- **`use_reloader=False` en Docker**: los cambios en `app.py` requieren `docker restart auravault-backend`.

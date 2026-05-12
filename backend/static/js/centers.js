@@ -99,7 +99,7 @@ function renderCenters() {
           </div>
         </div>
         <div style="display:flex;justify-content:flex-end;margin-top:10px">
-          <a class="btn btn-primary" href="/centers/${c.code}">${tr('viewDetail')}</a>
+          <a class="btn btn-primary" href="/centers/${c.code}${isVisitorMode() ? '?mode=visitor' : ''}">${tr('viewDetail')}</a>
         </div>
       </article>
     `;

@@ -164,7 +164,7 @@ El detalle de atributos, relaciones y clasificación de campos estática o diná
 - Generación de pasaporte ambiental de sala.
 - Centro de control para alertas, dispositivos y dashboards.
 - Modo visitante público con lectura simplificada y recomendación de sala.
-- Chatbot contextual para visitante con LLM local y contexto NGSI-LD de sala y obras.
+- Chatbot flotante contextual para visitante (AuraBot) con Gemini API y contexto en tiempo real de sala, obras y métricas ambientales.
 - Predicción de degradación de obras y fallo de sensores.
 - Respuesta automática o manual mediante actuadores.
 
@@ -411,7 +411,13 @@ Datos que muestra en la pestaña de dispositivos:
 
 Datos que muestra en la pestaña Grafana:
 
-- Dashboards embebidos para series temporales, comparativas, mapas de calor y estado de la flota.
+- Dashboard analítico único (`auravault-control`) embebido en iframe de viewport completo.
+- **Stat Panels**: Dispositivos Activos, CO2 Promedio Global, Pico de Aforo y Lecturas en Alerta en las últimas 24h.
+- **Mapa de Calor de Alertas** (Status History): nivel de alerta CO2 por centro (Normal/Moderado/Crítico) por franja horaria en las últimas 24h.
+- **Distribución de Incidentes** (Donut / Pie Chart): porcentaje de lecturas que superan umbrales por categoría (CO2 crítico >1000ppm, CO2 elevado 700-1000ppm, Humedad alta >75%, Ruido alto >70dB).
+- **Bar Gauges de Flota**: batería media y latencia de red (proxy de RSSI) por dispositivo IoT activo.
+- **State Timeline**: disponibilidad (Online/Offline) de dispositivos por centro en las últimas 24h.
+- Refresco automático cada 30 segundos sincronizado con el heartbeat del simulador IoT.
 
 Interacciones que permite:
 
@@ -419,13 +425,15 @@ Interacciones que permite:
 - Resolver alertas desde la tabla.
 - Revisar el detalle de un dispositivo.
 - Consultar predicciones de fallo.
-- Abrir dashboards específicos por centro o por métrica.
+- Filtrar por rango temporal dentro del iframe de Grafana.
+- Navegar a Grafana en ventana completa mediante enlace directo.
 
 Tecnologías que usa:
 
 - Tablas HTML dinámicas.
 - Chart.js para estadísticas de alertas.
-- Grafana embebido.
+- Grafana embebido (iframe 100% viewport height) con provisión automática de dashboard desde JSON.
+- Datasource PostgreSQL sobre CrateDB (`auravault-crate`) con queries `$__timeFilter` para filtrado temporal interactivo.
 - scikit-learn para predicción de fallo de dispositivos.
 - WebSocket para actualización de alertas y estado de sensores.
 
@@ -437,47 +445,62 @@ Endpoints del backend necesarios:
 - GET /api/admin/devices
 - GET /api/devices/{device_id}
 - GET /api/devices/{device_id}/prediction
-- GET /api/grafana/admin
+- GET /api/grafana/admin — devuelve URL de embed del dashboard `auravault-control` con `refresh=30s`
 
 ### 8.7 Vista 7 — Modo Visitante
 
-Objetivo: mostrar al visitante una lectura pública, clara y simplificada del estado ambiental.
+Objetivo: mostrar al visitante una lectura pública, clara y simplificada del estado ambiental, con acceso a un chatbot inteligente contextual.
 
-Datos que muestra:
+**Modo Visitante activo en Vista 3 y Vista 5**: El modo visitante se activa mediante el parámetro `?mode=visitor` en las URLs de detalle de centro (`/center/<id>`) y detalle de sala (`/room/<id>`). Al activarse se muestra contenido enriquecido con historia y patrimonio, y aparece el chatbot flotante AuraBot.
+
+**Vista pública independiente** (`/visitor/<poi_id>`): acceso directo por QR al estado resumido de un centro con recomendación de sala.
+
+Datos que muestra en detalle de centro (modo visitante):
+
+- Historia y patrimonio del centro.
+- Calidad del aire con calificación textual y color.
+- Horarios, precio de entrada y accesibilidad.
+- Galería de salas del centro con acceso directo a cada una.
+- AuraBot: chatbot flotante fijo (bottom-right) con contexto del centro.
+
+Datos que muestra en detalle de sala (modo visitante):
+
+- Descripción cultural de la sala y obras expuestas.
+- Métricas ambientales actuales (temperatura, CO2, aforo, ruido).
+- Lista completa de obras con nombre, artista, año, técnica, material y riesgo de degradación.
+- AuraBot: chatbot flotante fijo (bottom-right) con contexto completo de la sala y obras.
+
+Datos que muestra en vista pública independiente:
 
 - Estado simple del aire con calificación textual.
-- CO2 actual.
-- Temperatura y humedad.
-- Aforo o nivel de concurrencia.
+- CO2, temperatura, humedad y aforo actuales.
 - Recomendación de la sala con mejores condiciones en ese momento.
-- Widget de chat para preguntas sobre la sala y obras expuestas.
 
 Interacciones que permite:
 
+- Activar/desactivar modo visitante desde el botón de la topbar.
 - Consultar la vista desde móvil mediante QR.
 - Refrescar el contenido automáticamente.
-- Navegar entre la información resumida del centro y la sala recomendada.
-- Enviar preguntas en lenguaje natural al asistente del visitante.
-- Recibir respuestas contextuales en español o inglés basadas en datos actuales.
+- Abrir AuraBot con el botón circular flotante y preguntar en lenguaje natural.
+- Limpiar o continuar el historial de conversación con AuraBot (sessionStorage).
+- Navegar entre salas del centro en modo visitante.
 
 Tecnologías que usa:
 
-- HTML responsive adaptado a móvil.
-- CSS específico para lectura rápida.
-- JavaScript con refresco periódico.
-- WebSocket o polling controlado según el despliegue.
-- Flask para orquestación del chat y construcción de contexto.
-- LLM local vía API (preferente Gemma).
+- HTML responsive adaptado a móvil y escritorio.
+- CSS glassmorphism con botón flotante (FAB) fijo mediante `position: fixed`.
+- JavaScript con sessionStorage para historial de conversación.
+- Flask como proxy de la API de Gemini (la key nunca llega al frontend).
+- Gemini API (`gemini-2.5-flash`) para respuestas en lenguaje natural.
+- Contexto construido por el frontend (`window.AURABOT_CONTEXT`) a partir de datos ya cargados en la página.
 
 Endpoints del backend necesarios:
 
 - GET /visitor/{poi_id}
-- GET /api/public/poi/{poi_id}
 - GET /api/public/poi/{poi_id}/summary
 - GET /api/public/poi/{poi_id}/recommended-room
 - GET /api/public/poi/{poi_id}/rooms
-- POST /api/public/chat/context
-- POST /api/public/chat/ask
+- POST /api/chat — chatbot AuraBot con contexto de sala o centro
 
 ## 9. Requisitos funcionales transversales
 
@@ -487,7 +510,7 @@ Endpoints del backend necesarios:
 - El sistema debe permitir navegar desde una vista agregada hasta el nivel de sala y obra.
 - El sistema debe calcular y exponer un riesgo de degradación para cada obra.
 - El sistema debe generar recomendaciones de sala para visitantes a partir del estado ambiental actual.
-- El sistema debe permitir consultas conversacionales del visitante sobre sala y obras usando contexto NGSI-LD actualizado.
+- El sistema debe permitir consultas conversacionales del visitante sobre sala y obras usando AuraBot, con contexto en tiempo real inyectado desde el frontend.
 - El sistema debe permitir exportar el pasaporte ambiental de una sala.
 - El sistema debe permitir comparar varias obras en paralelo.
 - El sistema debe permitir activar actuadores cuando se superen umbrales críticos.
@@ -499,7 +522,7 @@ Endpoints del backend necesarios:
 - Soporte bilingüe español e inglés en toda la interfaz pública y privada.
 - Modo visual Dark y Light con persistencia de preferencia de usuario.
 - La interfaz visitante debe ser legible en pantallas pequeñas sin necesidad de zoom.
-- La respuesta del chatbot visitante debe entregarse en menos de 4 segundos en condiciones normales de red local.
+- La respuesta del chatbot AuraBot (Gemini API) debe entregarse en menos de 6 segundos en condiciones normales de red.
 - La aplicación debe mantenerse operativa con múltiples fuentes de datos simultáneas.
 - La solución debe ser compatible con despliegue en contenedores Docker.
 - Las visualizaciones deben priorizar legibilidad y rendimiento sobre animaciones ornamentales.
@@ -545,8 +568,11 @@ Endpoints del backend necesarios:
 
 ### 11.6 IA conversacional
 
-- LLM local vía API (Gemma preferente).
-- Prompt de sistema controlado por backend.
+- Gemini API (`gemini-2.5-flash`) vía HTTPS desde el backend Flask.
+- API key almacenada en `backend/gemini.key` (excluido de git), leída por el backend. La key nunca se expone al frontend.
+- Contexto construido dinámicamente desde el frontend (`window.AURABOT_CONTEXT`) con los datos ya cargados en la página: sala, centro, métricas ambientales y lista de obras.
+- Historial de conversación en `sessionStorage` del navegador (clave `aurabot_history`, máx. 40 mensajes).
+- Prompt de sistema controlado por el backend según el tipo de página (sala o centro).
 
 ### 11.7 Despliegue
 
@@ -691,3 +717,50 @@ Notas de despliegue y verificación:
 - `@keyframes alertFadeOut`: colapso vertical (`scaleY`) + desvanecimiento. Para `.alert-item.resolving`.
 - `@keyframes rowFadeOut`: opacidad + destello verde. Para `tr.resolving`.
 - Ambas clases tienen `pointer-events: none` durante la animación.
+
+## Implementación — CORRECCIÓN 2 (2026-05-12): Chatbot LLM AuraBot
+
+### 17.1 Descripción general
+
+Se implementa un chatbot flotante llamado **AuraBot** disponible exclusivamente en Modo Visitante de las vistas de detalle de centro (Vista 3) y detalle de sala (Vista 5). El chatbot usa la API de Gemini (`gemini-2.5-flash`) desde el backend Flask, recibiendo como contexto todos los datos actualmente mostrados en la página.
+
+### 17.2 Componentes añadidos
+
+| Fichero | Rol |
+|---|---|
+| `backend/gemini.key` | API key de Gemini (excluido de git mediante `.gitignore`) |
+| `backend/static/js/chatbot.js` | Widget autocontenido: FAB, panel, historial, llamadas a `/api/chat` |
+| Sección en `backend/static/css/style.css` | Estilos del FAB y panel (`#chatbot-fab`, `#chatbot-panel`, `.chatbot-msg`) |
+
+### 17.3 Endpoint backend
+
+`POST /api/chat`
+
+- **Entrada**: `{ messages: [...], pageUrl: string, context: object | null }`
+- **Salida**: `{ reply: string }` o `{ error: string }`
+- Lee la API key desde `backend/gemini.key`.
+- Construye el system prompt desde el objeto `context` enviado por el frontend.
+- Llama a la Gemini API (`gemini-2.5-flash`) con el historial completo de mensajes.
+- La API key nunca se expone al frontend.
+
+### 17.4 Contexto de sala (`window.AURABOT_CONTEXT` en `room_artwork.js`)
+
+Tras cargar los datos de la sala, `room_artwork.js` establece `window.AURABOT_CONTEXT` con:
+- Nombre de sala y centro, descripción, capacidad, superficie, planta.
+- Temperatura, humedad, CO2, ruido, personas, aforo actuales.
+- Lista completa de obras: nombre, artista, año, técnica, material, riesgo de degradación (%) y estado de conservación.
+
+### 17.5 Contexto de centro (`window.AURABOT_CONTEXT` en `center_detail.js`)
+
+Tras cargar los datos del centro en modo visitante, `center_detail.js` establece `window.AURABOT_CONTEXT` con:
+- Nombre del centro, descripción histórica.
+- Temperatura, humedad, CO2 medios, personas, aforo, estado general y alertas activas.
+- Lista de salas del centro con nombre y descripción.
+
+### 17.6 Comportamiento del widget
+
+- **FAB**: botón circular teal fijo (`position: fixed; bottom: 28px; right: 28px; z-index: 99999`), siempre visible al hacer scroll.
+- **Panel**: 350×500 px con header de color accent, área de mensajes con scroll, input y botón de envío. Botones de cerrar (✕) y limpiar conversación (🗑).
+- **Solo en Modo Visitante**: el script verifica `isVisitorMode()` (URL con `?mode=visitor`) en `DOMContentLoaded`. Si no hay modo visitante, no se monta ningún elemento en el DOM.
+- **Historial**: guardado en `sessionStorage` (clave `aurabot_history`). Persiste entre navegaciones mientras no se cierre la pestaña o se pulse "Limpiar".
+- **Modelo usado**: `gemini-2.5-flash` (verificado como el modelo más capaz disponible con la key del proyecto).

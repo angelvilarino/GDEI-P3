@@ -22,8 +22,18 @@
         <div class="toolbar">
           <button class="btn" id="langToggle">ES</button>
           <button class="btn" id="themeToggle">Oscuro</button>
+          <button class="btn btn-visitor" id="visitorModeToggle" onclick="toggleVisitorMode()"><i class="fas fa-landmark"></i> Modo Visitante</button>
         </div>
       </header>
+
+      <div id="visitorBanner" class="visitor-banner" style="display:none">
+        <span class="visitor-banner-icon"><i class="fas fa-landmark"></i></span>
+        <div class="visitor-banner-body">
+          <span class="visitor-banner-title">Modo Visitante</span>
+          <span class="visitor-banner-sub">Vista turística del centro cultural</span>
+        </div>
+        <button class="btn visitor-exit-btn" onclick="toggleVisitorMode()"><i class="fas fa-arrow-left"></i> Volver al modo gestor</button>
+      </div>
 
       <section class="card fade-up" style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
@@ -31,6 +41,8 @@
           <div id="centerStatus"></div>
         </div>
       </section>
+
+      <div id="visitorContent" style="display:none"></div>
 
       <section class="gauges-row stagger" style="margin-top:14px">
         <article class="card gauge-card">
@@ -105,6 +117,8 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/visitor_content.js') }}"></script>
     <script src="{{ url_for('static', filename='js/center_detail.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
   </body>
 </html>

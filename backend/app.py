@@ -1794,8 +1794,8 @@ def api_grafana_admin():
     base = GRAFANA_URL.rstrip("/")
     return jsonify(
         {
-            "url": f"{base}/d/auravault-overview/auravault-overview?orgId=1",
-            "embed": f"{base}/d/auravault-overview/auravault-overview?orgId=1&kiosk=1&theme=light",
+            "url": f"{base}/d/auravault-control/auravault-control?orgId=1&from=now-24h&to=now",
+            "embed": f"{base}/d/auravault-control/auravault-control?orgId=1&kiosk=1&theme=light&refresh=30s&from=now-24h&to=now",
         }
     )
 
@@ -1896,6 +1896,183 @@ def api_chat_ask():
             "latencyMs": elapsed,
         }
     )
+
+
+def _chatbot_room_context(room_id: str) -> str:
+    try:
+        room = resolve_room(room_id)
+        env_by_room, noise_by_room, crowd_by_room = room_latest_entities()
+        env = env_by_room.get(room["id"], {})
+        noise = noise_by_room.get(room["id"], {})
+        crowd = crowd_by_room.get(room["id"], {})
+        arts = [a for a in artwork_entities() if a.get("isExposedIn") == room["id"]]
+
+        ctx = "\n\nContexto actual de la sala:\n"
+        ctx += f"- Sala: {room.get('name', room_id)}\n"
+        ctx += f"- Centro: {room.get('museumName', room.get('museumId', 'N/A'))}\n"
+        if env.get("temperature") is not None:
+            ctx += f"- Temperatura: {env['temperature']}°C\n"
+        if env.get("relativeHumidity") is not None:
+            ctx += f"- Humedad: {env['relativeHumidity']}%\n"
+        if env.get("co2") is not None:
+            ctx += f"- CO2: {env['co2']} ppm\n"
+        if crowd.get("occupancy") is not None:
+            ctx += f"- Aforo: {crowd['occupancy']:.0%}\n"
+        if noise.get("LAeq") is not None:
+            ctx += f"- Ruido: {noise['LAeq']} dB\n"
+        if arts:
+            ctx += f"\nObras en esta sala ({len(arts)}):\n"
+            for a in arts[:12]:
+                risk = a.get("degradationRisk", 0) or 0
+                ctx += f"  · {a.get('name','?')} ({a.get('technique','?')}) — Riesgo degradación: {risk:.0%}\n"
+        return ctx
+    except Exception as exc:
+        return f"\n\nNo se pudo obtener contexto de la sala: {exc}"
+
+
+def _chatbot_center_context(center_id: str) -> str:
+    try:
+        center = resolve_center(center_id)
+        snap = center_snapshot(center["id"])
+        ctx = "\n\nContexto actual del centro:\n"
+        ctx += f"- Centro: {center.get('name', center_id)}\n"
+        ctx += f"- Temperatura media: {snap.get('avgTemperature', 'N/A')}°C\n"
+        ctx += f"- CO2 medio: {snap.get('avgCo2', 'N/A')} ppm\n"
+        ctx += f"- Personas: {snap.get('peopleCount', 'N/A')}\n"
+        ctx += f"- Estado: {snap.get('status', 'N/A')}\n"
+        ctx += f"- Alertas activas: {snap.get('activeAlerts', 0)}\n"
+        ctx += f"- Salas: {snap.get('roomsCount', 'N/A')}\n"
+        return ctx
+    except Exception as exc:
+        return f"\n\nNo se pudo obtener contexto del centro: {exc}"
+
+
+def _build_chatbot_system_prompt(ctx: Optional[Dict]) -> str:
+    base = (
+        "Eres AuraBot, el asistente inteligente de AuraVault para visitantes de centros culturales. "
+        "Tu misión es ayudar a los visitantes a descubrir las obras, entender el ambiente de la sala "
+        "y conocer la historia del centro. Responde siempre en español, de forma amigable, cercana y concisa. "
+        "Si el visitante pregunta por una obra concreta, da todos los datos que tengas. "
+        "Si preguntan si está concurrido, usa el dato de aforo u ocupación. "
+        "Cuando hables de riesgo de degradación de obras, explica en términos sencillos qué significa "
+        "y qué condiciones ambientales lo causan."
+    )
+    if not ctx:
+        return base + "\n\nNo hay datos de contexto disponibles en este momento."
+
+    tipo = ctx.get("tipo", "")
+    lines = ["\n\n--- DATOS ACTUALES DE LA PÁGINA ---"]
+
+    if tipo == "sala":
+        lines.append(f"Sala: {ctx.get('sala', 'N/A')}")
+        lines.append(f"Centro: {ctx.get('centro', 'N/A')}")
+        if ctx.get("descripcion"):
+            lines.append(f"Descripción: {ctx['descripcion']}")
+        if ctx.get("capacidad"):
+            lines.append(f"Capacidad máxima: {ctx['capacidad']} personas")
+        if ctx.get("area"):
+            lines.append(f"Superficie: {ctx['area']} m²")
+        if ctx.get("temperatura") is not None:
+            lines.append(f"Temperatura actual: {ctx['temperatura']}°C")
+        if ctx.get("humedad") is not None:
+            lines.append(f"Humedad relativa: {ctx['humedad']}%")
+        if ctx.get("co2") is not None:
+            lines.append(f"CO2: {ctx['co2']} ppm")
+        if ctx.get("ruido") is not None:
+            lines.append(f"Nivel de ruido: {ctx['ruido']} dB")
+        if ctx.get("personas") is not None:
+            lines.append(f"Personas en sala: {ctx['personas']}")
+        if ctx.get("aforo") is not None:
+            pct = ctx["aforo"] * 100 if ctx["aforo"] <= 1 else ctx["aforo"]
+            lines.append(f"Ocupación: {pct:.0f}%")
+        obras = ctx.get("obras") or []
+        if obras:
+            lines.append(f"\nObras expuestas ({len(obras)}):")
+            for o in obras:
+                riesgo_pct = f"{o['riesgo'] * 100:.0f}%" if o.get("riesgo") is not None else "?"
+                partes = [f"  · {o.get('nombre','?')}"]
+                if o.get("artista"):
+                    partes.append(f"Artista: {o['artista']}")
+                if o.get("año"):
+                    partes.append(f"Año: {o['año']}")
+                if o.get("tecnica"):
+                    partes.append(f"Técnica: {o['tecnica']}")
+                if o.get("material"):
+                    partes.append(f"Material: {o['material']}")
+                partes.append(f"Riesgo degradación: {riesgo_pct}")
+                if o.get("estado"):
+                    partes.append(f"Estado: {o['estado']}")
+                lines.append(" | ".join(partes))
+        else:
+            lines.append("No hay obras registradas en esta sala.")
+
+    elif tipo == "centro":
+        lines.append(f"Centro: {ctx.get('centro', 'N/A')}")
+        if ctx.get("descripcion"):
+            lines.append(f"Descripción: {ctx['descripcion']}")
+        if ctx.get("temperatura") is not None:
+            lines.append(f"Temperatura media: {ctx['temperatura']}°C")
+        if ctx.get("humedad") is not None:
+            lines.append(f"Humedad media: {ctx['humedad']}%")
+        if ctx.get("co2") is not None:
+            lines.append(f"CO2 medio: {ctx['co2']} ppm")
+        if ctx.get("personas") is not None:
+            lines.append(f"Personas en el centro: {ctx['personas']}")
+        if ctx.get("aforo") is not None:
+            pct = ctx["aforo"] * 100 if ctx["aforo"] <= 1 else ctx["aforo"]
+            lines.append(f"Ocupación media: {pct:.0f}%")
+        if ctx.get("estado"):
+            lines.append(f"Estado general: {ctx['estado']}")
+        if ctx.get("alertasActivas"):
+            lines.append(f"Alertas activas: {ctx['alertasActivas']}")
+        salas = ctx.get("salas") or []
+        if salas:
+            lines.append(f"\nSalas del centro ({len(salas)}):")
+            for s in salas:
+                desc = f" — {s['descripcion']}" if s.get("descripcion") else ""
+                lines.append(f"  · {s.get('nombre','?')}{desc}")
+
+    return base + "\n".join(lines)
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    payload = request.get_json(force=True, silent=True) or {}
+    messages = payload.get("messages", [])
+    ctx = payload.get("context")  # contexto enviado desde el frontend
+
+    key_path = Path(__file__).parent / "gemini.key"
+    try:
+        gemini_key = key_path.read_text().strip()
+    except FileNotFoundError:
+        return jsonify({"error": "Gemini API key no configurada"}), 500
+
+    system_prompt = _build_chatbot_system_prompt(ctx)
+
+    gemini_contents = []
+    for msg in messages:
+        role = "user" if msg.get("role") == "user" else "model"
+        gemini_contents.append({"role": role, "parts": [{"text": msg.get("content", "")}]})
+
+    gemini_payload = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": gemini_contents,
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024},
+    }
+
+    try:
+        resp = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}",
+            json=gemini_payload,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        reply = data["candidates"][0]["content"]["parts"][0]["text"]
+        return jsonify({"reply": reply})
+    except Exception as exc:
+        LOGGER.error("Gemini API error: %s", exc)
+        return jsonify({"error": "Error al contactar con el asistente IA"}), 502
 
 
 @app.route("/notify", methods=["POST"])

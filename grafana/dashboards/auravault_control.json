@@ -1,0 +1,474 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Dashboard operativo — confort ambiental, alertas y ranking de salas para gestion de centros culturales",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 1,
+          "mappings": [],
+          "noValue": "Sin datos",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-blue", "value": null },
+              { "color": "yellow", "value": 24 },
+              { "color": "red", "value": 28 }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(CAST(AVG(temperature) AS DOUBLE PRECISION), 20.0) AS \"Temperatura (°C)\" FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index)",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperatura Promedio",
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "Sin datos",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "semi-dark-blue", "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "red", "value": 75 }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(CAST(AVG(relativehumidity) AS INTEGER), 50) AS \"Humedad Relativa (%)\" FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index)",
+          "refId": "A"
+        }
+      ],
+      "title": "Humedad Promedio",
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": { "0": { "color": "semi-dark-blue", "index": 0, "text": "Sin aforo" } },
+              "type": "value"
+            }
+          ],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(CAST(MAX(peoplecount) AS INTEGER), 0) AS \"Pico de Aforo\" FROM etcrowdflowobserved WHERE $__timeFilter(time_index)",
+          "refId": "A"
+        }
+      ],
+      "title": "Pico de Aforo Urbano",
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": { "0": { "color": "green", "index": 0, "text": "Sin alertas" } },
+              "type": "value"
+            }
+          ],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CAST(COUNT(*) AS INTEGER) AS \"Lecturas en Alerta\" FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND (co2 > 700 OR relativehumidity > 65 OR temperature > 26)",
+          "refId": "A"
+        }
+      ],
+      "title": "Lecturas en Alerta",
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "description": "Frecuencia de alertas ambientales (CO2>700ppm, humedad>65%, temp>26°C, ruido>65dB) por centro y franja horaria",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "fillOpacity": 75,
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1
+          },
+          "mappings": [
+            {
+              "options": {
+                "from": 0,
+                "result": { "color": "green", "index": 0, "text": "Sin alertas" },
+                "to": 0
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 1,
+                "result": { "color": "yellow", "index": 1, "text": "Atencion" },
+                "to": 3
+              },
+              "type": "range"
+            },
+            {
+              "options": {
+                "from": 4,
+                "result": { "color": "red", "index": 2, "text": "Alerta" },
+                "to": 9999
+              },
+              "type": "range"
+            }
+          ],
+          "noValue": "Sin datos",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 4 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 13, "w": 14, "x": 0, "y": 5 },
+      "id": 5,
+      "options": {
+        "colWidth": 0.9,
+        "fillOpacity": 75,
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "rowHeight": 0.85,
+        "showValue": "auto",
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT t AS time, ctr AS metric, CAST(SUM(cnt) AS INTEGER) AS value FROM (SELECT date_trunc('hour', time_index) AS t, split_part(split_part(entity_id, ':', 4), '-', 1) AS ctr, SUM(CASE WHEN co2 > 700 OR relativehumidity > 65 OR temperature > 26 THEN 1 ELSE 0 END) AS cnt FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) GROUP BY date_trunc('hour', time_index), split_part(split_part(entity_id, ':', 4), '-', 1) UNION ALL SELECT date_trunc('hour', time_index), split_part(split_part(entity_id, ':', 4), '-', 1), SUM(CASE WHEN laeq > 65 THEN 1 ELSE 0 END) FROM etnoiselevelobserved WHERE $__timeFilter(time_index) GROUP BY date_trunc('hour', time_index), split_part(split_part(entity_id, ':', 4), '-', 1)) sub GROUP BY t, ctr ORDER BY t",
+          "refId": "A"
+        }
+      ],
+      "title": "Mapa de Calor — Frecuencia de Alertas por Centro",
+      "type": "status-history"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "description": "Distribucion de lecturas que superan umbrales de alerta, clasificadas por categoria y severidad",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": [],
+          "noValue": "Sin incidentes",
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 13, "w": 10, "x": 14, "y": 5 },
+      "id": 6,
+      "options": {
+        "displayLabels": ["percent", "name"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["percent", "value"]
+        },
+        "pieType": "donut",
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT cat AS \"Categoria\", cnt AS \"Incidentes\" FROM (SELECT 'CO2 Critico (>1200ppm)' AS cat, CAST(COUNT(*) AS INTEGER) AS cnt FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND co2 > 1200 UNION ALL SELECT 'CO2 Alto (800-1200ppm)', CAST(COUNT(*) AS INTEGER) FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND co2 BETWEEN 800 AND 1200 UNION ALL SELECT 'CO2 Moderado (600-800ppm)', CAST(COUNT(*) AS INTEGER) FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND co2 BETWEEN 600 AND 800 UNION ALL SELECT 'Humedad Alta (>70%)', CAST(COUNT(*) AS INTEGER) FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND relativehumidity > 70 UNION ALL SELECT 'Ruido Critico (>75dB)', CAST(COUNT(*) AS INTEGER) FROM etnoiselevelobserved WHERE $__timeFilter(time_index) AND laeq > 75 UNION ALL SELECT 'Ruido Alto (65-75dB)', CAST(COUNT(*) AS INTEGER) FROM etnoiselevelobserved WHERE $__timeFilter(time_index) AND laeq BETWEEN 65 AND 75) t WHERE cnt > 0 ORDER BY cnt DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Distribucion de Incidentes por Categoria y Severidad",
+      "type": "piechart"
+    },
+
+    {
+      "datasource": { "type": "postgres", "uid": "auravault-crate" },
+      "description": "Top 5 salas con mayor nivel de CO2 en el periodo seleccionado — prioridad de actuacion",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "left",
+            "cellOptions": { "type": "auto" },
+            "displayMode": "auto",
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "noValue": "—",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "CO2 Max (ppm)" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 700 },
+                    { "color": "orange", "value": 1000 },
+                    { "color": "red", "value": 1200 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              { "id": "custom.width", "value": 130 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "CO2 Prom (ppm)" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 700 },
+                    { "color": "orange", "value": 1000 },
+                    { "color": "red", "value": 1200 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-background", "mode": "basic" } },
+              { "id": "custom.width", "value": 130 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Sala" },
+            "properties": [
+              { "id": "custom.width", "value": 250 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Centro" },
+            "properties": [
+              { "id": "custom.width", "value": 110 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Temp (C)" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "semi-dark-blue", "value": null },
+                    { "color": "yellow", "value": 24 },
+                    { "color": "red", "value": 28 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+              { "id": "custom.width", "value": 90 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Humedad (%)" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "semi-dark-blue", "value": null },
+                    { "color": "yellow", "value": 60 },
+                    { "color": "red", "value": 75 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } },
+              { "id": "custom.width", "value": 100 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 18 },
+      "id": 7,
+      "options": {
+        "cellHeight": "md",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "CO2 Max (ppm)" }]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "auravault-crate" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT split_part(entity_id, ':', 4) AS \"Sala\", split_part(split_part(entity_id, ':', 4), '-', 1) AS \"Centro\", CAST(MAX(co2) AS INTEGER) AS \"CO2 Max (ppm)\", CAST(AVG(co2) AS INTEGER) AS \"CO2 Prom (ppm)\", CAST(AVG(temperature) AS INTEGER) AS \"Temp (C)\", CAST(AVG(relativehumidity) AS INTEGER) AS \"Humedad (%)\" FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) GROUP BY entity_id ORDER BY MAX(co2) DESC LIMIT 5",
+          "refId": "A"
+        }
+      ],
+      "title": "Ranking de Salas — Top 5 por Nivel de CO2 (Prioridad de Actuacion)",
+      "type": "table"
+    }
+
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["auravault", "fiware", "control", "analytics"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "AuraVault Control — Analytics",
+  "uid": "auravault-control",
+  "version": 3,
+  "weekStart": ""
+}
