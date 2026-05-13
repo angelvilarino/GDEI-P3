@@ -2,6 +2,8 @@
 
 MVP de inteligencia ambiental para espacios culturales de interior sobre FIWARE (NGSI-LD), con backend Flask, frontend 8 vistas, simulacion IoT MQTT con alertas periodicas, historicos en QuantumLeap/CrateDB, dashboards Grafana provisionados e i18n ES/EN completo.
 
+URL del repositorio: https://github.com/angelvilarino/GDEI-P3
+
 ## 1. Stack tecnologico
 
 | Componente | Rol | Puerto |
