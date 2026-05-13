@@ -692,7 +692,56 @@ QuantumLeap persiste automáticamente las observaciones NGSI-LD en CrateDB usand
 
 El centro se extrae del `entity_id` con `split_part(split_part(entity_id, ':', 4), '-', 1)`, que devuelve `muncyt`, `bellasartes`, `rosalia` u `opera`.
 
-## 23. Cierre
+Los nuevos paneles de `auravault_control` usan `CASE ... WHEN entity_id LIKE '%muncyt%' THEN 'MUNCYT' ...` para mapear a nombres legibles de centro, y filtran `co2 > 800` para el panel de evolución critica.
+
+## 23. Imagenes locales de Room y Artwork
+
+El campo `image` de las entidades `Room` y `Artwork` en `scripts/catalog.py` usa rutas locales servidas por Flask desde `backend/static/images/`:
+
+### Rooms (24 imagenes)
+
+| Room code | Imagen local |
+|---|---|
+| piezas_con_memoria | `/static/images/rooms/piezas_con_memoria.jpeg` |
+| ex_catedra | `/static/images/rooms/ex_catedra_muncyt.jpeg` |
+| creadores | `/static/images/rooms/creadores_muncyt.jpeg` |
+| miscelanea | `/static/images/rooms/miscelanea_muncyt.jpeg` |
+| temporales (MUNCYT) | `/static/images/rooms/exposiciones_temporales_muncyt.jpeg` |
+| salon_actos | `/static/images/rooms/salon_actos_muncyt.jpeg` |
+| siglos_xvi_xvii | `/static/images/rooms/pintura_xvi_xvii_bellasartes.jpeg` |
+| siglos_xviii_xix | `/static/images/rooms/pintura_xviii_xix_bellasartes.jpeg` |
+| siglo_xx | `/static/images/rooms/pintura_xx_bellasartes.jpeg` |
+| grabados_goya | `/static/images/rooms/salon_grabados_goya_bellasartes.jpeg` |
+| sargadelos | `/static/images/rooms/sala_ceramica_sargadelos_bellasartes.jpeg` |
+| temporales (Bellas Artes) | `/static/images/rooms/sala_exposicionestemporales_bellasartes.jpeg` |
+| patio_butacas | `/static/images/rooms/patio_butacas_rosalia.jpeg` |
+| anfiteatro | `/static/images/rooms/anfiteatro_rosalia.jpeg` |
+| palcos | `/static/images/rooms/palcos_rosalia.jpeg` |
+| escenario | `/static/images/rooms/escenario_principal_rosalia.jpeg` |
+| foyer | `/static/images/rooms/foyer_rosalia.jpeg` |
+| camerinos | `/static/images/rooms/camerinos_rosalia.jpeg` |
+| auditorio_principal | `/static/images/rooms/auditorio_principal_opera.jpeg` |
+| sala_sonata | `/static/images/rooms/sala_sonata_opera.jpeg` |
+| sala_vivace | `/static/images/rooms/sala_vivace_opera.jpeg` |
+| sala_crescendo | `/static/images/rooms/sala_crescendo_opera.jpeg` |
+| salon_wengue | `/static/images/rooms/sala_wengue_opera.jpeg` |
+| hall_camara | `/static/images/rooms/hall_camara_opera.jpeg` |
+
+### Artworks con imagen local (9 imagenes)
+
+| Artwork | Imagen local |
+|---|---|
+| Lente de Fresnel del Faro de Estaca de Bares | `/static/images/artworks/lente_fresnel_bares.jpg` |
+| Los Caprichos: El sueño de la razón... (Goya) | `/static/images/artworks/goya_grabado_caprichos.jpeg` |
+| El Muneco (Modesto Brocos) | `/static/images/artworks/muneco_modesto_brocos.jpg` |
+| Tetera de la Serie Gondola (Sargadelos) | `/static/images/artworks/tetera_sargadelos.jpeg` |
+| Plato Decorativo de la Serie Flora (Sargadelos) | `/static/images/artworks/plato_decorativo_sargadelos.jpeg` |
+| Figura de Gaiteiro (Sargadelos) | `/static/images/artworks/gaiteiro_sargadelos.jpeg` |
+| Disparate Claro (Goya) | `/static/images/artworks/disparate_claro_goya.jpeg` |
+| San Sebastian (Cornellis de Vos) | `/static/images/artworks/san_sebastian_cornellis.jpeg` |
+| Figura Femenina con Cantaro (Asorey) | `/static/images/artworks/figura_femenina_asorey.jpeg` |
+
+## 24. Cierre
 
 Este modelo NGSI-LD está pensado para alimentar directamente el importador de datos, el simulador MQTT, el backend Flask y las visualizaciones de AuraVault sin introducir decisiones de modelado adicionales durante la implementación.
 
@@ -708,5 +757,15 @@ PATCH /api/alerts/{id}/resolve
 ```
 
 El endpoint `/api/admin/alerts` incluye siempre los campos `centerName`, `centerCode` y `roomName` derivados del join `alertSource → Room → museumId → Museum`. Estos campos permiten mostrar el nombre del centro directamente en los paneles de alertas sin peticiones adicionales.
+
+## 25. Artworks — URLs de imágenes (estado final)
+
+Las 24 obras del catálogo (`scripts/catalog.py`) tienen sus URLs de imagen actualizadas al estado definitivo:
+
+- Las obras de Wikimedia Commons (MUNCYT y Bellas Artes) usan URLs directas de `upload.wikimedia.org` (thumbnails 960px, HTTP 200 verificado) o `commons.wikimedia.org/wiki/Special:FilePath/` con codificación URL correcta.
+- Las 9 obras con imagen local usan rutas `/static/images/artworks/<obra>.jpeg` servidas por Flask.
+- Las obras restantes usan placeholders de `placehold.co` o Picsum con semántica coherente.
+
+Todas las URLs `picsum.photos` han sido eliminadas del catálogo de obras; las últimas 4 obras del Bellas Artes (apoteosis-Hércules, Ovidio Guadarrama, Na Fragua, Jugadores de Cartas) fueron sustituidas por URLs verificadas de Wikimedia Commons en la CORRECCIÓN 3.
 
 El endpoint `/api/admin/alerts/stats` acepta los mismos filtros que `/api/admin/alerts` (`center`, `type`, `severity`, `status`) para que la gráfica de distribución refleje siempre la misma vista filtrada que la tabla.

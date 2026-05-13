@@ -106,10 +106,10 @@ function getRiskLevel(risk) {
 }
 
 function getRiskLabel(risk) {
-  if (risk < 0.25) return 'Bajo';
-  if (risk < 0.5) return 'Medio';
-  if (risk < 0.75) return 'Alto';
-  return 'Crítico';
+  if (risk < 0.25) return tr('riskLow');
+  if (risk < 0.5) return tr('riskMedium');
+  if (risk < 0.75) return tr('riskHigh');
+  return tr('riskCritical');
 }
 
 function getStressLevel(stress) {
@@ -123,10 +123,10 @@ function getStressLevel(stress) {
 
 function getStressLabel(stress) {
   const s = stress > 1 ? stress / 100 : stress;
-  if (s < 0.25) return 'Bajo';
-  if (s < 0.5) return 'Medio';
-  if (s < 0.75) return 'Alto';
-  return 'Crítico';
+  if (s < 0.25) return tr('riskLow');
+  if (s < 0.5) return tr('riskMedium');
+  if (s < 0.75) return tr('riskHigh');
+  return tr('riskCritical');
 }
 
 function getStressNorm(stress) {
@@ -140,18 +140,18 @@ function getConditionClass(status) {
 }
 
 function getStatusBadgeHTML(status) {
-  const labels = { optimal: 'Óptimo', attention: 'Atención', critical: 'Crítico', ok: 'Óptimo', warn: 'Atención', danger: 'Crítico' };
+  const labelKeys = { optimal: 'conditionGood', attention: 'conditionWatch', critical: 'conditionCritical', ok: 'conditionGood', warn: 'conditionWatch', danger: 'conditionCritical' };
   const cls = { optimal: 'ok', ok: 'ok', attention: 'warn', warn: 'warn', critical: 'danger', danger: 'danger' };
   const icons = { optimal: 'fa-circle-check', ok: 'fa-circle-check', attention: 'fa-triangle-exclamation', warn: 'fa-triangle-exclamation', critical: 'fa-circle-xmark', danger: 'fa-circle-xmark' };
   const c = cls[status] || 'ok';
   const i = icons[status] || 'fa-circle-check';
-  return `<span class="status-badge ${c}"><i class="fas ${i}"></i> ${labels[status] || 'Desconocido'}</span>`;
+  return `<span class="status-badge ${c}"><i class="fas ${i}"></i> ${tr(labelKeys[status] || 'conditionUnknown')}</span>`;
 }
 
 function formatFloor(floor) {
-  if (floor === 0) return 'Planta Baja';
-  if (floor < 0) return `Sótano ${Math.abs(floor)}`;
-  return `Planta ${floor}`;
+  if (floor === 0) return tr('groundFloor');
+  if (floor < 0) return `${tr('basementLabel')} ${Math.abs(floor)}`;
+  return `${tr('floorLabel')} ${floor}`;
 }
 
 /* ── Tooltip config corregido (sin retardo) ── */
@@ -173,7 +173,8 @@ function makeTooltipConfig(unit) {
         const ts = ctx[0]?.label;
         if (!ts) return '';
         try {
-          return new Date(ts).toLocaleString('es-ES', {
+          const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
+          return new Date(ts).toLocaleString(locale, {
             day: '2-digit', month: '2-digit', year: 'numeric',
             hour: '2-digit', minute: '2-digit', second: '2-digit'
           });
@@ -189,7 +190,7 @@ function makeTooltipConfig(unit) {
 
 /* ── Gráfico Radar ── */
 function renderRadar(current, optimal) {
-  const labels = ['Temperatura', 'Humedad', 'CO₂ /10', 'Iluminancia', 'Ruido'];
+  const labels = [tr('temperature'), tr('humidity'), 'CO₂ /10', tr('illuminance'), tr('noise')];
   const cVals = [
     Number(current.temperature || 0),
     Number(current.relativeHumidity || 0),
@@ -206,7 +207,7 @@ function renderRadar(current, optimal) {
       labels,
       datasets: [
         {
-          label: 'Actual',
+          label: tr('radarActual'),
           data: cVals,
           borderColor: '#0e7c74',
           backgroundColor: 'rgba(14,124,116,0.18)',
@@ -216,7 +217,7 @@ function renderRadar(current, optimal) {
           pointBackgroundColor: '#0e7c74',
         },
         {
-          label: 'Óptimo',
+          label: tr('radarOptimal'),
           data: oVals,
           borderColor: '#d27d3f',
           backgroundColor: 'rgba(210,125,63,0.12)',
@@ -250,7 +251,7 @@ function renderRadar(current, optimal) {
 function renderGallery(artworks) {
   const gallery = document.getElementById('artworksGallery');
   if (!artworks.length) {
-    gallery.innerHTML = '<div class="gallery-empty"><i class="fas fa-image-slash"></i><span>No hay obras en esta sala</span></div>';
+    gallery.innerHTML = `<div class="gallery-empty"><i class="fas fa-image-slash"></i><span>${tr('noArtworksRoom')}</span></div>`;
     return;
   }
   gallery.innerHTML = artworks.map(a => `
@@ -282,19 +283,19 @@ function openZoom(artId, artworks) {
   document.getElementById('zoomImage').alt = artwork.name;
   const req = artwork.conservationRequirements || {};
   document.getElementById('zoomInfo').innerHTML = `
-    <div class="zoom-info-item"><span class="zoom-info-label">Título</span><span class="zoom-info-value">${artwork.name}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Artista</span><span class="zoom-info-value">${artwork.artist || 'Desconocido'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Año</span><span class="zoom-info-value">${artwork.year || '—'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Material</span><span class="zoom-info-value">${materialEmoji(artwork.material)}${artwork.material || '—'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Técnica</span><span class="zoom-info-value">${techniqueEmoji(artwork.technique)}${artwork.technique || '—'}</span></div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Riesgo</span>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomTitle')}</span><span class="zoom-info-value">${artwork.name}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomArtist')}</span><span class="zoom-info-value">${artwork.artist || tr('artworkUnknown')}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomYear')}</span><span class="zoom-info-value">${artwork.year || '—'}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomMaterial')}</span><span class="zoom-info-value">${materialEmoji(artwork.material)}${artwork.material || '—'}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomTechnique')}</span><span class="zoom-info-value">${techniqueEmoji(artwork.technique)}${artwork.technique || '—'}</span></div>
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomRisk')}</span>
       <span class="zoom-info-value risk-pill-${getRiskLevel(Number(artwork.degradationRisk || 0))}">
         ${getRiskLabel(Number(artwork.degradationRisk || 0))} (${Number(artwork.degradationRisk || 0).toFixed(3)})
       </span>
     </div>
-    <div class="zoom-info-item"><span class="zoom-info-label">Estado</span><span class="zoom-info-value">${artwork.conditionStatus || 'good'}</span></div>
-    ${req.temperatureMin ? `<div class="zoom-info-item"><span class="zoom-info-label">T° óptima</span><span class="zoom-info-value">${req.temperatureMin}–${req.temperatureMax} °C</span></div>` : ''}
-    ${req.humidityMin ? `<div class="zoom-info-item"><span class="zoom-info-label">HR óptima</span><span class="zoom-info-value">${req.humidityMin}–${req.humidityMax} %</span></div>` : ''}
+    <div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomStatus')}</span><span class="zoom-info-value">${artwork.conditionStatus || 'good'}</span></div>
+    ${req.temperatureMin ? `<div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomOptTemp')}</span><span class="zoom-info-value">${req.temperatureMin}–${req.temperatureMax} °C</span></div>` : ''}
+    ${req.humidityMin ? `<div class="zoom-info-item"><span class="zoom-info-label">${tr('zoomOptHumidity')}</span><span class="zoom-info-value">${req.humidityMin}–${req.humidityMax} %</span></div>` : ''}
   `;
   overlay.style.display = 'flex';
 }
@@ -303,7 +304,7 @@ function openZoom(artId, artworks) {
 function renderArtworkTable(artworks) {
   currentArtworks = artworks;
   const badge = document.getElementById('artworksCountBadge');
-  if (badge) badge.textContent = `${artworks.length} obra${artworks.length !== 1 ? 's' : ''}`;
+  if (badge) badge.textContent = `${artworks.length} ${tr('artworkSingular')}${artworks.length !== 1 ? 's' : ''}`;
 
   const tbody = document.getElementById('artworksTableBody');
   tbody.innerHTML = artworks.map((a, i) => {
@@ -323,7 +324,7 @@ function renderArtworkTable(artworks) {
                data-art-id="${a.id}"
                onerror="this.src='https://placehold.co/60x45/1d2627/0e7c74?text=Arte'"
                loading="lazy"
-               title="Clic para ampliar"/>
+               title="${tr('clickToZoom')}"/>
         </td>
         <td class="artwork-name-cell">
           <strong>${a.name}</strong>
@@ -390,10 +391,11 @@ function buildXAxisConfig(range, labels) {
         try {
           const d = new Date(ts);
           if (Number.isNaN(d.getTime())) return '';
+          const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
           if (useSeconds) {
-            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           }
-          return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+          return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
         } catch { return ''; }
       }
     },
@@ -446,10 +448,10 @@ function renderIndividualCharts(history, range) {
   if (co2Chart) co2Chart.destroy();
   if (noiseChart) noiseChart.destroy();
 
-  tempChart = makeChart('tempChart', 'Temperatura (°C)', 'temperature', '#0e7c74', '°C');
-  humidityChart = makeChart('humidityChart', 'Humedad (%)', 'relativeHumidity', '#3d9ecf', '%');
-  co2Chart = makeChart('co2Chart', 'CO₂ (ppm)', 'co2', '#d27d3f', 'ppm');
-  noiseChart = makeChart('noiseChart', 'Ruido (dB)', 'LAeq', '#a86b18', 'dB');
+  tempChart = makeChart('tempChart', tr('chartTempLabel'), 'temperature', '#0e7c74', '°C');
+  humidityChart = makeChart('humidityChart', tr('chartHumLabel'), 'relativeHumidity', '#3d9ecf', '%');
+  co2Chart = makeChart('co2Chart', tr('chartCo2Label'), 'co2', '#d27d3f', 'ppm');
+  noiseChart = makeChart('noiseChart', tr('chartNoiseLabel'), 'LAeq', '#a86b18', 'dB');
 }
 
 /* ── Actualizar Hero Card (llamado en sync IoT) ── */
@@ -470,7 +472,7 @@ function updateHeroMetrics(envData) {
   setVal('roomNoise', noise.LAeq, ' dB');
 
   const occEl = document.getElementById('roomOccupancy');
-  if (occEl) occEl.textContent = env.peopleCount != null ? `${Math.round(env.peopleCount)} personas` : '-- personas';
+  if (occEl) occEl.textContent = env.peopleCount != null ? `${Math.round(env.peopleCount)} ${tr('personsUnit')}` : `-- ${tr('personsUnit')}`;
 
   // Colorear métricas según umbrales
   colorMetric('metricTemp', env.temperature, 18, 25);
@@ -478,8 +480,9 @@ function updateHeroMetrics(envData) {
   colorMetricHigh('metricCO2', env.co2, 1000, 1300);
   colorMetricHigh('metricNoise', noise.LAeq, 70, 82);
 
+  const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
   const updateEl = document.getElementById('heroLastUpdate');
-  if (updateEl) updateEl.textContent = `Actualizado: ${new Date().toLocaleTimeString('es-ES')}`;
+  if (updateEl) updateEl.textContent = `${tr('updatedAt')} ${new Date().toLocaleTimeString(locale)}`;
 
   currentEnvData = envData;
 }
@@ -620,26 +623,27 @@ async function loadAlerts(roomId) {
     ).slice(0, 10);
 
     if (!roomAlerts.length) {
-      timeline.innerHTML = '<div class="timeline-empty"><i class="fas fa-check-circle"></i> Sin alertas activas en esta sala</div>';
+      timeline.innerHTML = `<div class="timeline-empty"><i class="fas fa-check-circle"></i> ${tr('noAlertsInRoom')}</div>`;
       return;
     }
 
+    const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
     const sevClass = { critical: 'danger', high: 'warn', medium: 'warn', low: 'ok', informational: 'ok' };
     timeline.innerHTML = roomAlerts.map(a => `
       <div class="timeline-item alert-item ${sevClass[a.severity] || 'ok'}">
         <div class="timeline-dot"></div>
         <div class="timeline-content">
           <div class="timeline-header">
-            <strong>${a.subCategory || a.category || 'Alerta'}</strong>
+            <strong>${a.subCategory || a.category || tr('alertLabel')}</strong>
             <span class="timeline-severity ${sevClass[a.severity] || 'ok'}">${a.severity || ''}</span>
           </div>
           <p class="timeline-desc">${a.description || ''}</p>
-          <span class="timeline-time">${a.dateIssued ? new Date(a.dateIssued).toLocaleString('es-ES') : ''}</span>
+          <span class="timeline-time">${a.dateIssued ? new Date(a.dateIssued).toLocaleString(locale) : ''}</span>
         </div>
       </div>
     `).join('');
   } catch {
-    timeline.innerHTML = '<div class="timeline-empty">No se pudieron cargar las alertas</div>';
+    timeline.innerHTML = `<div class="timeline-empty">${tr('alertsLoadError')}</div>`;
   }
 }
 
@@ -735,7 +739,7 @@ async function loadVisitorRoomView() {
       </div>
       ${showArtworks ? `
       <div class="card visitor-artworks-wrap fade-up">
-        <h3><i class="fas fa-palette"></i> Obras expuestas en esta sala</h3>
+        <h3><i class="fas fa-palette"></i> ${tr('exposedArtworks')}</h3>
         <div class="visitor-artworks-grid">${artworkCards}</div>
       </div>` : ''}
     </div>`;
@@ -766,4 +770,27 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     } catch { /* silent */ }
   });
+});
+
+document.addEventListener('aura:langchange', () => {
+  if (document.body.getAttribute('data-page') !== 'room-artwork') return;
+  if (isVisitorMode()) {
+    loadVisitorRoomView().catch(() => {});
+    return;
+  }
+  if (currentEnvData) {
+    renderRadar(
+      { ...currentEnvData?.environment, ...currentEnvData?.noise },
+      avgReq(currentArtworks)
+    );
+    updateHeroMetrics(currentEnvData);
+  }
+  if (currentArtworks.length) {
+    renderGallery(currentArtworks);
+    renderArtworkTable(currentArtworks);
+  }
+  const roomId = roomIdFromPath();
+  apiGet(`/api/rooms/${encodeURIComponent(roomId)}/history?range=${currentRange}`)
+    .then(history => renderIndividualCharts(history || {}, currentRange))
+    .catch(() => {});
 });

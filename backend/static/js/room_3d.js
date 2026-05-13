@@ -279,7 +279,7 @@ function showArtworkPanel(art) {
     ${art.material    ? `<p><i class="fas fa-cube fa-xs" style="color:#888;margin-right:6px"></i>${escapeHtml(art.material)}</p>` : ''}
     ${art.technique   ? `<p><i class="fas fa-palette fa-xs" style="color:#888;margin-right:6px"></i>${escapeHtml(art.technique)}</p>` : ''}
     <div style="margin-top:12px">
-      <p style="margin-bottom:4px"><i class="fas fa-triangle-exclamation fa-xs" style="color:${rColor};margin-right:6px"></i>Riesgo de degradación</p>
+      <p style="margin-bottom:4px"><i class="fas fa-triangle-exclamation fa-xs" style="color:${rColor};margin-right:6px"></i>${tr('degradationRisk')}</p>
       <div class="risk-bar-track"><div class="risk-bar-fill" style="width:${riskPct}%;background:${rColor}"></div></div>
       <span style="font-size:0.78rem;color:${rColor}">${riskPct}%</span>
     </div>
@@ -294,8 +294,8 @@ function showSensorPanel(dev) {
   panelContent.innerHTML = `
     <h3>${escapeHtml(dev.name || dev.id)}</h3>
     <p><i class="fas fa-microchip fa-xs" style="color:#888;margin-right:6px"></i>${escapeHtml(dev.deviceCategory || dev.category || '—')}</p>
-    <p>Estado: <span class="sensor-badge" style="background:${cssCol}">${escapeHtml(state)}</span></p>
-    <p><i class="fas fa-battery-three-quarters fa-xs" style="color:#888;margin-right:6px"></i>Batería: ${batPct}</p>
+    <p>${tr('status')}: <span class="sensor-badge" style="background:${cssCol}">${escapeHtml(state)}</span></p>
+    <p><i class="fas fa-battery-three-quarters fa-xs" style="color:#888;margin-right:6px"></i>${tr('battery')}: ${batPct}</p>
     ${dev.lastReading
       ? `<p><i class="fas fa-clock fa-xs" style="color:#888;margin-right:6px"></i>${escapeHtml(dev.lastReading)}</p>` : ''}
   `;
@@ -336,7 +336,7 @@ function wireEvents() {
         lines = [
           so.device.name || so.device.id,
           so.device.deviceCategory || '',
-          `Estado: ${so.device.deviceState || '—'}`,
+          `${tr('status')}: ${so.device.deviceState || '—'}`,
         ].filter(Boolean);
       }
       tooltip.innerHTML = lines
@@ -419,7 +419,7 @@ async function boot() {
 
   document.title = `AuraVault 3D — ${roomData.name || 'Sala'}`;
   if (roomInfoBar) {
-    roomInfoBar.textContent = `${roomData.name || 'Sala'} · 3D · Clic en obra o sensor para más info`;
+    roomInfoBar.textContent = `${roomData.name || tr('loadingRoom')} · 3D · ${tr('room3dHint')}`;
   }
 
   await Promise.all([

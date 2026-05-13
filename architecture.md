@@ -317,13 +317,13 @@ AuraBot es un widget de chat flotante que aparece exclusivamente en modo Visitan
 2. `chatbot.js` detecta `isVisitorMode()` y monta el botón FAB circular (fixed, z-index 99999).
 3. Al escribir una pregunta, el frontend lee `window.AURABOT_CONTEXT` (ya en memoria) y envía a Flask:
    ```json
-   { "messages": [...historial sessionStorage], "context": { ...AURABOT_CONTEXT } }
+   { "messages": [...historial sessionStorage], "context": { ...AURABOT_CONTEXT }, "lang": "es" }
    ```
-4. Flask lee la clave desde `backend/gemini.key`, construye el system prompt inyectando el contexto y llama a Gemini API:
+4. Flask lee la clave desde `backend/gemini.key`, construye el system prompt inyectando el contexto **y el idioma activo** (`lang`) y llama a Gemini API:
    ```
    POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=...
    ```
-5. Gemini devuelve respuesta natural; Flask la retransmite al frontend como `{"reply": "..."}`.
+5. Gemini devuelve respuesta natural en el idioma solicitado; Flask la retransmite al frontend como `{"reply": "..."}`.
 6. El historial de la conversación se persiste en `sessionStorage` (máx. 40 mensajes, clave `aurabot_history`).
 
 ### 12.4 Estructura de `window.AURABOT_CONTEXT`
@@ -348,25 +348,66 @@ AuraBot es un widget de chat flotante que aparece exclusivamente en modo Visitan
 }
 ```
 
-### 12.5 System prompt de Flask
+### 12.5 System prompt de Flask (multiidioma)
 
+El prompt base varía según el campo `lang` recibido en el body del request:
+
+**ES (`lang == "es"`):**
 ```text
-Eres AuraBot, el asistente virtual de AuraVault para visitantes de museos y teatros.
-Responde de forma breve, clara y amable en español.
-Tienes acceso al contexto actual de la sala o centro que está visitando el usuario.
-No inventes obras, valores ambientales ni recomendaciones no justificadas.
-Si faltan datos en el contexto, dilo y ofrece la mejor orientación posible.
-Prioriza seguridad y confort del visitante. No des consejos médicos.
+Eres AuraBot, el asistente inteligente de AuraVault para visitantes de centros culturales.
+Tu misión es ayudar a los visitantes a descubrir las obras, entender el ambiente de la sala
+y conocer la historia del centro. Responde siempre en español, de forma amigable, cercana y concisa.
 ```
+
+**EN (`lang == "en"`):**
+```text
+You are AuraBot, AuraVault's intelligent assistant for visitors to cultural centers.
+Your mission is to help visitors discover artworks, understand the room environment
+and learn about the center's history. Always respond in English, in a friendly, warm and concise way.
+```
+
+Si el contexto está vacío, el mensaje de respaldo también se adapta al idioma activo.
 
 ### 12.6 Widget — comportamiento
 
 - Botón FAB circular fijo (bottom-right, `position:fixed`, `z-index:99999`) siempre visible durante el scroll.
 - Panel 350×500 px con animación de apertura (`chatPanelIn`).
 - Botón de cierre (X) y botón de limpiar conversación (papelera).
-- Indicador "AuraBot está pensando…" durante la llamada a Gemini.
+- Indicador "pensando" traducido según idioma activo (`tr('aurabotThinking')`).
+- Mensaje de error de conexión traducido (`tr('connectionError')`).
+- El campo `lang: AURA.lang` se envía en cada petición a `/api/chat` para que las respuestas de Gemini respeten el idioma activo.
 - Tecla `Enter` envía; `Shift+Enter` no envía.
 - No aparece en ninguna otra página (dashboard, control center, centros, etc.).
+
+## 13b. Arquitectura i18n (CORRECCIÓN 3 — 2026-05-13)
+
+### Modelo de traducciones
+
+Todas las traducciones residen en `AURA.t.es` y `AURA.t.en` dentro de `common.js`. La función `tr(key)` devuelve la cadena en el idioma activo (`AURA.lang`). Los elementos HTML estáticos usan `data-i18n`, `data-i18n-placeholder`, `data-i18n-title` y `data-i18n-alt`; `applyTranslations()` los actualiza en cada cambio de idioma.
+
+### Evento `aura:langchange`
+
+`setLang(lang)` en `common.js` despacha un `CustomEvent('aura:langchange')` al documento tras actualizar `AURA.lang` y ejecutar `applyTranslations()`. Cada módulo JS de página escucha este evento y re-renderiza sus componentes dinámicos (Chart.js, radar, actuadores, paneles de dispositivos, vista visitante).
+
+```
+Usuario pulsa toggle →
+  setLang() →
+    AURA.lang = 'en' | 'es'
+    applyTranslations()          ← actualiza data-i18n en el DOM
+    dispatchEvent('aura:langchange')
+      → dashboard.js: loadTrend()
+      → center_detail.js: loadHistory() + loadActuators()
+      → room_artwork.js: renderRadar() + renderIndividualCharts() + renderArtworkTable()
+      → control_center.js: loadAlertsTab() + loadDevicesTab()
+```
+
+### Locales de fechas
+
+Todos los callbacks `toLocaleTimeString` / `toLocaleString` usan `AURA.lang === 'en' ? 'en-GB' : 'es-ES'` en lugar de literales hardcodeados, garantizando formato de hora correcto en ambos idiomas.
+
+### AuraBot multiidioma
+
+`POST /api/chat` acepta el campo `lang` en el body. `_build_chatbot_system_prompt(ctx, lang)` construye un system prompt en el idioma indicado, instruyendo a Gemini a responder en español o inglés según la preferencia activa del visitante.
 
 ## 13. Decisiones de diseño relevantes
 
@@ -394,14 +435,46 @@ Se adopta Gemini API (`gemini-2.5-flash`) en sustitución del LLM local (Gemma/O
 - `backend` depende de `orion` y `quantumleap`. El chatbot llama a Gemini API (cloud) sin contenedor local adicional.
 - `grafana` depende de `crate-db`.
 
-## 15. Checklist de implementación (MVP)
+## 15. Checklist de implementación (MVP — consolidación final)
 
 - Suscripciones Orion a QuantumLeap y a `/notify` creadas al arranque.
-- Simulador MQTT enviando payloads cada 30 segundos con variación realista.
-- Backend exponiendo endpoints REST y WebSocket.
-- Frontend consumiendo WebSocket para KPI, alertas y estado de actuadores.
+- Simulador MQTT publicando cada 30 segundos con variación física realista para 24 salas.
+- Simulador con lógica de alertas periodicas forzadas: cada 10 ciclos (~5min) la sala designada de cada centro genera "Humedad fuera de rango" o "CO2 elevado" durante 3 ciclos consecutivos.
+- Backend exponiendo endpoints REST y WebSocket. Hilo de fondo emite `"summary"` + `"update"` cada 30s a todas las vistas.
+- Frontend: Dashboard, Detalle de Centro/Sala y Centro de Control suscritos a eventos SocketIO para refresco sin recarga.
 - Flujo de riesgo de degradación operativo con PATCH a Orion.
-- Modo Visitante con chatbot AuraBot operativo mediante Gemini API (`gemini-2.5-flash`), visible solo con `?mode=visitor` en center_detail y room_artwork.
+- Modo Visitante con chatbot AuraBot operativo mediante Gemini API (`gemini-2.5-flash`).
+- Imagenes locales: 24 salas y 9 obras clave servidas desde `/static/images/` (rutas relativas en `catalog.py`).
+- Grafana `auravault_control` con 7 paneles usando `time_index` y `etindoorenvironmentobserved`, incluyendo "Promedio de Humedad por Centro" y "Evolución Crítica de CO2 >800 ppm".
+- i18n ES/EN completo en `AURA.t` de `common.js`: metricas, estados, alertas, chatbot, tooltips y placeholders.
+
+## 17. Consolidacion final (2026-05-13)
+
+### Gestión de activos locales (imagenes)
+
+Todas las entidades `Room` del catalogo (`scripts/catalog.py`) usan rutas locales `/static/images/rooms/<sala>.jpeg`. Las obras con imagen historica propia (Sargadelos, Goya, Modesto Brocos, Asorey, Lente Fresnel, Cornellis de Vos) usan `/static/images/artworks/<obra>.jpeg`. Las imagenes se copian a `backend/static/images/` para ser servidas directamente por Flask.
+
+### Simulador MQTT — alertas periodicas
+
+Se añade lógica determinista en `update_state()`:
+- Constante `_ALERT_ROOM_BY_CENTER`: sala designada por centro para inyectar alertas.
+- `_ALERT_CYCLE_PERIOD = 10`, `_ALERT_CYCLE_DURATION = 3`: cada 10 ciclos, fuerza alerta durante 3.
+- Ciclos pares: `humidity_target = 72` (fuera de rango).
+- Ciclos impares: `co2_target = 950` (>800 ppm).
+
+### Grafana — paneles nuevos
+
+Se eliminaron "Pico de Aforo Urbano" y "Distribucion de Incidentes por Categoria y Severidad". Se añadieron:
+- **Promedio de Humedad por Centro** (`barchart`): CASE/LIKE para mapear `entity_id` a nombre de centro, AVG por GROUP BY.
+- **Evolución Crítica de CO2 >800 ppm** (`timeseries`): filtra `co2 > 800`, desglosa por centro.
+
+### SocketIO universal
+
+El `background_update_thread` ahora emite `"update"` (heartbeat) además de `"summary"` cada 30s. La vista Control suscribe a `"update"` para refrescar estadísticas de alertas. Todas las vistas reciben refresco automático sin intervención del usuario.
+
+### i18n completo
+
+Añadidas al objeto `AURA.t` (ES y EN): `history`, `historicalTrend`, `historicalAnalytics`, `alertsTimeline`, `conditionStatus`, `degradationRisk`, `stressAccumulated`, `resolved`, `unresolved`, `from`, `artworks`, `stateOn/Off/Fault/Maintenance`, categorias y severidades de alertas, textos del chatbot AuraBot.
 
 ## 16. Cambios de arquitectura CSS/UI — Sesión 2 (2026-05-06)
 

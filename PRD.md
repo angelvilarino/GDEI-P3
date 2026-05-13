@@ -764,3 +764,132 @@ Tras cargar los datos del centro en modo visitante, `center_detail.js` establece
 - **Solo en Modo Visitante**: el script verifica `isVisitorMode()` (URL con `?mode=visitor`) en `DOMContentLoaded`. Si no hay modo visitante, no se monta ningún elemento en el DOM.
 - **Historial**: guardado en `sessionStorage` (clave `aurabot_history`). Persiste entre navegaciones mientras no se cierre la pestaña o se pulse "Limpiar".
 - **Modelo usado**: `gemini-2.5-flash` (verificado como el modelo más capaz disponible con la key del proyecto).
+
+## 19. Internacionalización Completa — CORRECCIÓN 3 (2026-05-13)
+
+### 19.1 Objetivo
+
+Eliminar el 100% del texto hardcodeado en inglés o español de todos los componentes dinámicos de la aplicación, de forma que al cambiar el idioma mediante el toggle de la Navbar toda la vista activa se actualice instantáneamente sin recargar la página.
+
+Criterio de aceptación: ninguna palabra en el idioma no activo debe aparecer en ninguna vista, incluyendo mensajes de error, estados de dispositivos IoT, etiquetas de gráficas, contenido generado por JavaScript y respuestas del chatbot AuraBot.
+
+### 19.2 Sistema de eventos `aura:langchange`
+
+Se introduce el evento DOM personalizado `aura:langchange` (CustomEvent). `setLang()` en `common.js` lo despacha al documento cada vez que el usuario cambia el idioma. Cada módulo JS de página escucha este evento y re-renderiza sus componentes dinámicos sin necesidad de recargar la página.
+
+```javascript
+// En common.js — setLang():
+document.dispatchEvent(new CustomEvent('aura:langchange', { detail: { lang } }));
+
+// En cada módulo de página:
+document.addEventListener('aura:langchange', () => {
+  if (document.body.getAttribute('data-page') !== '<page>') return;
+  // re-render radar, charts, actuators, visitor content...
+});
+```
+
+### 19.3 Claves nuevas en `AURA.t` (common.js)
+
+Se añaden ~80 claves nuevas al objeto `AURA.t` (ES y EN) cubriendo:
+
+| Grupo | Claves representativas |
+|---|---|
+| Calidad del aire | `airExcellentLabel/Text`, `airGoodLabel/Text`, `airAcceptableLabel/Text`, `airImprovableLabel/Text` |
+| Modo Visitante | `visitorMode`, `visitorBannerCenter`, `visitorBannerRoom`, `backToManager`, `managerMode` |
+| Información de visita | `visitSchedule`, `entryPrice`, `accessibilityLabel`, `checkSchedule`, `checkPrices`, `accessibleCenter` |
+| Textos patrimoniales | `historyAndHeritage`, `aboutCenter`, `centerRoomsSection`, `exposedArtworks` |
+| Niveles de riesgo | `riskLow`, `riskMedium`, `riskHigh`, `riskCritical` |
+| Estado de conservación | `conditionGood`, `conditionWatch`, `conditionRisk`, `conditionCritical`, `conditionUnknown` |
+| Atributos de sala | `groundFloor`, `basementLabel`, `roomSurface`, `roomCurrentOccupancy`, `realTimeConditions` |
+| Radar | `radarActual`, `radarOptimal`, `radarSubtitle` |
+| Modal de zoom | `zoomTitle`, `zoomArtist`, `zoomYear`, `zoomMaterial`, `zoomTechnique`, `zoomRisk`, `zoomStatus`, `zoomOptTemp`, `zoomOptHumidity` |
+| Gráficas | `chartTempLabel`, `chartHumLabel`, `chartCo2Label`, `chartNoiseLabel`, `laeqLabel`, `aggregate4Centers` |
+| Rangos temporales | `lastHour`, `last1Hour`, `last12hShort`, `last24hShort`, `last24Hours` |
+| Chatbot | `aurabotThinking`, `connectionError` |
+| 3D | `room3dHint`, `sensorActive`, `sensorInactive`, `sensorFault`, `backToRoomLabel` |
+| Vacíos / errores | `noArtworksRoom`, `noAlertsInRoom`, `alertsLoadError`, `alertLabel` |
+
+### 19.4 Archivos JavaScript modificados
+
+| Archivo | Cambios |
+|---|---|
+| `common.js` | +80 claves i18n ES/EN; `setLang()` añade `document.documentElement.lang` y despacha `aura:langchange`; `applyVisitorMode()` usa `tr('managerMode')` |
+| `dashboard.js` | Título del gráfico de tendencia usa `tr('aggregate4Centers')`; escucha `aura:langchange` para re-renderizar el gráfico |
+| `center_detail.js` | `airQualityLabel()` usa `tr()`; `bootVisitorCenterDetail()` usa `tr()` para todos los labels; locales de fechas dinámicos (`es-ES`/`en-GB`); escucha `aura:langchange` → recarga histórico, actuadores o vista visitante |
+| `room_artwork.js` | `getRiskLabel()`, `getStressLabel()`, `getStatusBadgeHTML()`, `formatFloor()`, locales de ejes y tooltips, radar labels, galería, modal zoom, tabla de obras, heroes, alertas, vista visitante → todos usan `tr()`; escucha `aura:langchange` → recarga radar, charts, tabla |
+| `control_center.js` | Opciones de filtros de dispositivos usan `tr('allCenters')`, `tr('filterAllRooms')`, `tr('allTypes')`; escucha `aura:langchange` → recarga pestañas activas |
+| `chatbot.js` | Indicador "pensando" usa `tr('aurabotThinking')`; mensaje de error usa `tr('connectionError')`; añade `lang: AURA.lang` al body del POST `/api/chat` |
+| `room_3d.js` | Panel de obra: `tr('degradationRisk')`; panel de sensor: `tr('status')`, `tr('battery')`; tooltip: `tr('status')`; barra de info: `tr('room3dHint')` |
+
+### 19.5 Plantillas HTML modificadas
+
+| Plantilla | Cambios |
+|---|---|
+| `center_detail.html` | `data-i18n` en botón visitante, banner, gauge Ruido, opciones de rango, heading LAeq |
+| `room_artwork.html` | `data-i18n` en botón visitante, banner, hero card (título sala, botón 3D, atributos físicos, mini-dashboard, timestamp, subtítulo radar), opciones de rango, headings de gráficas |
+| `control_center.html` | `data-i18n` en opciones de filtros de dispositivos (centro, sala, tipo, estado) |
+| `twin3d.html` | `data-i18n="noise"` en opción Ruido del selector de variable |
+| `room_3d.html` | `data-i18n` en botón Sala, barra de info, leyenda de sensores |
+
+### 19.6 Backend — AuraBot multiidioma
+
+`_build_chatbot_system_prompt(ctx, lang='es')` en `app.py` acepta ahora el parámetro `lang`. El endpoint `POST /api/chat` lee `lang` del body del request y lo pasa al constructor del prompt. Si `lang == 'en'` se genera un system prompt en inglés con instrucción "Always respond in English"; en caso contrario se mantiene el comportamiento original en español. El mensaje de contexto vacío también se traduce según el idioma.
+
+## 18. Consolidación Final (2026-05-13)
+
+### 18.1 Gestión de activos locales (Imagenes)
+
+**Objetivo**: eliminar dependencias externas (Picsum, Unsplash) para Room y Artwork.
+
+**Cambios**:
+- `scripts/catalog.py`: campo `image` de todos los `ROOMS` (24 salas) actualizado a rutas `/static/images/rooms/<imagen>.jpeg`.
+- `scripts/catalog.py`: campo `image` de 9 `ARTWORKS` con imagen propia actualizado a `/static/images/artworks/<imagen>.jpeg/jpg`. El resto mantiene placeholders Picsum semanticos.
+- `backend/static/images/rooms/` y `backend/static/images/artworks/`: 33 imagenes copiadas desde el directorio `images/` raiz del repo para ser servidas por Flask.
+- Coherencia sala-imagen garantizada: Sala de Ceramica de Sargadelos → `sala_ceramica_sargadelos_bellasartes.jpeg`, Salon de Grabados de Goya → `salon_grabados_goya_bellasartes.jpeg`, etc.
+
+### 18.2 Optimización final de Grafana (auravault_control)
+
+**Paneles eliminados**: "Pico de Aforo Urbano" y "Distribucion de Incidentes por Categoria y Severidad" (datos inconsistentes/irrelevantes).
+
+**Paneles nuevos**:
+
+| Panel | Tipo | SQL (resumen) |
+|---|---|---|
+| Promedio de Humedad por Centro | barchart | `SELECT CASE entity_id → centro, AVG(relativehumidity) FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) GROUP BY centro` |
+| Evolución Critica de CO2 (>800 ppm) | timeseries | `SELECT time_index, centro, co2 FROM etindoorenvironmentobserved WHERE $__timeFilter(time_index) AND co2 > 800` |
+
+Todas las consultas SQL usan `time_index` (columna temporal CrateDB). Los paneles no quedan en blanco si el simulador ha publicado datos en el periodo seleccionado.
+
+### 18.3 Sincronizacion E2E e Inteligencia IoT (30s)
+
+- **Simulador**: `update_state()` recibe ahora el parámetro `cycle` para determinar si es un ciclo de alerta forzada.
+- **Logica de alertas forzadas**: `_ALERT_ROOM_BY_CENTER` asigna una sala por centro; `_ALERT_CYCLE_PERIOD=10`, `_ALERT_CYCLE_DURATION=3`. Cada ~5 minutos se fuerzan 3 ciclos de alerta (90s de condiciones fuera de rango).
+- **SocketIO universal**: `background_update_thread` emite `"update"` (heartbeat) + `"summary"` cada 30s. Todas las vistas (Dashboard, Detalle Centro/Sala, Control) reciben refresco automatico.
+- **control_center.js**: añadido `sock.on('update', ...)` para refrescar estadisticas de alertas sin recargar pagina.
+
+### 18.4 Internacionalización Total (ES/EN)
+
+**Claves añadidas al objeto `AURA.t`** en `common.js` (ambos idiomas):
+
+| Clave | ES | EN |
+|---|---|---|
+| `history` | Historial | History |
+| `historicalTrend` | Tendencia histórica | Historical trend |
+| `historicalAnalytics` | Análisis histórico | Historical analytics |
+| `alertsTimeline` | Línea de tiempo de alertas | Alerts timeline |
+| `conditionStatus` | Estado de condiciones | Condition status |
+| `degradationRisk` | Riesgo de degradación | Degradation risk |
+| `stressAccumulated` | Estrés acumulado | Accumulated stress |
+| `resolved` | Resuelto | Resolved |
+| `unresolved` | Sin resolver | Unresolved |
+| `from` | desde | from |
+| `artworks` | Obras | Artworks |
+| `stateOn/Off/Fault/Maintenance` | Encendido/Apagado/Fallo/Mantenimiento | On/Off/Fault/Maintenance |
+| `alertTypeCO2/Humidity/Temperature/Occupancy/Noise` | CO₂ elevado/Humedad fuera de rango/... | Elevated CO₂/Humidity out of range/... |
+| `alertSeverityCritical/High/Medium/Low` | Crítico/Alto/Medio/Bajo | Critical/High/Medium/Low |
+| `chatClear/Close/Welcome` | Limpiar/Cerrar/Bienvenida | Clear/Close/Welcome |
+| UI extras: `viewIn3D`, `floorLabel`, `capacityLabel`, `hvacStatus`, etc. | ... | ... |
+
+**chatbot.js**: placeholder del input, tooltips de botones y mensaje de bienvenida de AuraBot ahora respetan el idioma activo via `tr()`.
+
+**control_center.js**: función `badgeForState()` usa `tr('stateOn')`, `tr('stateOff')`, etc. para traducir estados de dispositivos.

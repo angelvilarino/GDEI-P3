@@ -136,7 +136,7 @@
           </nav>
         </div>
         <div class="toolbar">
-          <a id="backToRoom" class="btn" href="#"><i class="fas fa-arrow-left"></i> Sala</a>
+          <a id="backToRoom" class="btn" href="#"><i class="fas fa-arrow-left"></i> <span data-i18n="backToRoomLabel">Sala</span></a>
           <button class="btn" id="langToggle">ES</button>
           <button class="btn" id="themeToggle">Oscuro</button>
         </div>
@@ -152,12 +152,12 @@
           <div id="panel-content"></div>
         </div>
 
-        <div id="room-info-bar">Cargando sala...</div>
+        <div id="room-info-bar" data-i18n="loadingRoom">Cargando sala...</div>
 
         <div id="legend-bar">
-          <div><span class="legend-dot" style="background:#2ecc71"></span>Sensor activo (on)</div>
-          <div><span class="legend-dot" style="background:#e74c3c"></span>Sensor inactivo (off)</div>
-          <div><span class="legend-dot" style="background:#e67e22"></span>Sensor en fallo</div>
+          <div><span class="legend-dot" style="background:#2ecc71"></span><span data-i18n="sensorActive">Sensor activo</span> (on)</div>
+          <div><span class="legend-dot" style="background:#e74c3c"></span><span data-i18n="sensorInactive">Sensor inactivo</span> (off)</div>
+          <div><span class="legend-dot" style="background:#e67e22"></span><span data-i18n="sensorFault">Sensor en fallo</span></div>
         </div>
       </div>
     </div>

@@ -45,14 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
     <div id="chatbot-header">
       <span class="chatbot-title"><i class="fas fa-robot"></i> AuraBot</span>
       <div class="chatbot-actions">
-        <button id="chatbot-clear" title="Limpiar conversación"><i class="fas fa-trash-can"></i></button>
-        <button id="chatbot-close" title="Cerrar"><i class="fas fa-xmark"></i></button>
+        <button id="chatbot-clear" title="${typeof tr === 'function' ? tr('chatClear') || 'Limpiar conversación' : 'Limpiar conversación'}"><i class="fas fa-trash-can"></i></button>
+        <button id="chatbot-close" title="${typeof tr === 'function' ? tr('chatClose') || 'Cerrar' : 'Cerrar'}"><i class="fas fa-xmark"></i></button>
       </div>
     </div>
     <div id="chatbot-messages"></div>
     <div id="chatbot-input-row">
-      <input id="chatbot-input" type="text" placeholder="Pregunta sobre la sala, obras, ambiente…" maxlength="400" />
-      <button id="chatbot-send" title="Enviar"><i class="fas fa-paper-plane"></i></button>
+      <input id="chatbot-input" type="text" placeholder="${typeof tr === 'function' ? tr('placeholderChat') || 'Pregunta sobre la sala, obras, ambiente…' : 'Pregunta sobre la sala, obras, ambiente…'}" maxlength="400" />
+      <button id="chatbot-send" title="${typeof tr === 'function' ? tr('send') || 'Enviar' : 'Enviar'}"><i class="fas fa-paper-plane"></i></button>
     </div>
   `;
 
@@ -90,11 +90,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const h = loadHistory();
     messagesEl.innerHTML = '';
     if (!h.length) {
+      const welcome = typeof tr === 'function' ? tr('chatWelcome') : 'Hola, soy AuraBot. Pregúntame sobre las obras expuestas, el ambiente de la sala o la historia del centro.';
       messagesEl.innerHTML = `
         <div class="chatbot-welcome">
           <i class="fas fa-robot"></i>
-          <strong>Hola, soy AuraBot</strong>
-          Pregúntame sobre las obras expuestas, el ambiente de la sala o la historia del centro.
+          <strong>AuraBot</strong>
+          ${escapeHtml(welcome)}
         </div>`;
       return;
     }
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const typing = document.createElement('div');
     typing.className = 'chatbot-msg bot typing';
-    typing.textContent = 'AuraBot está pensando…';
+    typing.textContent = tr('aurabotThinking');
     messagesEl.appendChild(typing);
     scrollDown();
 
@@ -162,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
           messages: history,
           pageUrl: window.location.pathname,
           context: window.AURABOT_CONTEXT || null,
+          lang: AURA.lang,
         }),
       });
       const data = await resp.json();
@@ -181,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
       typing.remove();
       const e = document.createElement('div');
       e.className = 'chatbot-msg error';
-      e.textContent = 'Error de conexión. Inténtalo de nuevo.';
+      e.textContent = tr('connectionError');
       messagesEl.appendChild(e);
     }
 

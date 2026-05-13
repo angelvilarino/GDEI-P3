@@ -34,8 +34,8 @@ El resultado es una solución de dominio cultural interior que integra monitoriz
 - Seguimiento de riesgo de degradación de obras.
 - Gestión de alertas y resolución operativa desde panel de control.
 - Control de actuadores bajo reglas de seguridad y contexto.
-- Modo visitante con lectura simplificada y recomendación de sala.
-- Chatbot contextual con LLM local usando contexto NGSI-LD.
+- Modo visitante con lectura simplificada y chatbot contextual AuraBot (Gemini API).
+- Internacionalización completa ES/EN con cambio instantáneo sin recarga de página, incluyendo gráficas, actuadores, paneles 3D y respuestas del chatbot.
 
 ## 4. Funcionalidades detalladas (resumen del PRD.md)
 
@@ -55,20 +55,17 @@ Vista 7 - Modo Visitante: ofrece una lectura pública, simple y móvil de calida
 
 Capacidades transversales: tiempo real por WebSocket, consulta histórica, trazabilidad semántica entre entidades, exportación de información técnica y soporte bilingüe para experiencia pública.
 
-## 5. Estado actual de la aplicación
+## 5. Estado actual de la aplicación (consolidación final — 2026-05-13)
 
-- Las consultas repetidas al backend usan caché temporal reducida (5s) para asegurar la frescura de los datos en tiempo real sin saturar Orion.
-- Si Orion no devuelve dato vivo, la aplicación consulta el histórico más reciente disponible para evitar pantallas vacías.
-- La interfaz visualiza valores ausentes como ausencia de dato, no como cero artificial.
-- El mapa global incorpora hover con contexto y navegación directa al detalle de centro.
-- La vista de centros usa búsqueda de texto y tarjetas con imagen real de cada centro.
-- El gemelo 3D y la vista de sala muestran información contextual en paneles laterales fijos, mejorando el uso de la pantalla.
-- La vista pública y el panel de sala/obra usan soporte bilingüe para labels y mensajes principales.
-- La ingesta de datos de Orion resuelve transparentemente los atributos encapsulados en arreglos, asegurando KPIs precisos.
-- Las gráficas analíticas separan los ejes Y por magnitud para evitar superposición visual en el histórico.
-- Sincronización en tiempo real (heartbeat 30s) mediante SocketIO y fetch periódico optimizado en el explorador de centros (actualizando métricas textuales sin re-renderizado), permitiendo actualizaciones fluidas de KPIs y alertas. El simulador MQTT publica cada 30 segundos para mantener coherencia con el intervalo de refresco.
-- Interfaz premium con gráficas sparkline interactivas (hover con timestamp y valor exacto) y ejes temporales visibles, optimizando la comparativa visual inmediata.
-- Gestión automática de suscripciones Orion-LD que asegura la recepción inmediata de eventos ambientales y críticos.
+- **Imagenes locales**: Todas las salas usan imagenes JPEG propias servidas desde `/static/images/rooms/`. Las obras clave de Sargadelos, Goya, Brocos, Asorey, Lente Fresnel y Cornellis de Vos usan sus imagenes en `/static/images/artworks/`. El resto usa placeholders semanticos.
+- **Simulador MQTT con alertas forzadas**: el simulador publica cada 30 segundos. Cada ~5 minutos, la sala designada de cada centro genera periodicamente alertas de "Humedad fuera de rango" o "CO2 elevado" de forma determinista, garantizando datos de alerta visibles en Grafana y en la interfaz.
+- **Grafana auravault_control** consolidado con 7 paneles: se eliminaron "Pico de Aforo Urbano" y "Distribucion de Incidentes" y se incorporaron "Promedio de Humedad por Centro" (barchart) y "Evolucion Critica de CO2 >800 ppm" (timeseries). Todas las consultas SQL usan `time_index` y la tabla `etindoorenvironmentobserved`.
+- **i18n ES/EN completo (CORRECCIÓN 3)**: El objeto `AURA.t` en `common.js` cubre el 100% de las cadenas de texto visibles para el usuario. `setLang()` despacha el evento `aura:langchange` al documento; cada módulo JS escucha este evento y re-renderiza sus componentes dinámicos (Chart.js, radares, actuadores, paneles 3D, vista visitante) sin recargar la página. Ninguna palabra hardcodeada en inglés o español queda en las vistas activas al cambiar el idioma.
+- **Chatbot AuraBot multiidioma** (Modo Visitante): usa Gemini API (`gemini-2.5-flash`) con contexto en tiempo real de la sala o centro. Responde en el idioma activo (ES/EN) gracias al campo `lang` enviado desde el frontend y al system prompt dinámico en `app.py`. Basado en el modelo `gemini-2.5-flash` de Google, accedido como servicio cloud desde el backend Flask.
+- **Refresco SocketIO universal**: el hilo de fondo del backend emite `"summary"` + `"update"` cada 30s. El endpoint `/notify` propaga eventos por entidad. Todas las vistas (Dashboard, Detalle de Centro/Sala, Control) suscriben al menos a `"update"` o `"summary"` para actualizarse sin recarga manual.
+- Las consultas repetidas al backend usan caché temporal de 5s para asegurar frescura sin saturar Orion.
+- Las gráficas analíticas separan ejes Y por magnitud para evitar superposición visual en el historico.
+- Gestión automática de suscripciones Orion-LD garantiza recepción inmediata de eventos ambientales y criticos.
 
 ## 6. Diagrama de la arquitectura
 

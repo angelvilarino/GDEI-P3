@@ -194,7 +194,7 @@ async function loadTrend() {
         legend: { position: 'bottom' },
         title: {
           display: true,
-          text: `${tr('last6Hours')} — Evolución agregada de los 4 centros — ${tr('from')} ${formatTimestampLabel(earliest, '6h')} ${tr('to')} ${formatTimestampLabel(latest, '6h')}`,
+          text: `${tr('last6Hours')} — ${tr('aggregate4Centers')} — ${tr('from')} ${formatTimestampLabel(earliest, '6h')} ${tr('to')} ${formatTimestampLabel(latest, '6h')}`,
         },
         tooltip: {
           callbacks: {
@@ -309,4 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.body.getAttribute('data-page') === 'dashboard') {
     bootDashboard().catch((err) => console.error(err));
   }
+});
+
+document.addEventListener('aura:langchange', () => {
+  if (document.body.getAttribute('data-page') !== 'dashboard') return;
+  if (trendChart) loadTrend().catch(() => {});
 });

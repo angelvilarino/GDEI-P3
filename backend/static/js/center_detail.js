@@ -126,7 +126,8 @@ function buildSingleChart(id, label, data, rawLabels, color, unit, range) {
                 const ts = context[0].label;
                 const d = new Date(ts);
                 if (Number.isNaN(d.getTime())) return ts;
-                return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
+                return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             },
             label(context) {
               return `${label}: ${formatMetric(context.parsed.y, { digits: 1, unit, zeroAsMissing: false })}`;
@@ -149,20 +150,21 @@ function buildSingleChart(id, label, data, rawLabels, color, unit, range) {
                     const h = d.getHours();
                     const s = d.getSeconds();
 
+                    const locale = AURA.lang === 'en' ? 'en-GB' : 'es-ES';
                     if (range === '1h') {
                         // cada 10 min
                         if (m % 10 === 0 && s < 30) {
-                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                         }
                     } else if (range === '12h') {
                         // cada hora
                         if (m === 0) {
-                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                            return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
                         }
                     } else if (range === '24h') {
                         // cada 2 horas
                         if (h % 2 === 0 && m === 0) {
-                            return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                            return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
                         }
                     }
                     return '';
@@ -183,7 +185,7 @@ async function loadHistory(code) {
   buildSingleChart('chartTemp', tr('temperature'), history.temperature.map(p => p.value), rawLabels, '#0e7c74', '°C', range);
   buildSingleChart('chartHum', tr('humidity'), history.relativeHumidity.map(p => p.value), rawLabels, '#3d9ecf', '%', range);
   buildSingleChart('chartCo2', tr('co2'), history.co2.map(p => p.value), rawLabels, '#d27d3f', 'ppm', range);
-  buildSingleChart('chartNoise', 'Noise (LAeq)', history.LAeq.map(p => p.value), rawLabels, '#7c5bd6', 'dB', range);
+  buildSingleChart('chartNoise', tr('laeqLabel'), history.LAeq.map(p => p.value), rawLabels, '#7c5bd6', 'dB', range);
   buildSingleChart('chartCrowd', tr('occupancy'), history.peopleCount.map(p => p.value), rawLabels, '#a86b18', 'pax', range);
 }
 
@@ -196,19 +198,19 @@ async function loadActuators(code) {
         const status = a.status || 'off';
         let statusText, statusColor, badgeColor, isChecked, isDisabled;
         if (status === 'on') {
-          statusText = 'Activo';
+          statusText = tr('actuatorActive');
           statusColor = '#2ecc71';
           badgeColor = '#2ecc71';
           isChecked = true;
           isDisabled = false;
         } else if (status === 'off') {
-          statusText = 'Inactivo';
+          statusText = tr('actuatorInactive');
           statusColor = '#e74c3c';
           badgeColor = '#e74c3c';
           isChecked = false;
           isDisabled = false;
         } else {
-          statusText = 'Error';
+          statusText = tr('actuatorError');
           statusColor = '#e67e22';
           badgeColor = '#e67e22';
           isChecked = false;
@@ -253,10 +255,10 @@ async function loadActuators(code) {
 }
 
 function airQualityLabel(co2) {
-  if (!co2 || co2 < 600) return { cls: 'excellent', label: 'Excelente',  text: 'La calidad del aire es excelente. Perfecta para la visita.',   faIcon: 'fa-wind' };
-  if (co2 < 900)         return { cls: 'good',      label: 'Buena',      text: 'La calidad del aire es buena. Condiciones óptimas.',            faIcon: 'fa-wind' };
-  if (co2 < 1200)        return { cls: 'acceptable', label: 'Aceptable', text: 'La calidad del aire es aceptable.',                             faIcon: 'fa-wind' };
-  return                        { cls: 'improvable', label: 'Mejorable', text: 'La calidad del aire es mejorable en este momento.',              faIcon: 'fa-triangle-exclamation' };
+  if (!co2 || co2 < 600) return { cls: 'excellent',  label: tr('airExcellentLabel'),  text: tr('airExcellentText'),  faIcon: 'fa-wind' };
+  if (co2 < 900)         return { cls: 'good',       label: tr('airGoodLabel'),       text: tr('airGoodText'),       faIcon: 'fa-wind' };
+  if (co2 < 1200)        return { cls: 'acceptable', label: tr('airAcceptableLabel'), text: tr('airAcceptableText'), faIcon: 'fa-wind' };
+  return                        { cls: 'improvable', label: tr('airImprovableLabel'), text: tr('airImprovableText'), faIcon: 'fa-triangle-exclamation' };
 }
 
 async function bootVisitorCenterDetail(code) {
@@ -280,16 +282,16 @@ async function bootVisitorCenterDetail(code) {
   const infoCards = `
     <div class="visitor-info-cards">
       <div class="card visitor-info-card">
-        <span class="visitor-info-card-label"><i class="fas fa-clock fa-fw"></i> Horarios de visita</span>
-        <span class="visitor-info-card-value">${escapeHtml(vc.schedule || 'Consulte horarios en recepción')}</span>
+        <span class="visitor-info-card-label"><i class="fas fa-clock fa-fw"></i> ${tr('visitSchedule')}</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.schedule || tr('checkSchedule'))}</span>
       </div>
       <div class="card visitor-info-card">
-        <span class="visitor-info-card-label"><i class="fas fa-ticket fa-fw"></i> Precio de entrada</span>
-        <span class="visitor-info-card-value">${escapeHtml(vc.price || 'Consulte precios en taquilla')}</span>
+        <span class="visitor-info-card-label"><i class="fas fa-ticket fa-fw"></i> ${tr('entryPrice')}</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.price || tr('checkPrices'))}</span>
       </div>
       <div class="card visitor-info-card">
-        <span class="visitor-info-card-label"><i class="fas fa-wheelchair fa-fw"></i> Accesibilidad</span>
-        <span class="visitor-info-card-value">${escapeHtml(vc.accessibility || 'Centro accesible')}</span>
+        <span class="visitor-info-card-label"><i class="fas fa-wheelchair fa-fw"></i> ${tr('accessibilityLabel')}</span>
+        <span class="visitor-info-card-value">${escapeHtml(vc.accessibility || tr('accessibleCenter'))}</span>
       </div>
     </div>`;
 
@@ -314,11 +316,11 @@ async function bootVisitorCenterDetail(code) {
           <img class="visitor-center-image" src="${imgSrc}" alt="${escapeHtml(center.name)}" onerror="this.src='${FALLBACK}'" />
           <div class="visitor-info-stack">
             <div class="visitor-info-block">
-              <span class="visitor-info-label">Historia y patrimonio</span>
+              <span class="visitor-info-label">${tr('historyAndHeritage')}</span>
               <p class="visitor-info-value">${escapeHtml(vc.history || center.description || '')}</p>
             </div>
             <div class="visitor-info-block">
-              <span class="visitor-info-label">Sobre el centro</span>
+              <span class="visitor-info-label">${tr('aboutCenter')}</span>
               <p class="visitor-info-value">${escapeHtml(vc.culturalDescription || '')}</p>
             </div>
             <div class="visitor-air-summary ${aq.cls}">
@@ -334,7 +336,7 @@ async function bootVisitorCenterDetail(code) {
       ${infoCards}
       ${rooms.length > 0 ? `
       <div class="card visitor-rooms-section fade-up">
-        <h3><i class="fas fa-door-open"></i> Salas del centro</h3>
+        <h3><i class="fas fa-door-open"></i> ${tr('centerRoomsSection')}</h3>
         <div class="visitor-rooms-scroll">${roomCards}</div>
       </div>` : ''}
     </div>`;
@@ -386,4 +388,15 @@ async function bootCenterDetail() {
 document.addEventListener('DOMContentLoaded', () => {
   if (document.body.getAttribute('data-page') !== 'center-detail') return;
   bootCenterDetail().catch((err) => console.error(err));
+});
+
+document.addEventListener('aura:langchange', () => {
+  if (document.body.getAttribute('data-page') !== 'center-detail') return;
+  const code = centerCodeFromPath();
+  if (isVisitorMode()) {
+    bootVisitorCenterDetail(code).catch(() => {});
+  } else {
+    loadHistory(code).catch(() => {});
+    loadActuators(code).catch(() => {});
+  }
 });

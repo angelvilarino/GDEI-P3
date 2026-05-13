@@ -1947,18 +1947,30 @@ def _chatbot_center_context(center_id: str) -> str:
         return f"\n\nNo se pudo obtener contexto del centro: {exc}"
 
 
-def _build_chatbot_system_prompt(ctx: Optional[Dict]) -> str:
-    base = (
-        "Eres AuraBot, el asistente inteligente de AuraVault para visitantes de centros culturales. "
-        "Tu misión es ayudar a los visitantes a descubrir las obras, entender el ambiente de la sala "
-        "y conocer la historia del centro. Responde siempre en español, de forma amigable, cercana y concisa. "
-        "Si el visitante pregunta por una obra concreta, da todos los datos que tengas. "
-        "Si preguntan si está concurrido, usa el dato de aforo u ocupación. "
-        "Cuando hables de riesgo de degradación de obras, explica en términos sencillos qué significa "
-        "y qué condiciones ambientales lo causan."
-    )
+def _build_chatbot_system_prompt(ctx: Optional[Dict], lang: str = "es") -> str:
+    if lang == "en":
+        base = (
+            "You are AuraBot, AuraVault's intelligent assistant for visitors to cultural centers. "
+            "Your mission is to help visitors discover artworks, understand the room environment "
+            "and learn about the center's history. Always respond in English, in a friendly, warm and concise way. "
+            "If the visitor asks about a specific artwork, provide all the data you have. "
+            "If they ask whether it is crowded, use the occupancy data. "
+            "When discussing artwork degradation risk, explain in simple terms what it means "
+            "and what environmental conditions cause it."
+        )
+    else:
+        base = (
+            "Eres AuraBot, el asistente inteligente de AuraVault para visitantes de centros culturales. "
+            "Tu misión es ayudar a los visitantes a descubrir las obras, entender el ambiente de la sala "
+            "y conocer la historia del centro. Responde siempre en español, de forma amigable, cercana y concisa. "
+            "Si el visitante pregunta por una obra concreta, da todos los datos que tengas. "
+            "Si preguntan si está concurrido, usa el dato de aforo u ocupación. "
+            "Cuando hables de riesgo de degradación de obras, explica en términos sencillos qué significa "
+            "y qué condiciones ambientales lo causan."
+        )
     if not ctx:
-        return base + "\n\nNo hay datos de contexto disponibles en este momento."
+        no_ctx = "No context data is currently available." if lang == "en" else "No hay datos de contexto disponibles en este momento."
+        return base + f"\n\n{no_ctx}"
 
     tipo = ctx.get("tipo", "")
     lines = ["\n\n--- DATOS ACTUALES DE LA PÁGINA ---"]
@@ -2040,6 +2052,7 @@ def api_chat():
     payload = request.get_json(force=True, silent=True) or {}
     messages = payload.get("messages", [])
     ctx = payload.get("context")  # contexto enviado desde el frontend
+    lang = payload.get("lang", "es")
 
     key_path = Path(__file__).parent / "gemini.key"
     try:
@@ -2047,7 +2060,7 @@ def api_chat():
     except FileNotFoundError:
         return jsonify({"error": "Gemini API key no configurada"}), 500
 
-    system_prompt = _build_chatbot_system_prompt(ctx)
+    system_prompt = _build_chatbot_system_prompt(ctx, lang=lang)
 
     gemini_contents = []
     for msg in messages:
@@ -2169,13 +2182,14 @@ def ensure_orion_subscriptions():
 
 
 def background_update_thread():
-    """Hilo para emitir actualizaciones de dashboard cada 30 segundos."""
+    """Emite resumen de dashboard y señal de refresco a todas las vistas cada 30 segundos."""
     LOGGER.info("Iniciando hilo de actualización en tiempo real (30s)...")
     while True:
         try:
             with app.app_context():
                 summary = api_dashboard_summary().get_json()
                 socketio.emit("summary", summary)
+                socketio.emit("update", {"action": "heartbeat", "timestamp": utc_now()})
         except Exception as e:
             LOGGER.error("Error en background_update_thread: %s", e)
         time.sleep(30)

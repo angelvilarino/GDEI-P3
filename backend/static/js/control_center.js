@@ -22,10 +22,11 @@ function removeControlAlertRow(alertId) {
 }
 
 function badgeForState(state) {
-  if (state === 'off') return '<span class="badge attention">off</span>';
-  if (state === 'fault') return '<span class="badge critical">fault</span>';
-  if (state === 'maintenance') return '<span class="badge attention">maintenance</span>';
-  return '<span class="badge optimal">on</span>';
+  const labels = { off: tr('stateOff') || 'off', fault: tr('stateFault') || 'fault', maintenance: tr('stateMaintenance') || 'maintenance', on: tr('stateOn') || 'on' };
+  if (state === 'off') return `<span class="badge attention">${labels.off}</span>`;
+  if (state === 'fault') return `<span class="badge critical">${labels.fault}</span>`;
+  if (state === 'maintenance') return `<span class="badge attention">${labels.maintenance}</span>`;
+  return `<span class="badge optimal">${labels.on}</span>`;
 }
 
 function deviceBatteryBar(level) {
@@ -209,7 +210,7 @@ async function loadDevicesTab() {
   });
 
   const savedCenter = centerSel.value;
-  centerSel.innerHTML = `<option value="">Centro: todos</option>` +
+  centerSel.innerHTML = `<option value="">${tr('allCenters')}</option>` +
     Object.entries(centerMap)
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([code, name]) => `<option value="${escapeHtml(code)}">${escapeHtml(name)}</option>`)
@@ -231,11 +232,11 @@ async function loadDevicesTab() {
       const names = [...new Set(
         _allDevices.filter(d => d.centerCode === code).map(d => d.roomName).filter(Boolean)
       )].sort();
-      roomSel.innerHTML = `<option value="">Sala: todas</option>` +
+      roomSel.innerHTML = `<option value="">${tr('filterAllRooms')}</option>` +
         names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
       roomSel.style.display = '';
     } else {
-      roomSel.innerHTML = '<option value="">Sala: todas</option>';
+      roomSel.innerHTML = `<option value="">${tr('filterAllRooms')}</option>`;
       roomSel.style.display = 'none';
     }
     renderDevicesHierarchy();
@@ -250,7 +251,7 @@ async function loadDevicesTab() {
       _allDevices.filter(d => d.centerCode === savedCenter).map(d => d.roomName).filter(Boolean)
     )].sort();
     if (names.length) {
-      roomSel.innerHTML = `<option value="">Sala: todas</option>` +
+      roomSel.innerHTML = `<option value="">${tr('filterAllRooms')}</option>` +
         names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
       roomSel.style.display = '';
     }
@@ -391,7 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
   wireTabs();
   setTab('alerts');
   loadAlertsTab().catch((err) => console.error(err));
-  ensureSocket().on('alerts', async (data) => {
+  const sock = ensureSocket();
+  sock.on('alerts', async (data) => {
     if (data && data.action === 'resolved' && data.alertId) {
       const removed = removeControlAlertRow(data.alertId);
       if (removed) {
@@ -401,5 +403,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     await loadAlertsTab();
   });
-  ensureSocket().on('devices', () => loadDevicesTab());
+  sock.on('devices', () => loadDevicesTab());
+  sock.on('update', () => refreshAlertsStats().catch(() => {}));
+});
+
+document.addEventListener('aura:langchange', () => {
+  if (document.body.getAttribute('data-page') !== 'control-center') return;
+  loadAlertsTab().catch(() => {});
+  if (_allDevices) loadDevicesTab().catch(() => {});
 });

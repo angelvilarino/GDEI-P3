@@ -1,62 +1,94 @@
-# AuraVault MVP (Fase 1 + Fase 2)
+# AuraVault MVP — Consolidación Final
 
-MVP completo de inteligencia ambiental para espacios culturales de interior sobre FIWARE (NGSI-LD), con backend Flask, frontend 7 vistas, simulacion IoT MQTT, historicos en QuantumLeap/CrateDB y dashboards Grafana provisionados.
+MVP de inteligencia ambiental para espacios culturales de interior sobre FIWARE (NGSI-LD), con backend Flask, frontend 8 vistas, simulacion IoT MQTT con alertas periodicas, historicos en QuantumLeap/CrateDB, dashboards Grafana provisionados e i18n ES/EN completo.
 
-## 1. Componentes del stack
+## 1. Stack tecnologico
 
-- Orion-LD + MongoDB: contexto actual NGSI-LD.
-- IoT Agent JSON + Mosquitto: ingestion IoT por MQTT.
-- QuantumLeap + CrateDB: historico temporal.
-- Backend Flask + SocketIO: API REST, reglas de negocio, ML, websocket y UI.
-- Grafana: visualizacion historica provisionada por archivo.
-- Ollama (opcional): soporte de chatbot local.
+| Componente | Rol | Puerto |
+|---|---|---|
+| Orion-LD + MongoDB | Contexto actual NGSI-LD | 1026 / 27017 |
+| IoT Agent JSON + Mosquitto | Ingestion IoT por MQTT | 4041/7896 / 1883 |
+| QuantumLeap + CrateDB | Historico temporal | 8668 / 4200/5432 |
+| Flask + SocketIO | API REST, ML, websocket, UI | 5000 |
+| Grafana | Dashboards provisionados | 3000 |
+| Gemini API | Chatbot AuraBot (visitante) | cloud |
 
-## 2. Estructura principal
+## 2. Estructura del proyecto
 
-- `backend/app.py`: servidor Flask + rutas UI/API + `/notify` + modelos ML.
-- `scripts/import_data.py`: carga estatica NGSI-LD (centros, salas, obras, dispositivos, actuadores).
-- `scripts/generate_history.py`: semilla de historico (30 dias, 5 min).
-- `scripts/provision_iot_agent.py`: provision del IoT Agent (service group + devices).
-- `scripts/create_subscriptions.py`: suscripciones Orion -> QuantumLeap y Orion -> backend `/notify`.
-- `simulator/mqtt_simulator.py`: simulador realtime MQTT cada 30 segundos.
-- `docker-compose.yml`: orquestacion completa.
-- `start.sh` / `stop.sh`: arranque y parada del entorno.
-- `grafana/provisioning/**` + `grafana/dashboards/**`: datasource + dashboard inicial.
+```
+backend/
+  app.py              — servidor Flask + API + /notify + ML + SocketIO
+  static/
+    css/style.css
+    js/common.js      — traducciones ES/EN, helpers globales
+    js/dashboard.js   — dashboard global
+    js/centers.js     — catalogo de centros
+    js/center_detail.js
+    js/room_artwork.js
+    js/control_center.js
+    js/chatbot.js     — AuraBot (modo visitante)
+    js/visitor.js
+    js/twin3d.js
+    js/room_3d.js
+    images/
+      rooms/          — imagenes locales de salas (24 imagenes)
+      artworks/       — imagenes locales de obras (9 imagenes)
+  templates/          — 8 plantillas HTML con data-i18n completo
+scripts/
+  catalog.py          — datos maestros de centros, salas y obras
+  import_data.py      — carga NGSI-LD en Orion
+  provision_iot_agent.py
+  create_subscriptions.py
+  generate_history.py
+simulator/
+  mqtt_simulator.py   — simulador MQTT 30s con alertas periodicas forzadas
+grafana/
+  dashboards/
+    auravault_overview.json
+    auravault_control.json    — dashboard de control con 7 paneles
+    auravault_center_detail.json
+  provisioning/
+    datasources/datasource.yml
+    dashboards/dashboards.yml
+docker-compose.yml
+start.sh / stop.sh
+```
 
 ## 3. Requisitos
 
 - Docker >= 24
 - Docker Compose plugin >= 2.20
-- 6 GB RAM recomendados (por CrateDB + Grafana + Ollama)
+- 6 GB RAM recomendados (por CrateDB + Grafana)
+- Clave de API Gemini en `backend/gemini.key` (para chatbot visitante)
 
 ## 4. Arranque rapido
-
-Desde la raiz del repo:
 
 ```bash
 ./start.sh
 ```
 
-El script realiza:
-
+El script:
 1. `docker compose up -d --build`
 2. Espera de salud de todos los servicios
 3. Provision del IoT Agent
-4. Import de datos base NGSI-LD en Orion
-5. Creacion de suscripciones Orion
+4. Import de datos base NGSI-LD en Orion (salas e imagenes locales)
+5. Creacion de suscripciones Orion → QuantumLeap y → backend `/notify`
 6. Generacion de historico en QuantumLeap
 7. Arranque del simulador MQTT en background
 
 ### URLs principales
 
-- Aplicacion web: [http://localhost:5000](http://localhost:5000)
-- Dashboard global: [http://localhost:5000/](http://localhost:5000/)
-- Centros: [http://localhost:5000/centers](http://localhost:5000/centers)
-- Centro de control: [http://localhost:5000/control](http://localhost:5000/control)
-- Modo visitante (ejemplo): [http://localhost:5000/visitor/urn:ngsi-ld:Museum:muncyt](http://localhost:5000/visitor/urn:ngsi-ld:Museum:muncyt)
-- Orion-LD: [http://localhost:1026](http://localhost:1026)
-- QuantumLeap: [http://localhost:8668](http://localhost:8668)
-- Grafana: [http://localhost:3000](http://localhost:3000) (admin/admin)
+| Servicio | URL |
+|---|---|
+| Aplicacion web | http://localhost:5000 |
+| Dashboard global | http://localhost:5000/ |
+| Centros | http://localhost:5000/centers |
+| Control | http://localhost:5000/control |
+| Modo visitante | http://localhost:5000/visitor/urn:ngsi-ld:Museum:muncyt-coruna |
+| Orion-LD | http://localhost:1026 |
+| QuantumLeap | http://localhost:8668 |
+| Grafana | http://localhost:3000 (admin/admin) |
+| CrateDB Admin | http://localhost:4200 |
 
 ## 5. Parada
 
@@ -64,49 +96,111 @@ El script realiza:
 ./stop.sh
 ```
 
-## 6. Frontend implementado (7 vistas)
+## 6. Frontend — 8 vistas
 
-1. `dashboard.html`: KPIs globales, mapa, alertas y modelo.
-2. `centers.html`: catalogo de centros con filtros.
-3. `center_detail.html`: gauges, historico, actuadores, salas y obras en riesgo.
-4. `twin3d.html`: gemelo digital 3D con Three.js.
-5. `room_artwork.html`: detalle de sala, radar, historico y comparador de obras.
-6. `control_center.html`: tabs de alertas, dispositivos y Grafana embebido.
-7. `visitor.html`: modo publico simplificado y chat.
+| Vista | Fichero | Descripcion |
+|---|---|---|
+| Dashboard global | `dashboard.html` | KPIs, mapa Leaflet, alertas, modelo de datos |
+| Catalogo de centros | `centers.html` | Tarjetas con filtros y busqueda |
+| Detalle de centro | `center_detail.html` | Gauges, historico, actuadores, alertas, salas |
+| Detalle sala/obra | `room_artwork.html` | Radar ambiental, comparador obras, historico |
+| Gemelo 3D centro | `twin3d.html` | Modelo Three.js de centro con colores IoT |
+| Vista 3D sala | `room_3d.html` | Sala individual Three.js |
+| Centro de control | `control_center.html` | Tabs: Alertas / Dispositivos / Grafana embed |
+| Modo visitante | `visitor.html` | Vista simplificada + AuraBot (Gemini) |
 
-## 7. APIs clave
+## 7. Simulador IoT — comportamiento
 
-- `GET /api/dashboard/summary`
-- `GET /api/model/graph`
-- `GET /api/centers`
-- `GET /api/centers/<center_id>/snapshot`
-- `GET /api/centers/<center_id>/history`
-- `GET /api/rooms/<room_id>`
-- `GET /api/rooms/<room_id>/history`
-- `POST /api/actuators/<actuator_id>/command`
-- `POST /notify`
+El simulador publica datos cada 30 segundos para las 24 salas (4 centros × 6 salas). Cada ciclo incluye:
+- Sensor ambiental: temperatura, humedad, CO2, iluminancia, presion
+- Sensor de ruido: LAeq, LAmax, LAS
+- Sensor de aforo: peopleCount, occupancy
+- Estado de dispositivos y actuador HVAC
 
-## 8. Datos reales utilizados
+**Alertas forzadas periodicas:** cada 10 ciclos (~5 minutos), durante 3 ciclos consecutivos, la sala designada de cada centro genera una alerta alternando entre:
+- Humedad fuera de rango (>65%) — ciclos pares
+- CO2 elevado (>800 ppm) — ciclos impares
 
-Los catalogos incluyen centros, salas y obras con metadatos reales y enlaces de imagen accesibles en abierto.
-La normalizacion de catalogo se concentra en `scripts/catalog.py` para mantener coherencia entre importador, backend e IoT simulator.
+Salas designadas para alerta:
+- MUNCYT → Sala Creador.es
+- Bellas Artes → Sala de Ceramica de Sargadelos
+- Rosalia → Patio de Butacas
+- Opera → Auditorio Principal
 
-## 9. Grafana provisioning
+## 8. Grafana — dashboards provisionados
 
-Se provisiona automaticamente:
+### auravault_control.json (7 paneles)
 
-- Data source: `AuraVault-CrateDB` (PostgreSQL wire protocol sobre CrateDB).
-- Dashboard: `AuraVault Overview` (`uid: auravault-overview`).
+| Panel | Tipo | Descripcion |
+|---|---|---|
+| Temperatura Promedio | stat | AVG temperatura en periodo |
+| Humedad Promedio | stat | AVG humedad en periodo |
+| Lecturas en Alerta | stat | COUNT lecturas con CO2>700 o humedad>65 o temp>26 |
+| Mapa de Calor — Alertas | status-history | Frecuencia de alertas por centro/hora |
+| Ranking CO2 | table | Top 5 salas por CO2 max/promedio |
+| **Promedio de Humedad por Centro** | barchart | AVG humedad comparativa entre los 4 centros |
+| **Evolución Critica CO2 (>800 ppm)** | timeseries | Lecturas de CO2 superiores a 800 ppm en 24h |
 
-Rutas de provisioning:
+Todas las consultas usan `time_index` y la tabla `etindoorenvironmentobserved`.
 
-- `grafana/provisioning/datasources/datasource.yml`
-- `grafana/provisioning/dashboards/dashboards.yml`
-- `grafana/dashboards/auravault_overview.json`
+## 9. Chatbot AuraBot
 
-## 10. Validacion recomendada (smoke test)
+AuraBot es el asistente conversacional de AuraVault, disponible exclusivamente en Modo Visitante (`?mode=visitor`) desde las páginas de detalle de centro y detalle de sala.
 
-Tras levantar el stack:
+**Base tecnológica**: AuraBot está impulsado por **Gemini API** de Google, concretamente el modelo `gemini-2.5-flash`, accedido como servicio cloud desde el backend Flask mediante peticiones HTTPS. La API key se almacena únicamente en el servidor (`backend/gemini.key`, excluido de git) y nunca se expone al frontend.
+
+**Funcionamiento**:
+1. El frontend construye `window.AURABOT_CONTEXT` con los datos ya cargados en pantalla (sala, obras, métricas ambientales en tiempo real) y lo envía junto con el historial de conversación a `POST /api/chat`.
+2. Flask inyecta ese contexto en el system prompt de Gemini e incluye el idioma activo (`lang`) para que las respuestas respeten la preferencia de ES/EN del visitante.
+3. Gemini genera una respuesta en lenguaje natural; Flask la retransmite al widget del frontend.
+4. El historial persiste en `sessionStorage` (máx. 40 mensajes) mientras la pestaña esté abierta.
+
+**Para activarlo**: añadir `backend/gemini.key` con una clave válida de Gemini API antes de arrancar el sistema.
+
+## 10. i18n ES/EN
+
+La aplicacion soporta cambio de idioma en tiempo real mediante el toggle de la Navbar. Al cambiar el idioma se despacha el evento DOM `aura:langchange`; todos los módulos JS escuchan este evento y re-renderizan sus componentes dinámicos (gráficas, radar, actuadores, paneles 3D, vista visitante) sin recargar la página.
+
+Las traducciones se encuentran en el objeto `AURA.t` dentro de `backend/static/js/common.js` e incluyen:
+
+- Métricas de sensores (temperatura, humedad, CO2, aforo, ruido)
+- Estados de dispositivos y actuadores
+- Categorías y severidades de alertas
+- Etiquetas de gráficas (Chart.js) y ejes con formato de fecha localizado
+- Niveles de riesgo y estado de conservación de obras
+- Contenido de la vista visitante (calidad del aire, horarios, patrimonio)
+- Textos del widget AuraBot (indicador "pensando", mensajes de error)
+- Botones, placeholders, tooltips y opciones de filtros
+
+**Las respuestas de AuraBot (Gemini) también respetan el idioma activo**: el frontend envía `lang` en cada petición al chatbot y el backend construye el system prompt en el idioma correspondiente.
+
+## 11. APIs clave
+
+```
+GET  /api/dashboard/summary
+GET  /api/model/graph
+GET  /api/centers
+GET  /api/centers/<id>/snapshot
+GET  /api/centers/<id>/history
+GET  /api/rooms/<id>
+GET  /api/rooms/<id>/history
+GET  /api/rooms/<id>/sensor-history
+GET  /api/artworks/<id>/history
+POST /api/actuators/<id>/command
+POST /notify
+GET  /api/socket/info
+```
+
+## 12. Imagenes locales
+
+Todas las salas y obras clave usan imagenes locales servidas desde `/static/images/`:
+
+- `static/images/rooms/` — 24 imagenes JPEG (una por sala)
+- `static/images/artworks/` — 9 imagenes JPEG/JPG (obras con imagen especifica)
+
+Las obras sin imagen local usan placeholders semanticos de Picsum Photos.
+
+## 13. Smoke test
 
 ```bash
 curl -s http://localhost:5000/api/model/graph | jq .
@@ -114,16 +208,14 @@ curl -s http://localhost:5000/api/dashboard/summary | jq .kpis
 curl -s http://localhost:1026/version
 curl -s http://localhost:8668/version
 curl -s http://localhost:3000/api/health
+# Verificar imagen local:
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/static/images/rooms/piezas_con_memoria.jpeg
 ```
 
-## 11. Notas operativas
+## 14. Troubleshooting
 
-- El pull del modelo de Ollama es opcional. Si falla, el backend mantiene respuestas fallback del asistente.
-- `start.sh` es idempotente para entorno de desarrollo: reimporta datos con `--reset` y reactiva simulador.
-- Si se modifica el dashboard de Grafana desde UI, los archivos de provisioning no se sobreescriben automaticamente.
-
-## 12. Troubleshooting rapido
-
-- Si IoT Agent no aparece healthy: revisar logs de `auravault-iot-agent` y conectividad con Orion/Mosquitto.
-- Si no hay historico en charts: revisar `auravault-quantumleap` y que `scripts/create_subscriptions.py` se haya ejecutado.
-- Si el chat local tarda: comprobar `auravault-ollama` y disponibilidad del modelo `gemma3:latest`.
+- **Sin historico en graficas**: revisar `auravault-quantumleap` y que `create_subscriptions.py` se haya ejecutado.
+- **IoT Agent no healthy**: revisar logs de `auravault-iot-agent` y conectividad con Orion/Mosquitto.
+- **Chatbot no responde**: verificar clave Gemini en `backend/gemini.key`.
+- **Imagenes no cargan**: confirmar que `backend/static/images/` tiene el contenido de `images/` (lo copia `start.sh`).
+- **Grafana paneles en blanco**: asegurarse de que el simulador ha publicado datos y que QuantumLeap ha escrito en CrateDB.
