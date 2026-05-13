@@ -1,0 +1,118 @@
+Verificando URLs de imágenes de obras...
+
+✗ Automovil Abarth 1000: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1983_002_0069_SEQ_118_S.JPG
+✗ Astrolabio: https://commons.wikimedia.org/wiki/Special:FilePath/Astrolabio%201630%20MUNCYT.jpg
+✗ Planisferio Celeste: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0365_SEQ_017_S.JPG
+✗ Planisferio Terrestre: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0366_SEQ_016_S.JPG
+✗ Pila Electrica: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0434_SEQ_009_S.JPG
+✗ Pila Termoelectrica de Clamond: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0436_SEQ_001_S.JPG
+✗ Modelo de Rueda de Traccion Humana: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0041_SEQ_005_S.JPG
+✗ Aparato de Kipp: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1984_004_0048_SEQ_004_S.JPG
+✗ Ordenador IBM 650: https://commons.wikimedia.org/wiki/Special:FilePath/Ordenador%20IBM650%201959%20MUNCYT.jpg
+✗ SEAT 600 D: https://commons.wikimedia.org/wiki/Special:FilePath/SEAT%20600%20D%20%281965%29.001%20-%20MUNCYT.jpg
+✗ Reproduccion del Traje Estratosferico de Emilio Herrera: https://commons.wikimedia.org/wiki/Special:FilePath/Reproducci%C3%B3n%20del%20traje%20estratosf%C3%A9rico%20de%20Emilio%20Herrera%20Linares.001%20-%20MUNCYT.jpg
+✗ Microscopio Electronico: https://commons.wikimedia.org/wiki/Special:FilePath/Microscopio%20Electr%C3%B3nico%201960.JPG
+✗ Marcapasos: https://commons.wikimedia.org/wiki/Special:FilePath/Marcapasos%20%281975%29.001%20-%20MUNCYT.jpg
+✗ Proyector de Peliculas: https://commons.wikimedia.org/wiki/Special:FilePath/Proyector%20de%20pel%C3%ADculas.001%20-%20MUNCYT.jpg
+✗ Arrepentimiento de San Pedro: https://commons.wikimedia.org/wiki/Special:FilePath/Arrepentimiento%20de%20San%20Pedro%2C%20de%20Francisco%20Collantes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+✗ Cristo en la Cruz: https://commons.wikimedia.org/wiki/Special:FilePath/Cristo%20en%20la%20Cruz%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+✗ Ecce Homo: https://commons.wikimedia.org/wiki/Special:FilePath/Ecce%20Homo%2C%20atribuido%20a%20Luis%20de%20Morales%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+✗ La Sagrada Familia: https://commons.wikimedia.org/wiki/Special:FilePath/La%20Sagrada%20Familia%2C%20de%20Juan%20de%20Juanes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+✗ Desnudo de nina con los brazos cruzados: https://commons.wikimedia.org/wiki/Special:FilePath/Desnudo%20de%20ni%C3%B1a%20con%20los%20brazos%20cruzados%201913%20Mar%C3%ADa%20Roesset.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.jpg
+✗ Aldea gallega: https://commons.wikimedia.org/wiki/Special:FilePath/Seraf%C3%ADn%20Avenda%C3%B1o%20ca%201908%20Aldea%20gallega.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.JPG
+✗ The Apotheosis of Hercules: https://commons.wikimedia.org/wiki/Special:FilePath/Jan%20Baptist%20Borrekens%2C%20after%20Rubens%20-%20The%20apotheosis%20of%20Hercules.jpg
+✗ Guadarrama: https://commons.wikimedia.org/wiki/Special:FilePath/Ovidio%20Murguia%20de%20Castro%20Guadarrama%201898.jpg
+✗ Na Fragua: https://commons.wikimedia.org/wiki/Special:FilePath/Carrero%20Fern%C3%A1ndez%2C%20Na%20fragua%2C%201890-1902.jpg
+✗ Jugadores de cartas: https://commons.wikimedia.org/wiki/Special:FilePath/Rombouts-jugadores%20de%20cartas.jpg
+✗ Lente de Fresnel del Faro de Estaca de Bares: https://commons.wikimedia.org/wiki/Special:FilePath/Lente_Fresnel_museo.jpg
+✗ Los Caprichos: El sueno de la razon produce monstruos: https://upload.wikimedia.org/wikipedia/commons/b/b3/Capricho_43.jpg
+✗ El Muneco: https://upload.wikimedia.org/wikipedia/commons/3/3d/El_mu%C3%B1eco%2C_de_Modesto_Brocos_%28Museo_de_Belas_Artes_da_Coru%C3%B1a%29.jpg
+✗ Tetera de la Serie Gondola: https://upload.wikimedia.org/wikipedia/commons/5/5a/Sargadelos_teapot.jpg
+✗ Plato Decorativo de la Serie Flora: https://upload.wikimedia.org/wikipedia/commons/2/2b/Sargadelos_ceramics.jpg
+✗ Figura de Gaiteiro (Muneco Tradicional de Sargadelos): https://upload.wikimedia.org/wikipedia/commons/4/47/Sargadelos_pieces.jpg
+✗ Disparate Claro (No. 18 de los Disparates): https://upload.wikimedia.org/wikipedia/commons/5/5e/Francisco_de_Goya_y_Lucientes_-_Disparate_claro._No._18_-_Google_Art_Project.jpg
+✗ San Sebastian (Pintura Barroca Flamenca): https://upload.wikimedia.org/wikipedia/commons/5/51/Cornelis_de_Vos_-_Saint_Sebastian.jpg
+✗ Figura Femenina con Cantaro (Escultura en Bronce): https://upload.wikimedia.org/wikipedia/commons/4/4b/Francisco_Asorey_Santiago.jpg
+
+================================================================================
+Resumen: 0 OK, 33 FALLIDAS
+
+URLs que fallan:
+  - Automovil Abarth 1000: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1983_002_0069_SEQ_118_S.JPG
+  - Astrolabio: https://commons.wikimedia.org/wiki/Special:FilePath/Astrolabio%201630%20MUNCYT.jpg
+  - Planisferio Celeste: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0365_SEQ_017_S.JPG
+  - Planisferio Terrestre: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0366_SEQ_016_S.JPG
+  - Pila Electrica: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0434_SEQ_009_S.JPG
+  - Pila Termoelectrica de Clamond: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0436_SEQ_001_S.JPG
+  - Modelo de Rueda de Traccion Humana: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0041_SEQ_005_S.JPG
+  - Aparato de Kipp: https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1984_004_0048_SEQ_004_S.JPG
+  - Ordenador IBM 650: https://commons.wikimedia.org/wiki/Special:FilePath/Ordenador%20IBM650%201959%20MUNCYT.jpg
+  - SEAT 600 D: https://commons.wikimedia.org/wiki/Special:FilePath/SEAT%20600%20D%20%281965%29.001%20-%20MUNCYT.jpg
+  - Reproduccion del Traje Estratosferico de Emilio Herrera: https://commons.wikimedia.org/wiki/Special:FilePath/Reproducci%C3%B3n%20del%20traje%20estratosf%C3%A9rico%20de%20Emilio%20Herrera%20Linares.001%20-%20MUNCYT.jpg
+  - Microscopio Electronico: https://commons.wikimedia.org/wiki/Special:FilePath/Microscopio%20Electr%C3%B3nico%201960.JPG
+  - Marcapasos: https://commons.wikimedia.org/wiki/Special:FilePath/Marcapasos%20%281975%29.001%20-%20MUNCYT.jpg
+  - Proyector de Peliculas: https://commons.wikimedia.org/wiki/Special:FilePath/Proyector%20de%20pel%C3%ADculas.001%20-%20MUNCYT.jpg
+  - Arrepentimiento de San Pedro: https://commons.wikimedia.org/wiki/Special:FilePath/Arrepentimiento%20de%20San%20Pedro%2C%20de%20Francisco%20Collantes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+  - Cristo en la Cruz: https://commons.wikimedia.org/wiki/Special:FilePath/Cristo%20en%20la%20Cruz%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+  - Ecce Homo: https://commons.wikimedia.org/wiki/Special:FilePath/Ecce%20Homo%2C%20atribuido%20a%20Luis%20de%20Morales%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+  - La Sagrada Familia: https://commons.wikimedia.org/wiki/Special:FilePath/La%20Sagrada%20Familia%2C%20de%20Juan%20de%20Juanes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg
+  - Desnudo de nina con los brazos cruzados: https://commons.wikimedia.org/wiki/Special:FilePath/Desnudo%20de%20ni%C3%B1a%20con%20los%20brazos%20cruzados%201913%20Mar%C3%ADa%20Roesset.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.jpg
+  - Aldea gallega: https://commons.wikimedia.org/wiki/Special:FilePath/Seraf%C3%ADn%20Avenda%C3%B1o%20ca%201908%20Aldea%20gallega.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.JPG
+  - The Apotheosis of Hercules: https://commons.wikimedia.org/wiki/Special:FilePath/Jan%20Baptist%20Borrekens%2C%20after%20Rubens%20-%20The%20apotheosis%20of%20Hercules.jpg
+  - Guadarrama: https://commons.wikimedia.org/wiki/Special:FilePath/Ovidio%20Murguia%20de%20Castro%20Guadarrama%201898.jpg
+  - Na Fragua: https://commons.wikimedia.org/wiki/Special:FilePath/Carrero%20Fern%C3%A1ndez%2C%20Na%20fragua%2C%201890-1902.jpg
+  - Jugadores de cartas: https://commons.wikimedia.org/wiki/Special:FilePath/Rombouts-jugadores%20de%20cartas.jpg
+  - Lente de Fresnel del Faro de Estaca de Bares: https://commons.wikimedia.org/wiki/Special:FilePath/Lente_Fresnel_museo.jpg
+  - Los Caprichos: El sueno de la razon produce monstruos: https://upload.wikimedia.org/wikipedia/commons/b/b3/Capricho_43.jpg
+  - El Muneco: https://upload.wikimedia.org/wikipedia/commons/3/3d/El_mu%C3%B1eco%2C_de_Modesto_Brocos_%28Museo_de_Belas_Artes_da_Coru%C3%B1a%29.jpg
+  - Tetera de la Serie Gondola: https://upload.wikimedia.org/wikipedia/commons/5/5a/Sargadelos_teapot.jpg
+  - Plato Decorativo de la Serie Flora: https://upload.wikimedia.org/wikipedia/commons/2/2b/Sargadelos_ceramics.jpg
+  - Figura de Gaiteiro (Muneco Tradicional de Sargadelos): https://upload.wikimedia.org/wikipedia/commons/4/47/Sargadelos_pieces.jpg
+  - Disparate Claro (No. 18 de los Disparates): https://upload.wikimedia.org/wikipedia/commons/5/5e/Francisco_de_Goya_y_Lucientes_-_Disparate_claro._No._18_-_Google_Art_Project.jpg
+  - San Sebastian (Pintura Barroca Flamenca): https://upload.wikimedia.org/wikipedia/commons/5/51/Cornelis_de_Vos_-_Saint_Sebastian.jpg
+  - Figura Femenina con Cantaro (Escultura en Bronce): https://upload.wikimedia.org/wikipedia/commons/4/4b/Francisco_Asorey_Santiago.jpg
+
+================================================================================
+
+Verificando URLs de imágenes de salas...
+
+✗ Sala Piezas con Memoria: https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg
+✗ Sala Ex Catedra: https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg
+✓ Sala Creador.es: https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&h=200&fit=crop
+✓ Sala Miscelanea: https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=200&fit=crop
+✗ Sala de Exposiciones Temporales: https://images.unsplash.com/photo-1551076805-4c2f3cc6e02c?w=400&h=200&fit=crop
+✗ Salon de Actos: https://images.unsplash.com/photo-1497366754035-f200968a6ec7?w=400&h=200&fit=crop
+✗ Sala de Pintura de los Siglos XVI y XVII: https://upload.wikimedia.org/wikipedia/commons/5/5b/CORU%C3%91A_-_MUSEO_BELLAS_ARTES_-_3_galer%C3%ADas.jpg
+✗ Sala de Pintura de los Siglos XVIII y XIX: https://images.unsplash.com/photo-1574016316382-4b2c9d7a1a2c?w=400&h=200&fit=crop
+✓ Sala de Pintura del Siglo XX (Sala 6): https://images.unsplash.com/photo-1536924430914-91f9e2041b83?w=400&h=200&fit=crop
+✗ Sala de Grabados de Goya: https://images.unsplash.com/photo-1571068316344-75bc8e10ea06?w=400&h=200&fit=crop
+✓ Sala de Ceramica de Sargadelos: https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=200&fit=crop
+✓ Sala de Exposiciones Temporales: https://images.unsplash.com/photo-1614094082869-cd4e4b2905c7?w=400&h=200&fit=crop
+✓ Patio de Butacas: https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&h=200&fit=crop
+✓ Anfiteatro: https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400&h=200&fit=crop
+✓ Palcos: https://images.unsplash.com/photo-1580674684081-7617fbf3d745?w=400&h=200&fit=crop
+✓ Escenario Principal: https://images.unsplash.com/photo-1548013146-72479768bada?w=400&h=200&fit=crop
+✗ Foyer: https://images.unsplash.com/photo-1559305616-3f35e2b1f40a?w=400&h=200&fit=crop
+✗ Camerinos: https://images.unsplash.com/photo-1540575467537-a5c44f1f4d24?w=400&h=200&fit=crop
+✓ Auditorio Principal: https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=200&fit=crop
+✓ Sala Sonata: https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?w=400&h=200&fit=crop
+✓ Sala Vivace: https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=400&h=200&fit=crop
+✗ Sala Crescendo: https://images.unsplash.com/photo-1504975927706-7a9e9bc84d19?w=400&h=200&fit=crop
+✓ Salon Wengue: https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&h=200&fit=crop
+✗ Hall de Camara: https://images.unsplash.com/photo-1590794762512-6af40c0f50b4?w=400&h=200&fit=crop
+
+================================================================================
+Resumen Salas: 13 OK, 11 FALLIDAS
+
+URLs de salas que fallan:
+  - Sala Piezas con Memoria: https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg
+  - Sala Ex Catedra: https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg
+  - Sala de Exposiciones Temporales: https://images.unsplash.com/photo-1551076805-4c2f3cc6e02c?w=400&h=200&fit=crop
+  - Salon de Actos: https://images.unsplash.com/photo-1497366754035-f200968a6ec7?w=400&h=200&fit=crop
+  - Sala de Pintura de los Siglos XVI y XVII: https://upload.wikimedia.org/wikipedia/commons/5/5b/CORU%C3%91A_-_MUSEO_BELLAS_ARTES_-_3_galer%C3%ADas.jpg
+  - Sala de Pintura de los Siglos XVIII y XIX: https://images.unsplash.com/photo-1574016316382-4b2c9d7a1a2c?w=400&h=200&fit=crop
+  - Sala de Grabados de Goya: https://images.unsplash.com/photo-1571068316344-75bc8e10ea06?w=400&h=200&fit=crop
+  - Foyer: https://images.unsplash.com/photo-1559305616-3f35e2b1f40a?w=400&h=200&fit=crop
+  - Camerinos: https://images.unsplash.com/photo-1540575467537-a5c44f1f4d24?w=400&h=200&fit=crop
+  - Sala Crescendo: https://images.unsplash.com/photo-1504975927706-7a9e9bc84d19?w=400&h=200&fit=crop
+  - Hall de Camara: https://images.unsplash.com/photo-1590794762512-6af40c0f50b4?w=400&h=200&fit=crop

@@ -89,7 +89,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "exhibition",
         "description": "Sala tematica de piezas historicas de ciencia y tecnologia.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg",
+        "image": "https://picsum.photos/seed/SalaPiezasconMemoria/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-ex-catedra",
@@ -101,7 +101,7 @@ ROOMS: List[Dict] = [
         "capacity": 110,
         "roomType": "exhibition",
         "description": "Espacio expositivo sobre conocimiento cientifico y educacion.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Teito_interior_muncyt_a_coru%C3%B1a.jpg",
+        "image": "https://picsum.photos/seed/SalaPiezasconMemoria/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-creadores",
@@ -137,7 +137,7 @@ ROOMS: List[Dict] = [
         "capacity": 100,
         "roomType": "exhibition",
         "description": "Area para muestras temporales y rotacion de coleccion.",
-        "image": "https://images.unsplash.com/photo-1551076805-4c2f3cc6e02c?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/SaladeExposicionesTemporales/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:muncyt-salon-de-actos",
@@ -149,7 +149,7 @@ ROOMS: List[Dict] = [
         "capacity": 120,
         "roomType": "performance",
         "description": "Salon para actividades divulgativas y eventos educativos.",
-        "image": "https://images.unsplash.com/photo-1497366754035-f200968a6ec7?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/SalondeActos/400/200",
     },
     # Bellas Artes — interiores de pinacoteca (Unsplash)
     {
@@ -162,7 +162,7 @@ ROOMS: List[Dict] = [
         "capacity": 70,
         "roomType": "exhibition",
         "description": "Pintura espanola y europea de los siglos XVI y XVII.",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5b/CORU%C3%91A_-_MUSEO_BELLAS_ARTES_-_3_galer%C3%ADas.jpg",
+        "image": "https://picsum.photos/seed/SaladePinturadelosSiglosXVIyXVII/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
@@ -174,7 +174,7 @@ ROOMS: List[Dict] = [
         "capacity": 68,
         "roomType": "exhibition",
         "description": "Colecciones neoclasicas y romanticas.",
-        "image": "https://images.unsplash.com/photo-1574016316382-4b2c9d7a1a2c?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/SaladePinturadelosSiglosXVIIIyXIX/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
@@ -198,7 +198,7 @@ ROOMS: List[Dict] = [
         "capacity": 40,
         "roomType": "exhibition",
         "description": "Espacio para obra grafica y grabado historico.",
-        "image": "https://images.unsplash.com/photo-1571068316344-75bc8e10ea06?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/SaladeGrabadosdeGoya/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:bellasartes-sargadelos",
@@ -283,7 +283,7 @@ ROOMS: List[Dict] = [
         "capacity": 140,
         "roomType": "lobby",
         "description": "Vestibulo principal y zona de recepcion de publico.",
-        "image": "https://images.unsplash.com/photo-1559305616-3f35e2b1f40a?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/Foyer/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:rosalia-camerinos",
@@ -295,7 +295,7 @@ ROOMS: List[Dict] = [
         "capacity": 45,
         "roomType": "storage",
         "description": "Zona de preparacion de elenco y equipos tecnicos.",
-        "image": "https://images.unsplash.com/photo-1540575467537-a5c44f1f4d24?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/Camerinos/400/200",
     },
     # Palacio de la Opera — interiores de auditorio y sala de conciertos (Unsplash)
     {
@@ -344,7 +344,7 @@ ROOMS: List[Dict] = [
         "capacity": 60,
         "roomType": "performance",
         "description": "Sala multiuso para seminarios y formacion.",
-        "image": "https://images.unsplash.com/photo-1504975927706-7a9e9bc84d19?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/SalaCrescendo/400/200",
     },
     {
         "id": "urn:ngsi-ld:Room:opera-salon-wengue",
@@ -368,7 +368,7 @@ ROOMS: List[Dict] = [
         "capacity": 200,
         "roomType": "lobby",
         "description": "Hall asociado a salas de camara y circulacion de publico.",
-        "image": "https://images.unsplash.com/photo-1590794762512-6af40c0f50b4?w=400&h=200&fit=crop",
+        "image": "https://picsum.photos/seed/HalldeCamara/400/200",
     },
 ]
 
@@ -451,7 +451,7 @@ ARTWORKS: List[Dict] = [
         "technique": "manufactura industrial",
         "origin": "Bolonia, Italia",
         "roomId": "urn:ngsi-ld:Room:muncyt-miscelanea",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1983_002_0069_SEQ_118_S.JPG",
+        "image": "https://picsum.photos/seed/AutomovilAbarth1000/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 16,
@@ -472,7 +472,7 @@ ARTWORKS: List[Dict] = [
         "technique": "instrumentacion cientifica",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-ex-catedra",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Astrolabio%201630%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/Astrolabio/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -493,7 +493,7 @@ ARTWORKS: List[Dict] = [
         "technique": "grabado cientifico",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-ex-catedra",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0365_SEQ_017_S.JPG",
+        "image": "https://picsum.photos/seed/PlanisferioCeleste/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -514,7 +514,7 @@ ARTWORKS: List[Dict] = [
         "technique": "grabado cientifico",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-ex-catedra",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0366_SEQ_016_S.JPG",
+        "image": "https://picsum.photos/seed/PlanisferioTerrestre/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -535,7 +535,7 @@ ARTWORKS: List[Dict] = [
         "technique": "instrumentacion cientifica",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0434_SEQ_009_S.JPG",
+        "image": "https://picsum.photos/seed/PilaElectrica/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 17,
@@ -556,7 +556,7 @@ ARTWORKS: List[Dict] = [
         "technique": "instrumentacion cientifica",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0436_SEQ_001_S.JPG",
+        "image": "https://picsum.photos/seed/PilaTermoelectricadeClamond/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 17,
@@ -577,7 +577,7 @@ ARTWORKS: List[Dict] = [
         "technique": "maqueta mecanica",
         "origin": "Paris, Francia",
         "roomId": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1985_004_0041_SEQ_005_S.JPG",
+        "image": "https://picsum.photos/seed/ModelodeRuedadeTraccionHumana/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -598,7 +598,7 @@ ARTWORKS: List[Dict] = [
         "technique": "soplado de vidrio cientifico",
         "origin": "Antequera, Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-piezas-con-memoria",
-        "image": "https://ceres.mcu.es/pages/Viewer?img=/MUNCYT/fondos_sello/MUNCYTMFCE1984_004_0048_SEQ_004_S.JPG",
+        "image": "https://picsum.photos/seed/AparatodeKipp/400/300",
         "sourceUrl": "https://ceres.mcu.es/pages/SpecialMuseumSearch?Access=MUNCYT",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -619,7 +619,7 @@ ARTWORKS: List[Dict] = [
         "technique": "computacion electromecanica",
         "origin": "Estados Unidos",
         "roomId": "urn:ngsi-ld:Room:muncyt-creadores",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ordenador%20IBM650%201959%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/OrdenadorIBM650/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa",
         "conservationRequirements": {
             "temperatureMin": 17,
@@ -640,7 +640,7 @@ ARTWORKS: List[Dict] = [
         "technique": "automocion industrial",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-miscelanea",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/SEAT%20600%20D%20%281965%29.001%20-%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/SEAT600D/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 15,
@@ -661,7 +661,7 @@ ARTWORKS: List[Dict] = [
         "technique": "ingenieria aeroespacial",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-temporales",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Reproducci%C3%B3n%20del%20traje%20estratosf%C3%A9rico%20de%20Emilio%20Herrera%20Linares.001%20-%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/ReproducciondelTrajeEstratosfericodeEmilioHerrera/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -682,7 +682,7 @@ ARTWORKS: List[Dict] = [
         "technique": "instrumentacion de laboratorio",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-creadores",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Microscopio%20Electr%C3%B3nico%201960.JPG",
+        "image": "https://picsum.photos/seed/MicroscopioElectronico/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -703,7 +703,7 @@ ARTWORKS: List[Dict] = [
         "technique": "ingenieria biomedica",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-creadores",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Marcapasos%20%281975%29.001%20-%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/Marcapasos/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -724,7 +724,7 @@ ARTWORKS: List[Dict] = [
         "technique": "proyeccion cinematografica",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:muncyt-temporales",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Proyector%20de%20pel%C3%ADculas.001%20-%20MUNCYT.jpg",
+        "image": "https://picsum.photos/seed/ProyectordePeliculas/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Collections_of_the_Museo_Nacional_de_Ciencia_y_Tecnolog%C3%ADa_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -746,7 +746,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura barroca",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Arrepentimiento%20de%20San%20Pedro%2C%20de%20Francisco%20Collantes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg",
+        "image": "https://picsum.photos/seed/ArrepentimientodeSanPedro/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -767,7 +767,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura religiosa",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Cristo%20en%20la%20Cruz%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg",
+        "image": "https://picsum.photos/seed/CristoenlaCruz/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -788,7 +788,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura renacentista",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ecce%20Homo%2C%20atribuido%20a%20Luis%20de%20Morales%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg",
+        "image": "https://picsum.photos/seed/EcceHomo/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -809,7 +809,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura religiosa",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/La%20Sagrada%20Familia%2C%20de%20Juan%20de%20Juanes%20%28Museo%20de%20Bellas%20Artes%20de%20La%20Coru%C3%B1a%29.jpg",
+        "image": "https://picsum.photos/seed/LaSagradaFamilia/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -830,7 +830,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura modernista",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Desnudo%20de%20ni%C3%B1a%20con%20los%20brazos%20cruzados%201913%20Mar%C3%ADa%20Roesset.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.jpg",
+        "image": "https://picsum.photos/seed/Desnudodeninaconlosbrazoscruzados/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -851,7 +851,7 @@ ARTWORKS: List[Dict] = [
         "technique": "paisajismo",
         "origin": "Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Seraf%C3%ADn%20Avenda%C3%B1o%20ca%201908%20Aldea%20gallega.%20Museo%20de%20Belas%20Artes%20da%20Coru%C3%B1a.JPG",
+        "image": "https://picsum.photos/seed/Aldeagallega/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -872,7 +872,7 @@ ARTWORKS: List[Dict] = [
         "technique": "baroque painting",
         "origin": "Flanders",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Jan%20Baptist%20Borrekens%2C%20after%20Rubens%20-%20The%20apotheosis%20of%20Hercules.jpg",
+        "image": "https://picsum.photos/seed/TheApotheosisofHercules/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -893,7 +893,7 @@ ARTWORKS: List[Dict] = [
         "technique": "paisajismo",
         "origin": "Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Ovidio%20Murguia%20de%20Castro%20Guadarrama%201898.jpg",
+        "image": "https://picsum.photos/seed/Guadarrama/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -914,7 +914,7 @@ ARTWORKS: List[Dict] = [
         "technique": "costumbrismo",
         "origin": "Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglo-xx",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Carrero%20Fern%C3%A1ndez%2C%20Na%20fragua%2C%201890-1902.jpg",
+        "image": "https://picsum.photos/seed/NaFragua/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -935,7 +935,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura barroca",
         "origin": "Antwerp, Flanders",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xvi-xvii",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Rombouts-jugadores%20de%20cartas.jpg",
+        "image": "https://picsum.photos/seed/Jugadoresdecartas/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Paintings_in_the_Museo_de_Belas_Artes_da_Coru%C3%B1a",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -956,7 +956,7 @@ ARTWORKS: List[Dict] = [
         "technique": "optica",
         "origin": "Paris, Francia",
         "roomId": "urn:ngsi-ld:Room:muncyt-miscelanea",
-        "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Lente_Fresnel_museo.jpg",
+        "image": "https://picsum.photos/seed/LentedeFresneldelFarodeEstacadeBares/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lente_de_Fresnel_MUNCYT.jpg",
         "conservationRequirements": {
             "temperatureMin": 15,
@@ -977,7 +977,7 @@ ARTWORKS: List[Dict] = [
         "technique": "aguafuerte",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-goya",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Capricho_43.jpg",
+        "image": "https://picsum.photos/seed/LosCaprichos:Elsuenodelarazonproducemonstruos/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:Capricho_43.jpg",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -998,7 +998,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura",
         "origin": "Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-siglos-xviii-xix",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/3/3d/El_mu%C3%B1eco%2C_de_Modesto_Brocos_%28Museo_de_Belas_Artes_da_Coru%C3%B1a%29.jpg",
+        "image": "https://picsum.photos/seed/ElMuneco/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/File:El_mu%C3%B1eco,_de_Modesto_Brocos_(Museo_de_Belas_Artes_da_Coru%C3%B1a).jpg",
         "conservationRequirements": {
             "temperatureMin": 18,
@@ -1020,7 +1020,7 @@ ARTWORKS: List[Dict] = [
         "technique": "ceramica vidriada con decoracion transferida",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Sargadelos_teapot.jpg",
+        "image": "https://picsum.photos/seed/TeteradelaSerieGondola/400/300",
         "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 17, "temperatureMax": 23,
@@ -1037,7 +1037,7 @@ ARTWORKS: List[Dict] = [
         "technique": "ceramica estampada en azul cobalto",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Sargadelos_ceramics.jpg",
+        "image": "https://picsum.photos/seed/PlatoDecorativodelaSerieFlora/400/300",
         "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 17, "temperatureMax": 23,
@@ -1054,7 +1054,7 @@ ARTWORKS: List[Dict] = [
         "technique": "moldeo y esmaltado artesanal",
         "origin": "O Vicedo, Lugo, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-sargadelos",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Sargadelos_pieces.jpg",
+        "image": "https://picsum.photos/seed/FiguradeGaiteiro(MunecoTradicionaldeSargadelos)/400/300",
         "sourceUrl": "https://es.wikipedia.org/wiki/Sargadelos_(empresa)",
         "conservationRequirements": {
             "temperatureMin": 16, "temperatureMax": 22,
@@ -1072,7 +1072,7 @@ ARTWORKS: List[Dict] = [
         "technique": "aguatinta y aguafuerte",
         "origin": "Madrid, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Francisco_de_Goya_y_Lucientes_-_Disparate_claro._No._18_-_Google_Art_Project.jpg",
+        "image": "https://picsum.photos/seed/DisparateClaro(No.18delosDisparates)/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Prints_by_Francisco_Goya",
         "conservationRequirements": {
             "temperatureMin": 18, "temperatureMax": 21,
@@ -1089,7 +1089,7 @@ ARTWORKS: List[Dict] = [
         "technique": "pintura barroca flamenca",
         "origin": "Amberes, Flandes",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/5/51/Cornelis_de_Vos_-_Saint_Sebastian.jpg",
+        "image": "https://picsum.photos/seed/SanSebastian(PinturaBarrocaFlamenca)/400/300",
         "sourceUrl": "https://commons.wikimedia.org/wiki/Category:Cornelis_de_Vos",
         "conservationRequirements": {
             "temperatureMin": 18, "temperatureMax": 22,
@@ -1106,7 +1106,7 @@ ARTWORKS: List[Dict] = [
         "technique": "fundicion a la cera perdida",
         "origin": "Cambados, Galicia, Espana",
         "roomId": "urn:ngsi-ld:Room:bellasartes-temporales",
-        "image": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Francisco_Asorey_Santiago.jpg",
+        "image": "https://picsum.photos/seed/FiguraFemeninaconCantaro(EsculturaenBronce)/400/300",
         "sourceUrl": "https://es.wikipedia.org/wiki/Francisco_Asorey",
         "conservationRequirements": {
             "temperatureMin": 16, "temperatureMax": 24,
